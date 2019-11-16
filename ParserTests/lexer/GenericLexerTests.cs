@@ -96,6 +96,11 @@ namespace ParserTests.lexer
         }
     }
 
+    public enum CharTokens {
+        [Lexeme(GenericToken.Char("'","\\"))]
+        MyChar
+    }
+
 
     public enum StringDelimiters {
         [Lexeme(GenericToken.String,"'","'")]
@@ -491,6 +496,13 @@ namespace ParserTests.lexer
         }
 
         [Fact]
+        public void TestCharTokens()
+        {
+            var res = LexerBuilder.BuildLexer(new BuildResult<ILexer<CharTokens>>());
+            ;
+        }
+
+        [Fact]
         public void TestIssue106()
         {
             var res = LexerBuilder.BuildLexer(new BuildResult<ILexer<Issue106>>());
@@ -532,5 +544,8 @@ namespace ParserTests.lexer
             Assert.True(r.IsError);
             Assert.Equal('&', r.Error.UnexpectedChar);
         }
+
+        [Fact]
+
     }
 }

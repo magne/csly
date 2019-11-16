@@ -14,6 +14,7 @@ namespace sly.lexer
         Double,
         KeyWord,
         String,
+        Char,
         SugarToken,
 
         Extension,
