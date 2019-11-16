@@ -43,7 +43,12 @@ namespace sly.lexer
     public class GenericLexer<IN> : ILexer<IN> where IN : struct
     {
         public static string in_string = "in_string";
+        
         public static string string_end = "string_end";
+
+        public static string in_char = "in_char";
+
+        public static string char_end = "char_end";
         public static string start = "start";
         public static string in_int = "in_int";
         public static string start_double = "start_double";
@@ -53,6 +58,8 @@ namespace sly.lexer
         public static string DerivedToken = "derivedToken";
         public static string defaultIdentifierKey = "identifier";
         public static string escape_string = "escape_string";
+        public static string escape_char = "escape_char";
+
 
         public static string single_line_comment_start = "single_line_comment_start";
 
@@ -70,8 +77,8 @@ namespace sly.lexer
         protected FSMLexer<GenericToken> LexerFsm;
         protected int StringCounter;
 
-        
-        protected Dictionary<IN,Func<Token<IN>, Token<IN>>> CallBacks = new Dictionary<IN, Func<Token<IN>, Token<IN>>>();
+
+        protected Dictionary<IN, Func<Token<IN>, Token<IN>>> CallBacks = new Dictionary<IN, Func<Token<IN>, Token<IN>>>();
 
         protected char StringDelimiterChar;
 
@@ -94,23 +101,23 @@ namespace sly.lexer
             CallBacks[token] = callback;
         }
 
-        public void AddDefinition(TokenDefinition<IN> tokenDefinition) {}
+        public void AddDefinition(TokenDefinition<IN> tokenDefinition) { }
 
         public LexerResult<IN> Tokenize(string source)
         {
             LexerResult<IN> result = null;
             var tokens = new List<Token<IN>>();
             FSMMatch<GenericToken> r = null;
-            
+
             r = LexerFsm.Run(source, 0);
             if (!r.IsSuccess && !r.IsEOS)
             {
                 var resultPosition = r.Result.Position;
                 LexicalError error =
-                    new LexicalError(resultPosition.Line, resultPosition.Column, r.Result.CharValue);  
+                    new LexicalError(resultPosition.Line, resultPosition.Column, r.Result.CharValue);
                 return new LexerResult<IN>(error);
             }
-            
+
             while (r.IsSuccess)
             {
                 var transcoded = Transcode(r);
@@ -119,22 +126,22 @@ namespace sly.lexer
                 {
                     transcoded = callback(transcoded);
                 }
-                
+
                 tokens.Add(transcoded);
-                
+
                 r = LexerFsm.Run(source);
                 if (!r.IsSuccess && !r.IsEOS)
                 {
                     var resultPosition = r.Result.Position;
                     LexicalError error =
-                        new LexicalError(resultPosition.Line, resultPosition.Column, r.Result.CharValue);  
+                        new LexicalError(resultPosition.Line, resultPosition.Column, r.Result.CharValue);
                     return new LexerResult<IN>(error);
                 }
 
 
                 if (r.IsSuccess && r.Result.IsComment) ConsumeComment(r.Result, source);
             }
-            
+
             var eos = new Token<IN>();
             var prev = tokens.Last();
             eos.Position = new TokenPosition(prev.Position.Index + 1, prev.Position.Line,
@@ -220,38 +227,38 @@ namespace sly.lexer
                 switch (match.Result.TokenID)
                 {
                     case GenericToken.Identifier:
-                    {
-                        if (derivedTokens.ContainsKey(GenericToken.Identifier))
                         {
-                            var possibleTokens = derivedTokens[GenericToken.Identifier];
-                            if (possibleTokens.ContainsKey(match.Result.Value))
-                                match.Properties[DerivedToken] = possibleTokens[match.Result.Value];
+                            if (derivedTokens.ContainsKey(GenericToken.Identifier))
+                            {
+                                var possibleTokens = derivedTokens[GenericToken.Identifier];
+                                if (possibleTokens.ContainsKey(match.Result.Value))
+                                    match.Properties[DerivedToken] = possibleTokens[match.Result.Value];
+                                else
+                                    match.Properties[DerivedToken] = identifierDerivedToken;
+                            }
                             else
+                            {
                                 match.Properties[DerivedToken] = identifierDerivedToken;
-                        }
-                        else
-                        {
-                            match.Properties[DerivedToken] = identifierDerivedToken;
-                        }
+                            }
 
                         ;
-                        break;
-                    }
+                            break;
+                        }
                     case GenericToken.Int:
-                    {
-                        match.Properties[DerivedToken] = intDerivedToken;
-                        break;
-                    }
+                        {
+                            match.Properties[DerivedToken] = intDerivedToken;
+                            break;
+                        }
                     case GenericToken.Double:
-                    {
-                        match.Properties[DerivedToken] = doubleDerivedToken;
-                        break;
-                    }
+                        {
+                            match.Properties[DerivedToken] = doubleDerivedToken;
+                            break;
+                        }
                     default:
-                    {
-                        match.Properties[DerivedToken] = token;
-                        break;
-                    }
+                        {
+                            match.Properties[DerivedToken] = token;
+                            break;
+                        }
                 }
 
                 return match;
@@ -260,23 +267,23 @@ namespace sly.lexer
             switch (generic)
             {
                 case GenericToken.Double:
-                {
-                    FSMBuilder.GoTo(in_double);
-                    FSMBuilder.CallBack(callback);
-                    break;
-                }
+                    {
+                        FSMBuilder.GoTo(in_double);
+                        FSMBuilder.CallBack(callback);
+                        break;
+                    }
                 case GenericToken.Int:
-                {
-                    FSMBuilder.GoTo(in_int);
-                    FSMBuilder.CallBack(callback);
-                    break;
-                }
+                    {
+                        FSMBuilder.GoTo(in_int);
+                        FSMBuilder.CallBack(callback);
+                        break;
+                    }
                 case GenericToken.Identifier:
-                {
-                    FSMBuilder.GoTo(in_identifier);
-                    FSMBuilder.CallBack(callback);
-                    break;
-                }
+                    {
+                        FSMBuilder.GoTo(in_identifier);
+                        FSMBuilder.CallBack(callback);
+                        break;
+                    }
             }
         }
 
@@ -285,10 +292,10 @@ namespace sly.lexer
             switch (genericToken)
             {
                 case GenericToken.SugarToken:
-                {
-                    AddSugarLexem(token, specialValue);
-                    break;
-                }
+                    {
+                        AddSugarLexem(token, specialValue);
+                        break;
+                    }
             }
 
             var tokensForGeneric = new Dictionary<string, IN>();
@@ -361,24 +368,24 @@ namespace sly.lexer
 
             if (stringDelimiterChar != escapeStringDelimiterChar)
             {
-                 NodeAction collapseDelimiterDiff = value =>
-                {
-                    if (value.EndsWith("" + escapeStringDelimiterChar + stringDelimiterChar))
-                        return value.Substring(0, value.Length - 2) + stringDelimiterChar;
-                    return value;
-                };
+                NodeAction collapseDelimiterDiff = value =>
+               {
+                   if (value.EndsWith("" + escapeStringDelimiterChar + stringDelimiterChar))
+                       return value.Substring(0, value.Length - 2) + stringDelimiterChar;
+                   return value;
+               };
 
 
                 FSMBuilder.GoTo(start);
                 FSMBuilder.Transition(stringDelimiterChar)
                     .Mark(in_string + StringCounter)
-                    .ExceptTransitionTo(new[] {stringDelimiterChar, escapeStringDelimiterChar},
+                    .ExceptTransitionTo(new[] { stringDelimiterChar, escapeStringDelimiterChar },
                         in_string + StringCounter)
                     .Transition(escapeStringDelimiterChar)
                     .Mark(escape_string + StringCounter)
-                    .ExceptTransitionTo(new[] {stringDelimiterChar},in_string+StringCounter)
+                    .ExceptTransitionTo(new[] { stringDelimiterChar }, in_string + StringCounter)
                     .GoTo(escape_string + StringCounter)
-                    .TransitionTo(stringDelimiterChar,in_string+StringCounter)
+                    .TransitionTo(stringDelimiterChar, in_string + StringCounter)
                     .Action(collapseDelimiterDiff)
                     .Transition(stringDelimiterChar)
                     .End(GenericToken.String)
@@ -395,7 +402,7 @@ namespace sly.lexer
                     return value;
                 };
 
-                var exceptDelimiter = new[] {stringDelimiterChar};
+                var exceptDelimiter = new[] { stringDelimiterChar };
                 in_string = "in_string_same";
                 var escaped = "escaped_same";
                 var delim = "delim_same";
@@ -418,6 +425,68 @@ namespace sly.lexer
                     .ExceptTransitionTo(exceptDelimiter, in_string + StringCounter);
             }
         }
+
+
+        public void AddCharLexem(IN token, string charDelimiter, string escapeDelimiterChar = "\\")
+        {
+            if (string.IsNullOrEmpty(charDelimiter) || charDelimiter.Length > 1)
+                throw new InvalidLexerException(
+                    $"bad lexem {charDelimiter} :  CharToken lexeme delimiter char <{token.ToString()}> must be 1 character length.");
+            if (char.IsLetterOrDigit(charDelimiter[0]))
+                throw new InvalidLexerException(
+                    $"bad lexem {charDelimiter} :  CharToken lexeme delimiter char <{token.ToString()}> can not start with a letter.");
+
+            if (string.IsNullOrEmpty(escapeDelimiterChar) || escapeDelimiterChar.Length > 1)
+                throw new InvalidLexerException(
+                    $"bad lexem {escapeDelimiterChar} :  CharToken lexeme escape char  <{token.ToString()}> must be 1 character length.");
+            if (char.IsLetterOrDigit(escapeDelimiterChar[0]))
+                throw new InvalidLexerException(
+                    $"bad lexem {escapeDelimiterChar} :  CharToken lexeme escape char lexeme <{token.ToString()}> can not start with a letter.");
+
+            StringCounter++;
+
+            StringDelimiterChar = charDelimiter[0];
+            char charDelimiterChar = charDelimiter[0];
+
+            EscapeStringDelimiterChar = escapeDelimiterChar[0];
+            char escapeStringDelimiterChar = escapeDelimiterChar[0];
+
+
+            NodeCallback<GenericToken> callback = match =>
+            {
+                match.Properties[DerivedToken] = token;
+                var value = match.Result.SpanValue;
+
+                match.Result.SpanValue = value;
+                return match;
+            };
+
+            NodeAction collapseDelimiterDiff = value =>
+           {
+               if (value.EndsWith("" + escapeStringDelimiterChar + charDelimiterChar))
+                   return value.Substring(0, value.Length - 2) + charDelimiterChar;
+               return value;
+           };
+
+
+            FSMBuilder.GoTo(start);
+            FSMBuilder.Transition(charDelimiterChar)
+                .Mark(in_char)
+                .ExceptTransitionTo(new[] { charDelimiterChar, escapeStringDelimiterChar },
+                    in_char)
+                .Transition(escapeStringDelimiterChar)
+                .Mark(escape_char)
+                .ExceptTransitionTo(new[] { charDelimiterChar }, in_char)
+                .GoTo(escape_char)
+                .TransitionTo(charDelimiterChar, in_string)
+                .Action(collapseDelimiterDiff)
+                .Transition(charDelimiterChar)
+                .End(GenericToken.String)
+                .Mark(string_end + StringCounter)
+                .CallBack(callback);
+            FSMBuilder.Fsm.StringDelimiter = charDelimiterChar;
+        }
+
 
         public void AddSugarLexem(IN token, string specialValue)
         {
@@ -457,12 +526,12 @@ namespace sly.lexer
             else if (comment.IsMultiLineComment)
             {
                 var position = LexerFsm.CurrentPosition;
-                
+
                 var end = source.Span.Slice(position).IndexOf(MultiLineCommentEnd.AsSpan());
                 if (end < 0)
                     position = source.Length;
                 else
-                    position = end+position;
+                    position = end + position;
                 commentValue = source.Slice(LexerFsm.CurrentPosition, position - LexerFsm.CurrentPosition);
                 comment.SpanValue = commentValue;
 
@@ -486,13 +555,13 @@ namespace sly.lexer
             var inTok = match.Result;
             tok.IsComment = inTok.IsComment;
             tok.IsEmpty = inTok.IsEmpty;
-//            tok.Value = inTok.Value;
+            //            tok.Value = inTok.Value;
             tok.SpanValue = inTok.SpanValue;
             tok.CommentType = inTok.CommentType;
             tok.Position = inTok.Position;
             tok.Discarded = inTok.Discarded;
             tok.StringDelimiter = StringDelimiterChar;
-            tok.TokenID = (IN) match.Properties[DerivedToken];
+            tok.TokenID = (IN)match.Properties[DerivedToken];
             return tok;
         }
 
