@@ -97,7 +97,7 @@ namespace ParserTests.lexer
     }
 
     public enum CharTokens {
-        [Lexeme(GenericToken.Char("'","\\"))]
+        [Lexeme(GenericToken.Char,"'","\\")]
         MyChar
     }
 
@@ -499,7 +499,15 @@ namespace ParserTests.lexer
         public void TestCharTokens()
         {
             var res = LexerBuilder.BuildLexer(new BuildResult<ILexer<CharTokens>>());
-            ;
+            Assert.False(res.IsError);
+            var lexer = res.Result as GenericLexer<CharTokens>;
+            Assert.NotNull(lexer);
+            var res1 =  lexer.Tokenize("'c'");
+            Assert.False(res1.IsError);       
+
+            var res2 =  lexer.Tokenize("'\''");
+            Assert.False(res1.IsError);     
+
         }
 
         [Fact]
@@ -544,8 +552,6 @@ namespace ParserTests.lexer
             Assert.True(r.IsError);
             Assert.Equal('&', r.Error.UnexpectedChar);
         }
-
-        [Fact]
 
     }
 }

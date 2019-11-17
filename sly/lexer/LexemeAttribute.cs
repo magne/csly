@@ -46,6 +46,8 @@ namespace sly.lexer
 
         public bool IsString => GenericToken == GenericToken.String;
 
+        public bool IsChar => GenericToken == GenericToken.Char;
+
         public bool IsIdentifier => GenericToken == GenericToken.Identifier;
 
         public bool IsExtension => GenericToken == GenericToken.Extension;

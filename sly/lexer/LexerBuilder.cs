@@ -244,6 +244,29 @@ namespace sly.lexer
                         else
                             lexer.AddStringLexem(tokenID, "\"");
                     }
+                    if (lexem.IsChar) {
+                        if (lexem.GenericTokenParameters != null && lexem.GenericTokenParameters.Length > 0)
+                            try
+                            {
+                                var delimiter = lexem.GenericTokenParameters[0];
+                                if (lexem.GenericTokenParameters.Length > 1)
+                                {
+                                    var escape = lexem.GenericTokenParameters[1];
+                                    lexer.AddCharLexem(tokenID, delimiter, escape);
+                                }
+                                else
+                                {
+                                    lexer.AddCharLexem(tokenID, delimiter);
+                                }
+                            }
+                            catch (Exception e)
+                            {
+                                result.IsError = true;
+                                result.AddError(new InitializationError(ErrorLevel.FATAL, e.Message));
+                            }
+                        else
+                            lexer.AddCharLexem(tokenID, "'");
+                    }
 
                     if (lexem.IsExtension) Extensions[tokenID] = lexem;
                 }
