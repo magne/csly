@@ -506,7 +506,7 @@ namespace ParserTests.lexer
             Assert.False(res1.IsError);       
             Assert.Equal(2,res1.Tokens.Count);
             Token<CharTokens> token = res1.Tokens[0];
-            Assert.Equal('c',token.CharValue)
+            Assert.Equal('c',token.CharValue);
             Assert.Equal(CharTokens.MyChar,token.TokenID);
             var lastToken = res1.tokens.Last();
 
@@ -514,7 +514,7 @@ namespace ParserTests.lexer
             Assert.False(res2.IsError);     
             Assert.Equal(2,res2.Tokens.Count);
             token = res1.Tokens[0];
-            Assert.Equal('\'',token.CharValue)
+            Assert.Equal('\'',token.CharValue);
             Assert.Equal(CharTokens.MyChar,token.TokenID);
 
         }
