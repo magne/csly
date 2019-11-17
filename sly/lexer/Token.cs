@@ -113,7 +113,7 @@ namespace sly.lexer
             set { }
         }
 
-        public char CharValue => StringWithoutQuotes[0];
+        public char CharValue => StringWithoutQuotes[1]; // TODO : do the same as for strings
 
 
         public bool End { get; set; }
