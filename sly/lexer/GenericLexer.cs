@@ -469,13 +469,12 @@ namespace sly.lexer
             FSMBuilder.GoTo(start);
             FSMBuilder.Transition(charDelimiterChar)
                 .Mark(start_char)
-                .ExceptTransitionTo(new[] { charDelimiterChar, escapeChar },
-                    in_char)
+                .ExceptTransition(new[] { charDelimiterChar, escapeChar })
                 .Mark(in_char)
                 .Transition(charDelimiterChar)
                 .Mark(end_char)
                 .GoTo(start_char)
-                .TransitionTo(escapeChar,escapeChar_char)
+                .Transition(escapeChar)
                 .Mark(escapeChar_char)
                 .TransitionTo(charDelimiterChar,end_char)
                 .End(GenericToken.Char)

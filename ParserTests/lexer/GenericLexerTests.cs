@@ -504,9 +504,18 @@ namespace ParserTests.lexer
             Assert.NotNull(lexer);
             var res1 =  lexer.Tokenize("'c'");
             Assert.False(res1.IsError);       
+            Assert.Equal(2,res1.Tokens.Count);
+            Token<CharTokens> token = res1.Tokens[0];
+            Assert.Equal('c',token.CharValue)
+            Assert.Equal(CharTokens.MyChar,token.TokenID);
+            var lastToken = res1.tokens.Last();
 
             var res2 =  lexer.Tokenize("'\''");
-            Assert.False(res1.IsError);     
+            Assert.False(res2.IsError);     
+            Assert.Equal(2,res2.Tokens.Count);
+            token = res1.Tokens[0];
+            Assert.Equal('\'',token.CharValue)
+            Assert.Equal(CharTokens.MyChar,token.TokenID);
 
         }
 
