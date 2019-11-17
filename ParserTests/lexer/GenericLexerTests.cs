@@ -510,11 +510,11 @@ namespace ParserTests.lexer
             Assert.Equal(CharTokens.MyChar,token.TokenID);
             var lastToken = res1.Tokens.Last();
 
-            var res2 =  lexer.Tokenize("'\''");
+            var res2 =  lexer.Tokenize("'\\''");
             Assert.False(res2.IsError);     
             Assert.Equal(2,res2.Tokens.Count);
-            token = res1.Tokens[0];
-            Assert.Equal('\'',token.CharValue);
+            token = res2.Tokens[0];
+            Assert.Equal("'\\''",token.Value); // TODO ?
             Assert.Equal(CharTokens.MyChar,token.TokenID);
 
         }

@@ -17,6 +17,7 @@ namespace sly.lexer
     {
         public char StringDelimiter = '"';
 
+        public char CharDelimiter ='\'';
 
         public Token(T token, string value, TokenPosition position, bool isCommentStart = false,
             CommentType commentType = CommentType.Single) : this(token,new ReadOnlyMemory<char>(value.ToCharArray()),position,isCommentStart,commentType )
@@ -110,10 +111,24 @@ namespace sly.lexer
 
                 return result;
             }
-            set { }
         }
 
-        public char CharValue => StringWithoutQuotes[1]; // TODO : do the same as for strings
+        public char CharValue  {
+            get
+            {
+                var result = Value;
+                if (CharDelimiter != (char) 0)
+                {
+                    if (result.StartsWith(CharDelimiter.ToString()))  {
+                        result = result.Substring(1);
+                    }
+                    if (result.EndsWith(CharDelimiter.ToString())) {
+                        result = result.Substring(0, result.Length - 1);
+                    }
+                }
+                return result[0];
+            }
+        } 
 
 
         public bool End { get; set; }
