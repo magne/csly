@@ -80,6 +80,7 @@ namespace sly.lexer
 
         protected FSMLexer<GenericToken> LexerFsm;
         protected int StringCounter;
+        protected int CharCounter;
 
 
         protected Dictionary<IN, Func<Token<IN>, Token<IN>>> CallBacks = new Dictionary<IN, Func<Token<IN>, Token<IN>>>();
@@ -448,7 +449,8 @@ namespace sly.lexer
                 throw new InvalidLexerException(
                     $"bad lexem {escapeDelimiterChar} :  CharToken lexeme escape char lexeme <{token.ToString()}> can not start with a letter.");
 
-
+            CharCounter++;
+            
             char charDelimiterChar = charDelimiter[0];
 
             char escapeChar = escapeDelimiterChar[0];
@@ -463,22 +465,19 @@ namespace sly.lexer
                 return match;
             };
 
-           
-
-
             FSMBuilder.GoTo(start);
             FSMBuilder.Transition(charDelimiterChar)
-                .Mark(start_char)
+                .Mark(start_char+"_"+CharCounter)
                 .ExceptTransition(new[] { charDelimiterChar, escapeChar })
-                .Mark(in_char)
+                .Mark(in_char+"_"+CharCounter)
                 .Transition(charDelimiterChar)
-                .Mark(end_char)
+                .Mark(end_char+"_"+CharCounter)
                 .End(GenericToken.Char)
                 .CallBack(callback)
-                .GoTo(start_char)
+                .GoTo(start_char+"_"+CharCounter)
                 .Transition(escapeChar)
-                .Mark(escapeChar_char)
-                .AnyTransitionTo('*',in_char)
+                .Mark(escapeChar_char+"_"+CharCounter)
+                .AnyTransitionTo('*',in_char+"_"+CharCounter)
                 .CallBack(callback);
             FSMBuilder.Fsm.StringDelimiter = charDelimiterChar;
         }

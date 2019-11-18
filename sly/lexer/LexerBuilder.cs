@@ -203,6 +203,7 @@ namespace sly.lexer
         private static BuildResult<ILexer<IN>> BuildGenericLexer<IN>(Dictionary<IN, List<LexemeAttribute>> attributes,
             BuildExtension<IN> extensionBuilder, BuildResult<ILexer<IN>> result) where IN : struct
         {
+            result = CheckStringAndCharTokens(attributes, result);
             var statics = GetGenericTokensAndIdentifierType(attributes);
             var Extensions = new Dictionary<IN, LexemeAttribute>();
             var lexer = new GenericLexer<IN>(statics.idType, extensionBuilder, statics.tokens.ToArray());
@@ -341,6 +342,30 @@ namespace sly.lexer
         }
 
 
+        private static BuildResult<ILexer<IN>> CheckStringAndCharTokens<IN>(
+            Dictionary<IN, List<LexemeAttribute>> attributes, BuildResult<ILexer<IN>> result) where IN : struct
+        {
+            var allLexemes = attributes.Values.SelectMany(a => a);
+            var charLexemes = allLexemes.Where(a => a.IsChar);
+            var stringLexems = allLexemes.Where(a => a.IsString);
+
+            foreach (var charLexeme in charLexemes)
+            {
+                foreach (var stringLexem in stringLexems)
+                {
+                    if (charLexeme.GenericTokenParameters[0] == stringLexem.GenericTokenParameters[0])
+                    {
+                        var error = new LexerInitializationError(ErrorLevel.FATAL,
+                            $"char lexeme dilimiter {charLexeme.GenericTokenParameters[0]} is already used by a string lexeme");
+                        result.Errors.Add(error);
+                    }
+                }
+            }
+
+            return result;
+        }
+        
+        
         private static Dictionary<IN, List<CommentAttribute>> GetCommentsAttribute<IN>(BuildResult<ILexer<IN>> result) where IN : struct
         {
             var values = Enum.GetValues(typeof(IN));
