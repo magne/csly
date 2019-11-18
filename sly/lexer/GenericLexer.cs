@@ -52,7 +52,7 @@ namespace sly.lexer
 
         public static string in_char = "in_char";
 
-        public static string end_char = "end_end";
+        public static string end_char = "char_end";
         public static string start = "start";
         public static string in_int = "in_int";
         public static string start_double = "start_double";
@@ -473,12 +473,12 @@ namespace sly.lexer
                 .Mark(in_char)
                 .Transition(charDelimiterChar)
                 .Mark(end_char)
+                .End(GenericToken.Char)
+                .CallBack(callback)
                 .GoTo(start_char)
                 .Transition(escapeChar)
                 .Mark(escapeChar_char)
-                .TransitionTo(charDelimiterChar,end_char)
-                .End(GenericToken.Char)
-                
+                .AnyTransitionTo('*',in_char)
                 .CallBack(callback);
             FSMBuilder.Fsm.StringDelimiter = charDelimiterChar;
         }
@@ -564,6 +564,11 @@ namespace sly.lexer
         public override string ToString()
         {
             return LexerFsm.ToString();
+        }
+
+        public string ToGraphViz()
+        {
+            return LexerFsm.ToGraphViz();
         }
     }
 }

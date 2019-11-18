@@ -392,9 +392,9 @@ namespace ParserTests.lexer
             Assert.NotNull(lexer);
 
             var r = lexer.Tokenize("0.0.2018");
-            Assert.Equal(0,r.Error.Line);
-            Assert.Equal(3,r.Error.Column);
-            Assert.Equal('.',r.Error.UnexpectedChar);
+            Assert.Equal(0, r.Error.Line);
+            Assert.Equal(3, r.Error.Column);
+            Assert.Equal('.', r.Error.UnexpectedChar);
         }
 
         [Fact]
@@ -404,8 +404,8 @@ namespace ParserTests.lexer
             Assert.False(lexerRes.IsError);
             var lexer = lexerRes.Result;
             var source = "hello world  2 + 2 ";
-             var r = lexer.Tokenize(source);
-             Assert.True(r.IsError);
+            var r = lexer.Tokenize(source);
+            Assert.True(r.IsError);
             var error = r.Error;
             Assert.Equal(0, error.Line);
             Assert.Equal(13, error.Column);
@@ -444,7 +444,7 @@ namespace ParserTests.lexer
             var lexer = lexerRes.Result as GenericLexer<SelfEscapedString>;
             Assert.NotNull(lexer);
             var r = lexer.Tokenize("'that''s it'");
-            
+
             Assert.True(r.IsOk);
             var tokens = r.Tokens;
             Assert.Equal(2, tokens.Count);
@@ -501,22 +501,25 @@ namespace ParserTests.lexer
             var res = LexerBuilder.BuildLexer(new BuildResult<ILexer<CharTokens>>());
             Assert.False(res.IsError);
             var lexer = res.Result as GenericLexer<CharTokens>;
+            var dump = lexer.ToString();
+            var grpah = lexer.ToGraphViz();
+
             Assert.NotNull(lexer);
-            var res1 =  lexer.Tokenize("'c'");
-            Assert.False(res1.IsError);       
-            Assert.Equal(2,res1.Tokens.Count);
+            var res1 = lexer.Tokenize("'c'");
+            Assert.False(res1.IsError);
+            Assert.Equal(2, res1.Tokens.Count);
             Token<CharTokens> token = res1.Tokens[0];
-            Assert.Equal('c',token.CharValue);
-            Assert.Equal(CharTokens.MyChar,token.TokenID);
+            Assert.Equal('c', token.CharValue);
+            Assert.Equal(CharTokens.MyChar, token.TokenID);
             var lastToken = res1.Tokens.Last();
 
-            var res2 =  lexer.Tokenize("'\\''");
-            Assert.False(res2.IsError);     
-            Assert.Equal(2,res2.Tokens.Count);
+            var source = "'\\''";
+            var res2 = lexer.Tokenize(source);
+            Assert.False(res2.IsError);
+            Assert.Equal(2, res2.Tokens.Count);
             token = res2.Tokens[0];
-            Assert.Equal("'\\''",token.Value); // TODO ?
-            Assert.Equal(CharTokens.MyChar,token.TokenID);
-
+            Assert.Equal(source, token.Value); // TODO ?
+            Assert.Equal(CharTokens.MyChar, token.TokenID);
         }
 
         [Fact]

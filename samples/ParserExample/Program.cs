@@ -35,6 +35,12 @@ namespace ParserExample
     }
 
 
+    public enum CharTokens {
+        [Lexeme(GenericToken.Char,"'","\\")]
+        MyChar
+    }
+
+
     internal class Program
     {
         [Production("R : A b c ")]
@@ -454,13 +460,30 @@ namespace ParserExample
             ;
         }
 
+        private static void TestChars()
+        {
+            var res = LexerBuilder.BuildLexer(new BuildResult<ILexer<CharTokens>>());
+            var lexer = res.Result as GenericLexer<CharTokens>;
+            
+            var dump = lexer.ToString();
+            var graph = lexer.ToGraphViz();
+            Console.WriteLine(graph);
+            var source = "'\\''";
+            Console.WriteLine(source);
+            var res2 =  lexer.Tokenize(source);
+            Console.WriteLine($"{res2.IsOk} - {res2.Tokens[0].Value}");
+            ;
+        }
+        
         private static void Main(string[] args)
         {
             //TestContextualParser();
             //TestTokenCallBacks();
             //test104();
             //testJSON();
-            TestGraphViz();
+            //TestGraphViz();
+            TestChars();
+            
         }
     }
 }
