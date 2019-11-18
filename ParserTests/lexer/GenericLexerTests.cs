@@ -100,6 +100,18 @@ namespace ParserTests.lexer
         [Lexeme(GenericToken.Char,"'","\\")]
         MyChar
     }
+    
+    public enum CharTokensConflicts{
+        [Lexeme(GenericToken.Char,"'","\\")]
+        [Lexeme(GenericToken.Char,"|","\\")]
+        MyChar,
+        
+        [Lexeme(GenericToken.Char,"|","\\")]
+        OtherChar,
+        
+        [Lexeme(GenericToken.String,"'","\\")]
+        MyString
+    }
 
 
     public enum StringDelimiters {
@@ -520,6 +532,15 @@ namespace ParserTests.lexer
             token = res2.Tokens[0];
             Assert.Equal(source, token.Value); // TODO ?
             Assert.Equal(CharTokens.MyChar, token.TokenID);
+        }
+        
+        [Fact]
+        public void TestCharTokenDelimiterConflict()
+        {
+            var res = LexerBuilder.BuildLexer(new BuildResult<ILexer<CharTokensConflicts>>());
+            Assert.True(res.IsError);
+            Assert.Equal(2,res.Errors.Count);
+            
         }
 
         [Fact]

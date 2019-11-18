@@ -349,18 +349,45 @@ namespace sly.lexer
             var charLexemes = allLexemes.Where(a => a.IsChar);
             var stringLexems = allLexemes.Where(a => a.IsString);
 
-            foreach (var charLexeme in charLexemes)
+            var allDelimiters = allLexemes.Where(a => a.IsString || a.IsChar).Select(a =>
             {
-                foreach (var stringLexem in stringLexems)
+
+                if (a.GenericTokenParameters != null && a.GenericTokenParameters.Any())
                 {
-                    if (charLexeme.GenericTokenParameters[0] == stringLexem.GenericTokenParameters[0])
-                    {
-                        var error = new LexerInitializationError(ErrorLevel.FATAL,
-                            $"char lexeme dilimiter {charLexeme.GenericTokenParameters[0]} is already used by a string lexeme");
-                        result.Errors.Add(error);
-                    }
+                    return a.GenericTokenParameters[0];
+                }
+
+                return null;
+            }).ToList();
+            ;
+            
+            var doublons = allDelimiters.GroupBy(x => x)
+                .Where(g => g.Count() > 1)
+                .Select(y => new { Element = y.Key, Counter = y.Count() })
+                .ToList();
+
+            if (doublons != null && doublons.Any())
+            {
+                foreach (var doublon in doublons)
+                {
+                    var error = new LexerInitializationError(ErrorLevel.FATAL,
+                        $"char or string lexeme dilimiter {doublon.Element} is used {doublon.Counter} times. This will results in lexing conflicts");
+                    result.Errors.Add(error);
                 }
             }
+            
+//            foreach (var charLexeme in charLexemes)
+//            {
+//                foreach (var stringLexem in stringLexems)
+//                {
+//                    if (charLexeme.GenericTokenParameters[0] == stringLexem.GenericTokenParameters[0])
+//                    {
+////                        var error = new LexerInitializationError(ErrorLevel.FATAL,
+////                            $"char lexeme dilimiter {charLexeme.GenericTokenParameters[0]} is already used by a string lexeme");
+////                        result.Errors.Add(error);
+//                    }
+//                }
+//            }
 
             return result;
         }

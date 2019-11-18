@@ -550,7 +550,6 @@ namespace sly.lexer
             var inTok = match.Result;
             tok.IsComment = inTok.IsComment;
             tok.IsEmpty = inTok.IsEmpty;
-            //            tok.Value = inTok.Value;
             tok.SpanValue = inTok.SpanValue;
             tok.CommentType = inTok.CommentType;
             tok.Position = inTok.Position;

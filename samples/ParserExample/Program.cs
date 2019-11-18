@@ -40,6 +40,9 @@ namespace ParserExample
         [Lexeme(GenericToken.Char,"|","\\")]
         MyChar,
         
+        [Lexeme(GenericToken.Char,"|","\\")]
+        OtherChar,
+        
         [Lexeme(GenericToken.String,"'","\\")]
         MyString
     }
