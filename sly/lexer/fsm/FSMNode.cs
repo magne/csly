@@ -2,18 +2,30 @@
 {
     public class FSMNode<N>
     {
-        internal FSMNode(N value)
+        internal FSMNode(int id)
         {
-            Value = value;
+            Id = id;
         }
 
-        internal N Value { get; set; }
+        internal int Id { get; }
 
-        internal int Id { get; set; } = 0;
+        internal N Value { get; private set; }
 
-        internal bool IsEnd { get; set; } = false;
+        internal bool IsEnd { get; private set; }
 
-        internal bool IsStart { get; set; } = false;
-        public string Mark { get; internal set; }
+        internal bool IsStart { get; set; }
+
+        internal string Mark { private get; set; }
+
+        internal void End(N value)
+        {
+            Value = value;
+            IsEnd = true;
+        }
+
+        public override string ToString()
+        {
+            return $"\"{Mark ?? string.Empty} #{Id}\"";
+        }
     }
 }

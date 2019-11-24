@@ -21,7 +21,8 @@ namespace sly.lexer.fsm.transitioncheck
     }
     public abstract class AbstractTransitionCheck
     {
-        public TransitionPrecondition Precondition { get; set; }
+        protected TransitionPrecondition Precondition { get; set; }
+
         public abstract bool Match(char input);
 
         public bool Check(char input, ReadOnlyMemory<char> value)

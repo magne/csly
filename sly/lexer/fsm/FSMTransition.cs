@@ -6,25 +6,23 @@ namespace sly.lexer.fsm
 {
     public class FSMTransition
     {
-        public int FromNode;
+        private readonly int fromNode;
 
-        public int ToNode;
+        public readonly int ToNode;
 
         internal FSMTransition(AbstractTransitionCheck check, int from, int to)
         {
             Check = check;
-            FromNode = from;
+            fromNode = from;
             ToNode = to;
         }
 
-        public AbstractTransitionCheck Check { get; set; }
+        private AbstractTransitionCheck Check { get; set; }
 
 
         public string ToGraphViz<N>(Dictionary<int, FSMNode<N>> nodes)
         {
-            string f = "\""+(nodes[FromNode].Mark ?? "")+ " #"+FromNode+"\"";
-            string t = "\""+(nodes[ToNode].Mark ?? "")+ " #"+ToNode+"\"";
-            return $"{f} -> {t} {Check.ToGraphViz()}";
+            return $"{nodes[fromNode]} -> {nodes[ToNode]} {Check.ToGraphViz()}";
         }
 
 

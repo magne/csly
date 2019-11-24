@@ -431,7 +431,7 @@ namespace sly.lexer
 
             AddLexeme(GenericToken.Identifier, token, keyword);
             var node = FSMBuilder.GetNode(in_identifier);
-            if (!FSMBuilder.Fsm.HasCallback(node.Id))
+            if (!FSMBuilder.HasCallback(node.Id))
             {
                 FSMBuilder.GoTo(in_identifier).CallBack(callback);
             }
@@ -588,7 +588,6 @@ namespace sly.lexer
                     .End(GenericToken.String)
                     .Mark(string_end + StringCounter)
                     .CallBack(callback);
-                FSMBuilder.Fsm.StringDelimiter = stringDelimiterChar;
             }
             else
             {
@@ -661,8 +660,7 @@ namespace sly.lexer
                 .Mark(escapeChar_char+"_"+CharCounter)
                 .ExceptTransitionTo(new[] { 'u' }, in_char + "_" + CharCounter)
                 .CallBack(callback);
-            FSMBuilder.Fsm.StringDelimiter = charDelimiterChar;
-            
+
             // TODO : unicode transitions
             FSMBuilder = FSMBuilder.GoTo(escapeChar_char + "_" + CharCounter)
             .Transition('u')
