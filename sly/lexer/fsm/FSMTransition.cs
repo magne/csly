@@ -20,7 +20,7 @@ namespace sly.lexer.fsm
         private AbstractTransitionCheck Check { get; set; }
 
 
-        public string ToGraphViz<N>(Dictionary<int, FSMNode<N>> nodes)
+        public string ToGraphViz<N>(List<FSMNode<N>> nodes)
         {
             return $"{nodes[fromNode]} -> {nodes[ToNode]} {Check.ToGraphViz()}";
         }

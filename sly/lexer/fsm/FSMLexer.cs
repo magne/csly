@@ -20,11 +20,11 @@ namespace sly.lexer.fsm
 
     public class FSMLexer<N>
     {
-        private readonly Dictionary<int, FSMNode<N>> Nodes;
+        private readonly List<FSMNode<N>> Nodes;
 
         private readonly Dictionary<int, List<FSMTransition>> Transitions;
 
-        public FSMLexer(Dictionary<int, FSMNode<N>> nodes, Dictionary<int, List<FSMTransition>> transitions)
+        public FSMLexer(List<FSMNode<N>> nodes, Dictionary<int, List<FSMTransition>> transitions)
         {
             Nodes = nodes;
             Transitions = transitions;

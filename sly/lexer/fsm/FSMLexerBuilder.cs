@@ -9,11 +9,11 @@ namespace sly.lexer.fsm
 
     public class FSMLexerBuilder<N>
     {
-        private readonly Dictionary<int, FSMNode<N>> nodes;
+        private readonly List<FSMNode<N>> nodes;
 
         private readonly Dictionary<string, int> Marks;
 
-        private readonly Dictionary<int, List<FSMTransition>> Transitions;
+        private readonly Dictionary<int, List<FSMTransition>> transitions;
 
         private int currentState;
 
@@ -21,54 +21,38 @@ namespace sly.lexer.fsm
 
         public FSMLexerBuilder()
         {
-            nodes = new Dictionary<int, FSMNode<N>>();
+            nodes = new List<FSMNode<N>>();
             Marks = new Dictionary<string, int>();
-            Transitions = new Dictionary<int, List<FSMTransition>>();
+            transitions = new Dictionary<int, List<FSMTransition>>();
 
             currentState = AddNode().Id;
             GetNode(currentState).IsStart = true;
 
-            Fsm = new FSMLexer<N>(nodes, Transitions);
+            Fsm = new FSMLexer<N>(nodes, transitions);
         }
 
         #region FMS
 
         private bool HasState(int state)
         {
-            return nodes.ContainsKey(state);
+            return 0 <= state && state < nodes.Count;
         }
 
         private FSMNode<N> GetNode(int state)
         {
-            nodes.TryGetValue(state, out var node);
-            return node;
+            if (HasState(state))
+            {
+                return nodes[state];
+            }
+            return null;
         }
 
         private FSMNode<N> AddNode()
         {
             var id = nodes.Count;
             var node = new FSMNode<N>(id);
-            nodes[node.Id] = node;
+            nodes.Add(node);
             return node;
-        }
-
-        private int AddTransition(AbstractTransitionCheck check, int fromNode, int toNode)
-        {
-            if (!Transitions.TryGetValue(fromNode, out var transitions))
-            {
-                transitions = new List<FSMTransition>();
-                Transitions[fromNode] = transitions;
-            }
-
-            if (!HasState(toNode))
-            {
-                AddNode();
-            }
-
-            var transition = new FSMTransition(check, fromNode, toNode);
-            transitions.Add(transition);
-
-            return toNode;
         }
 
         internal bool HasCallback(int nodeId)
@@ -84,6 +68,39 @@ namespace sly.lexer.fsm
             {
                 node.Callback = callback;
             }
+        }
+
+        private FSMTransition GetTransition(int nodeId, char token)
+        {
+            FSMTransition transition = null;
+            if (HasState(nodeId))
+            {
+                if (transitions.TryGetValue(nodeId, out var leavingTransitions))
+                {
+                    transition = leavingTransitions.FirstOrDefault(t => t.Match(token));
+                }
+            }
+
+            return transition;
+        }
+
+        private int AddTransition(AbstractTransitionCheck check, int fromNode, int toNode)
+        {
+            if (!this.transitions.TryGetValue(fromNode, out var transitions))
+            {
+                transitions = new List<FSMTransition>();
+                this.transitions[fromNode] = transitions;
+            }
+
+            if (!HasState(toNode))
+            {
+                AddNode();
+            }
+
+            var transition = new FSMTransition(check, fromNode, toNode);
+            transitions.Add(transition);
+
+            return toNode;
         }
 
         #endregion
@@ -190,20 +207,6 @@ namespace sly.lexer.fsm
         #endregion
 
         #region TRANSITIONS
-
-        private FSMTransition GetTransition(int nodeId, char token)
-        {
-            FSMTransition transition = null;
-            if (HasState(nodeId))
-            {
-                if (Transitions.TryGetValue(nodeId, out var leavingTransitions))
-                {
-                    transition = leavingTransitions.FirstOrDefault(t => t.Match(token));
-                }
-            }
-
-            return transition;
-        }
 
         public FSMLexerBuilder<N> SafeTransition(char input, TransitionPrecondition precondition = null)
         {
