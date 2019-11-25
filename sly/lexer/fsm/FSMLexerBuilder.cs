@@ -5,8 +5,6 @@ using sly.lexer.fsm.transitioncheck;
 
 namespace sly.lexer.fsm
 {
-    public delegate FSMMatch<IN> NodeCallback<IN>(FSMMatch<IN> node);
-
     public delegate bool TransitionPrecondition(ReadOnlyMemory<char> value);
 
     public class FSMLexerBuilder<N>
@@ -17,8 +15,6 @@ namespace sly.lexer.fsm
 
         private readonly Dictionary<int, List<FSMTransition>> Transitions;
 
-        private readonly Dictionary<int, NodeCallback<N>> Callbacks;
-
         private int CurrentState;
 
         public FSMLexer<N> Fsm { get; }
@@ -28,12 +24,11 @@ namespace sly.lexer.fsm
             nodes = new Dictionary<int, FSMNode<N>>();
             Marks = new Dictionary<string, int>();
             Transitions = new Dictionary<int, List<FSMTransition>>();
-            Callbacks = new Dictionary<int, NodeCallback<N>>();
 
             CurrentState = AddNode().Id;
             GetNode(CurrentState).IsStart = true;
 
-            Fsm = new FSMLexer<N>(nodes, Transitions, Callbacks);
+            Fsm = new FSMLexer<N>(nodes, Transitions);
         }
 
         #region FMS
@@ -78,12 +73,17 @@ namespace sly.lexer.fsm
 
         internal bool HasCallback(int nodeId)
         {
-            return Callbacks.ContainsKey(nodeId);
+            var node = GetNode(nodeId);
+            return node != null && node.HasCallback;
         }
 
         private void SetCallback(int nodeId, NodeCallback<N> callback)
         {
-            Callbacks[nodeId] = callback;
+            var node = GetNode(nodeId);
+            if (node != null)
+            {
+                node.Callback = callback;
+            }
         }
 
         #endregion

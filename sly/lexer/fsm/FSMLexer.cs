@@ -24,13 +24,10 @@ namespace sly.lexer.fsm
 
         private readonly Dictionary<int, List<FSMTransition>> Transitions;
 
-        private readonly Dictionary<int, NodeCallback<N>> Callbacks;
-
-        public FSMLexer(Dictionary<int, FSMNode<N>> nodes, Dictionary<int, List<FSMTransition>> transitions, Dictionary<int, NodeCallback<N>> callbacks)
+        public FSMLexer(Dictionary<int, FSMNode<N>> nodes, Dictionary<int, List<FSMTransition>> transitions)
         {
             Nodes = nodes;
             Transitions = transitions;
-            Callbacks = callbacks;
             IgnoreWhiteSpace = false;
             IgnoreEOL = false;
             AggregateEOL = false;
@@ -54,17 +51,6 @@ namespace sly.lexer.fsm
                     dump.AppendLine(transition.ToGraphViz(Nodes));
             return dump.ToString();
         }
-
-
-        #region accessors
-
-        private bool HasCallback(int nodeId)
-        {
-            return Callbacks.ContainsKey(nodeId);
-        }
-
-        #endregion
-
 
         #region run
 
@@ -191,9 +177,10 @@ namespace sly.lexer.fsm
             if (successes.Any())
             {
                 result = successes.Pop();
-                if (HasCallback(result.NodeId))
+                var node = Nodes[result.NodeId];
+                if (node.HasCallback)
                 {
-                    result = Callbacks[result.NodeId](result);
+                    result = node.Callback(result);
                 }
             }
 
