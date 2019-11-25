@@ -13,7 +13,7 @@ namespace sly.lexer.fsm
 
         private readonly Dictionary<string, int> Marks;
 
-        private readonly Dictionary<int, List<FSMTransition>> transitions;
+        private readonly List<List<FSMTransition>> transitions;
 
         private int currentState;
 
@@ -23,7 +23,7 @@ namespace sly.lexer.fsm
         {
             nodes = new List<FSMNode<N>>();
             Marks = new Dictionary<string, int>();
-            transitions = new Dictionary<int, List<FSMTransition>>();
+            transitions = new List<List<FSMTransition>>();
 
             currentState = AddNode().Id;
             GetNode(currentState).IsStart = true;
@@ -52,6 +52,7 @@ namespace sly.lexer.fsm
             var id = nodes.Count;
             var node = new FSMNode<N>(id);
             nodes.Add(node);
+            transitions.Add(null);
             return node;
         }
 
@@ -75,7 +76,8 @@ namespace sly.lexer.fsm
             FSMTransition transition = null;
             if (HasState(nodeId))
             {
-                if (transitions.TryGetValue(nodeId, out var leavingTransitions))
+                var leavingTransitions = transitions[nodeId];
+                if (leavingTransitions != null)
                 {
                     transition = leavingTransitions.FirstOrDefault(t => t.Match(token));
                 }
@@ -86,19 +88,18 @@ namespace sly.lexer.fsm
 
         private int AddTransition(AbstractTransitionCheck check, int fromNode, int toNode)
         {
-            if (!this.transitions.TryGetValue(fromNode, out var transitions))
-            {
-                transitions = new List<FSMTransition>();
-                this.transitions[fromNode] = transitions;
-            }
-
             if (!HasState(toNode))
             {
                 AddNode();
             }
 
+            if (transitions[fromNode] == null)
+            {
+                transitions[fromNode] = new List<FSMTransition>();
+            }
+
             var transition = new FSMTransition(check, fromNode, toNode);
-            transitions.Add(transition);
+            transitions[fromNode].Add(transition);
 
             return toNode;
         }

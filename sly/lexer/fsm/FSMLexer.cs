@@ -22,9 +22,9 @@ namespace sly.lexer.fsm
     {
         private readonly List<FSMNode<N>> Nodes;
 
-        private readonly Dictionary<int, List<FSMTransition>> Transitions;
+        private readonly List<List<FSMTransition>> Transitions;
 
-        public FSMLexer(List<FSMNode<N>> nodes, Dictionary<int, List<FSMTransition>> transitions)
+        public FSMLexer(List<FSMNode<N>> nodes, List<List<FSMTransition>> transitions)
         {
             Nodes = nodes;
             Transitions = transitions;
@@ -46,7 +46,7 @@ namespace sly.lexer.fsm
         public string ToGraphViz()
         {
             var dump = new StringBuilder();
-            foreach (var transitions in Transitions.Values)
+            foreach (var transitions in Transitions.Where(t => t != null))
                 foreach (var transition in transitions)
                     dump.AppendLine(transition.ToGraphViz(Nodes));
             return dump.ToString();
@@ -192,7 +192,7 @@ namespace sly.lexer.fsm
             FSMNode<N> next = null;
             if (from != null)
             {
-                if (Transitions.ContainsKey(from.Id))
+                if (Transitions[from.Id] != null)
                 {
                     var transitions = Transitions[from.Id];
                     if (transitions.Any())
