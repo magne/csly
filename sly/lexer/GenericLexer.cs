@@ -233,7 +233,7 @@ namespace sly.lexer
                         .End(GenericToken.Double);
             }
 
-            LexerFsm = FSMBuilder.Fsm;
+            LexerFsm = FSMBuilder.Build();
         }
 
 

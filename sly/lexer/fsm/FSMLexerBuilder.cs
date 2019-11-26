@@ -17,7 +17,11 @@ namespace sly.lexer.fsm
 
         private int currentState;
 
-        public FSMLexer<N> Fsm { get; }
+        private bool ignoreWhiteSpace;
+
+        private bool ignoreEOL;
+
+        private List<char> whiteSpaces = new List<char>();
 
         public FSMLexerBuilder()
         {
@@ -27,8 +31,21 @@ namespace sly.lexer.fsm
 
             currentState = AddNode().Id;
             GetNode(currentState).IsStart = true;
+        }
 
-            Fsm = new FSMLexer<N>(nodes, transitions);
+        public FSMLexer<N> Build()
+        {
+            var fsm = new FSMLexer<N>(nodes, transitions)
+            {
+                IgnoreWhiteSpace = ignoreWhiteSpace,
+                IgnoreEOL = ignoreEOL
+            };
+            foreach (var spaceChar in whiteSpaces)
+            {
+                fsm.WhiteSpaces.Add(spaceChar);
+            }
+
+            return fsm;
         }
 
         #region FMS
@@ -40,11 +57,7 @@ namespace sly.lexer.fsm
 
         private FSMNode<N> GetNode(int state)
         {
-            if (HasState(state))
-            {
-                return nodes[state];
-            }
-            return null;
+            return HasState(state) ? nodes[state] : null;
         }
 
         private FSMNode<N> AddNode()
@@ -88,14 +101,14 @@ namespace sly.lexer.fsm
 
         private int AddTransition(AbstractTransitionCheck check, int fromNode, int toNode)
         {
-            if (!HasState(toNode))
-            {
-                AddNode();
-            }
-
             if (transitions[fromNode] == null)
             {
                 transitions[fromNode] = new List<FSMTransition>();
+            }
+
+            if (!HasState(toNode))
+            {
+                AddNode();
             }
 
             var transition = new FSMTransition(check, fromNode, toNode);
@@ -151,19 +164,19 @@ namespace sly.lexer.fsm
 
         public FSMLexerBuilder<N> IgnoreWS(bool ignore = true)
         {
-            Fsm.IgnoreWhiteSpace = ignore;
+            ignoreWhiteSpace = ignore;
             return this;
         }
 
         public FSMLexerBuilder<N> IgnoreEOL(bool ignore = true)
         {
-            Fsm.IgnoreEOL = ignore;
+            ignoreEOL = ignore;
             return this;
         }
 
         public FSMLexerBuilder<N> WhiteSpace(char spaceChar)
         {
-            Fsm.WhiteSpaces.Add(spaceChar);
+            whiteSpaces.Add(spaceChar);
             return this;
         }
 
@@ -173,7 +186,7 @@ namespace sly.lexer.fsm
             {
                 foreach (var spaceChar in spaceChars)
                 {
-                    Fsm.WhiteSpaces.Add(spaceChar);
+                    whiteSpaces.Add(spaceChar);
                 }
             }
 
@@ -221,6 +234,7 @@ namespace sly.lexer.fsm
                 var toNode = AddNode();
                 return TransitionTo(input, toNode.Id, precondition);
             }
+
             return this;
         }
 
@@ -294,6 +308,7 @@ namespace sly.lexer.fsm
                     {
                         ConstantTransition(pattern);
                     }
+
                     ConstantTransition(pattern, precondition);
                 }
             }

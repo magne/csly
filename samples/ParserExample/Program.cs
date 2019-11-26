@@ -190,7 +190,7 @@ namespace ParserExample
 
             var code = "{\n\"d\" : 42.42 ,\n\"i\" : 42 ,\n\"s\" : \"quarante-deux\",\n\"s2\":\"a\\\"b\"\n}";
             //code = File.ReadAllText("test.json");
-            var lex = builder.Fsm;
+            var lex = builder.Build();
             var r = lex.Run(code, 0);
             var total = "";
             while (r.IsSuccess)
