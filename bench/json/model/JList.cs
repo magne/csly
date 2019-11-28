@@ -1,40 +1,41 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 
-namespace benchCurrent.json.JsonModel
+// ReSharper disable once CheckNamespace
+namespace bench.json.model
 {
-    public class JList : JSon
+    public class JList : Json
 
     {
         public JList()
         {
-            Items = new List<JSon>();
+            Items = new List<Json>();
         }
 
-        public JList(List<JSon> lst)
+        public JList(List<Json> lst)
         {
             Items = lst;
         }
 
 
-        public JList(JSon item)
+        public JList(Json item)
         {
-            Items = new List<JSon>();
+            Items = new List<Json>();
             Items.Add(item);
         }
 
         public override bool IsList => true;
 
-        public List<JSon> Items { get; }
+        public List<Json> Items { get; }
 
         public int Count => Items.Count;
 
-        public JSon this[int index]
+        public Json this[int index]
         {
             get => Items[index];
             set => Items[index] = value;
         }
 
-        public void Add(JSon item)
+        public void Add(Json item)
         {
             Items.Add(item);
         }
@@ -44,7 +45,7 @@ namespace benchCurrent.json.JsonModel
             Items.AddRange(items.Items);
         }
 
-        public void AddRange(List<JSon> items)
+        public void AddRange(List<Json> items)
         {
             Items.AddRange(items);
         }

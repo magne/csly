@@ -1,21 +1,22 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 
+// ReSharper disable once CheckNamespace
 namespace bench.json.model
 {
-    public class JObject : JSon
+    public class JObject : Json
     {
-        public JObject(string key, JSon value)
+        public JObject(string key, Json value)
         {
-            Values = new Dictionary<string, JSon>();
+            Values = new Dictionary<string, Json>();
             Values[key] = value;
         }
 
         public JObject()
         {
-            Values = new Dictionary<string, JSon>();
+            Values = new Dictionary<string, Json>();
         }
 
-        public JObject(Dictionary<string, JSon> dic)
+        public JObject(Dictionary<string, Json> dic)
         {
             Values = dic;
         }
@@ -24,11 +25,11 @@ namespace bench.json.model
 
         public override bool IsList => true;
 
-        private Dictionary<string, JSon> Values { get; }
+        private Dictionary<string, Json> Values { get; }
 
         public int Count => Values.Count;
 
-        public JSon this[string key]
+        public Json this[string key]
         {
             get => Values[key];
             set => Values[key] = value;

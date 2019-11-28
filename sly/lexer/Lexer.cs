@@ -20,7 +20,7 @@ namespace sly.lexer
         public LexerResult<T> Tokenize(string source)
         {
             List<Token<T>> tokens = new List<Token<T>>();
-            
+
             var currentIndex = 0;
             //List<Token<T>> tokens = new List<Token<T>>();
             var currentLine = 1;

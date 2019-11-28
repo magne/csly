@@ -1,5 +1,4 @@
-﻿
-using System;
+﻿using System;
 
 namespace sly.lexer
 {
@@ -7,7 +6,7 @@ namespace sly.lexer
     {
         void AddDefinition(TokenDefinition<T> tokenDefinition);
         LexerResult<T> Tokenize(string source);
-        
+
         LexerResult<T> Tokenize(ReadOnlyMemory<char> source);
     }
 }

@@ -14,16 +14,16 @@ namespace sly.lexer
     public class Token<T>
     {
         public char StringDelimiter = '"';
-        
+
         public char CharDelimiter ='\'';
 
 
         public Token(T token, string value, TokenPosition position, bool isCommentStart = false,
             CommentType commentType = CommentType.Single) : this(token,new ReadOnlyMemory<char>(value.ToCharArray()),position,isCommentStart,commentType )
         {
-            
+
         }
-        
+
         public Token(T token, ReadOnlyMemory<char> value, TokenPosition position, bool isCommentStart = false,
             CommentType commentType = CommentType.Single)
         {
@@ -44,7 +44,7 @@ namespace sly.lexer
 
 
         public  ReadOnlyMemory<char> SpanValue { get; set; }
-        
+
         public TokenPosition Position { get; set; }
 
         public int PositionInTokenFlow { get; set; }
@@ -128,7 +128,7 @@ namespace sly.lexer
                 }
                 return result[0];
             }
-        } 
+        }
 
 
         public bool End { get; set; }

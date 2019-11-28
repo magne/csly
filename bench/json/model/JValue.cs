@@ -1,6 +1,7 @@
-﻿namespace benchCurrent.json.JsonModel
+// ReSharper disable once CheckNamespace
+namespace bench.json.model
 {
-    public class JValue : JSon
+    public class JValue : Json
     {
         private readonly object value;
 

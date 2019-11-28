@@ -1,19 +1,20 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
-using benchCurrent.json.JsonModel;
+using bench.json.model;
 using sly.lexer;
 using sly.parser.generator;
 using sly.parser.parser;
 
-namespace benchCurrent.json
+// ReSharper disable once CheckNamespace
+namespace bench.json
 {
     public class EbnfJsonParser
     {
         #region root
 
         [Production("root : value")]
-        public JSon Root(JSon value)
+        public Json Root(Json value)
         {
             return value;
         }
@@ -23,7 +24,7 @@ namespace benchCurrent.json
         #region VALUE
 
         [Production("value : STRING")]
-        public JSon StringValue(Token<JsonToken> stringToken)
+        public Json StringValue(Token<JsonToken> stringToken)
         {
             return new JValue(stringToken.StringWithoutQuotes);
         }
@@ -37,7 +38,7 @@ namespace benchCurrent.json
         [Production("value : DOUBLE")]
         public object DoubleValue(Token<JsonToken> doubleToken)
         {
-            var dbl = double.MinValue;
+            double dbl;
             try
             {
                 var doubleParts = doubleToken.Value.Split('.');
@@ -70,13 +71,13 @@ namespace benchCurrent.json
         }
 
         [Production("value : object")]
-        public JSon ObjectValue(JSon value)
+        public Json ObjectValue(Json value)
         {
             return value;
         }
 
         [Production("value: list")]
-        public JSon ListValue(JList list)
+        public Json ListValue(JList list)
         {
             return list;
         }
@@ -86,13 +87,13 @@ namespace benchCurrent.json
         #region OBJECT
 
         [Production("object: ACCG ACCD")]
-        public JSon EmptyObjectValue(object accg, object accd)
+        public Json EmptyObjectValue(object accg, object accd)
         {
             return new JObject();
         }
 
         [Production("object: ACCG members ACCD")]
-        public JSon AttributesObjectValue(object accg, JObject members, object accd)
+        public Json AttributesObjectValue(object accg, JObject members, object accd)
         {
             return members;
         }
@@ -102,20 +103,20 @@ namespace benchCurrent.json
         #region LIST
 
         [Production("list: CROG CROD")]
-        public JSon EmptyList(object crog, object crod)
+        public Json EmptyList(object crog, object crod)
         {
             return new JList();
         }
 
         [Production("list: CROG listElements CROD")]
-        public JSon List(object crog, JList elements, object crod)
+        public Json List(object crog, JList elements, object crod)
         {
             return elements;
         }
 
 
         [Production("listElements: value (COMMA [d] value)*")]
-        public JSon listElements(JSon head, List<Group<JsonToken, JSon>> tail)
+        public Json listElements(Json head, List<Group<JsonToken, Json>> tail)
         {
             var values = new JList(head);
             values.AddRange(tail.Select(group => group.Value(0)).ToList());
@@ -123,7 +124,7 @@ namespace benchCurrent.json
         }
 
         [Production("additionalValue: COMMA value")]
-        public JSon ListElementsOne(Token<JsonToken> discardedComma, JSon value)
+        public Json ListElementsOne(Token<JsonToken> discardedComma, Json value)
         {
             return value;
         }
@@ -133,7 +134,7 @@ namespace benchCurrent.json
         #region PROPERTIES
 
         [Production("members: property additionalProperty*")]
-        public object Members(JObject head, List<JSon> tail)
+        public object Members(JObject head, List<Json> tail)
         {
             var value = new JObject();
             value.Merge(head);
@@ -148,7 +149,7 @@ namespace benchCurrent.json
         }
 
         [Production("property: STRING COLON value")]
-        public object property(Token<JsonToken> key, object colon, JSon value)
+        public object property(Token<JsonToken> key, object colon, Json value)
         {
             return new JObject(key.StringWithoutQuotes, value);
         }

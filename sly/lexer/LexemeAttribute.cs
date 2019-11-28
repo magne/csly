@@ -34,9 +34,9 @@ namespace sly.lexer
         public string[] GenericTokenParameters { get; set; }
 
         public IdentifierType IdentifierType { get; set; } = IdentifierType.Alpha;
-        
+
         public string IdentifierStartPattern { get; }
-        
+
         public string IdentifierRestPattern { get; }
 
         public string Pattern { get; set; }
@@ -57,7 +57,7 @@ namespace sly.lexer
         public bool IsSugar => GenericToken == GenericToken.SugarToken;
 
         public bool IsString => GenericToken == GenericToken.String;
-        
+
         public bool IsChar => GenericToken == GenericToken.Char;
 
         public bool IsIdentifier => GenericToken == GenericToken.Identifier;

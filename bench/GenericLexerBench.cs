@@ -1,39 +1,36 @@
+using System.IO;
+using bench.json;
+using BenchmarkDotNet.Analysers;
 using BenchmarkDotNet.Attributes;
 using BenchmarkDotNet.Configs;
 using BenchmarkDotNet.Jobs;
 using BenchmarkDotNet.Toolchains.CsProj;
-using sly.lexer;
 using sly.buildresult;
-using System.IO;
-using System.Linq;
-using bench.json;
-using BenchmarkDotNet.Analysers;
-
+using sly.lexer;
 
 namespace bench
 {
-
     [MemoryDiagnoser]
-    
     [Config(typeof(Config))]
     public class GenericLexerBench
     {
-
-
         private class Config : ManualConfig
         {
             public Config()
             {
-                var baseJob = Job.MediumRun.With(CsProjCoreToolchain.Current.Value);
-                Add(baseJob.WithNuGet("sly", "2.2.5.1").WithId("2.2.5.1"));
-                Add(baseJob.WithNuGet("sly", "2.2.5.2").WithId("2.2.5.2"));
+                var baseJob = Job.MediumRun.With(CsProjCoreToolchain.NetCoreApp20);
+                foreach (var version in Versions)
+                {
+                    Add(baseJob.WithNuGet("sly", version).WithId(version));
+                }
+
                 Add(EnvironmentAnalyser.Default);
-                Add(baseJob.WithNuGet("sly", "2.2.5.3").WithId("2.2.5.3"));
-                Add(baseJob.WithNuGet("sly", "2.3.0.1").WithId("2.3.0.1"));
             }
         }
 
-        private ILexer<JsonTokenGeneric> BenchedLexer;
+        public static string[] Versions { get; set; } = new string[0];
+
+        private ILexer<JsonTokenGeneric> benchedLexer;
 
         private string content = "";
 
@@ -45,18 +42,14 @@ namespace bench
             var lexerRes = LexerBuilder.BuildLexer(new BuildResult<ILexer<JsonTokenGeneric>>());
             if (lexerRes != null)
             {
-                BenchedLexer = lexerRes.Result;
+                benchedLexer = lexerRes.Result;
             }
         }
 
         [Benchmark]
-        
-        public void TestJson() {
-            var ignored = BenchedLexer.Tokenize(content).ToList();
+        public void TestJson()
+        {
+            var _ = benchedLexer.Tokenize(content);
         }
-
-
-
     }
-
 }

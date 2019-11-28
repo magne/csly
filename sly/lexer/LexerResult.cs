@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+
 namespace sly.lexer
 {
     public class LexerResult<IN> where IN : struct
@@ -6,11 +7,11 @@ namespace sly.lexer
         public bool IsError { get; set; }
 
         public bool IsOk => !IsError;
-        
+
         public LexicalError Error { get; }
-        
+
         public List<Token<IN>> Tokens { get; set; }
-        
+
         public LexerResult(List<Token<IN>> tokens)
         {
             IsError = false;
@@ -22,6 +23,5 @@ namespace sly.lexer
             IsError = true;
             Error = error;
         }
-        
     }
 }

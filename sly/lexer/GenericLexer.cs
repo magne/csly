@@ -60,11 +60,11 @@ namespace sly.lexer
             public bool IgnoreWS { get; set; }
 
             public char[] WhiteSpace { get; set; }
-            
+
             public bool KeyWordIgnoreCase { get; set; }
-            
+
             public IEnumerable<char[]> IdentifierStartPattern { get; set; }
-            
+
             public IEnumerable<char[]> IdentifierRestPattern { get; set; }
 
             public BuildExtension<IN> ExtensionBuilder { get; set; }
@@ -147,7 +147,7 @@ namespace sly.lexer
             var memorySource = new ReadOnlyMemory<char>(source.ToCharArray());
             return Tokenize(memorySource);
         }
-        
+
         public LexerResult<IN> Tokenize(ReadOnlyMemory<char> memorySource)
         {
             var tokens = new List<Token<IN>>();
@@ -302,7 +302,7 @@ namespace sly.lexer
                         .GoTo(in_identifier)
                         .RangeTransitionTo('0', '9', in_identifier);
                 }
-            
+
                 if (config.IdType == IdentifierType.AlphaNumericDash)
                 {
                     FSMBuilder
@@ -549,7 +549,7 @@ namespace sly.lexer
             EscapeStringDelimiterChar = escapeDelimiterChar[0];
             var escapeStringDelimiterChar = escapeDelimiterChar[0];
 
-            
+
 
             NodeCallback<GenericToken> callback = match =>
             {
@@ -564,7 +564,7 @@ namespace sly.lexer
                     match.Result.SpanValue = diffCharEscaper(escapeStringDelimiterChar,stringDelimiterChar, match.Result.SpanValue);
                 }
                 else
-                {                   
+                {
                     match.Result.SpanValue = sameCharEscaper(escapeStringDelimiterChar,stringDelimiterChar, match.Result.SpanValue);
                 }
 
@@ -613,7 +613,7 @@ namespace sly.lexer
                     .ExceptTransitionTo(exceptDelimiter, in_string + StringCounter);
             }
         }
-        
+
         public void AddCharLexem(IN token, string charDelimiter, string escapeDelimiterChar = "\\")
         {
             if (string.IsNullOrEmpty(charDelimiter) || charDelimiter.Length > 1)
@@ -745,7 +745,7 @@ namespace sly.lexer
         {
             return LexerFsm.ToString();
         }
-        
+
         public string ToGraphViz()
         {
             return LexerFsm.ToGraphViz();
