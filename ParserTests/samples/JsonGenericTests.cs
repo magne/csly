@@ -36,7 +36,7 @@ namespace ParserTests.samples
             Assert.Equal(value, val.GetValue<int>());
         }
 
-
+        // ReSharper disable once UnusedMember.Local
         private void AssertDouble(JObject obj, string key, double value)
         {
             Assert.True(obj.ContainsKey(key));
@@ -46,7 +46,7 @@ namespace ParserTests.samples
             Assert.Equal(value, val.GetValue<double>());
         }
 
-
+        // ReSharper disable once UnusedMember.Local
         private void AssertString(JList list, int index, string value)
         {
             Assert.True(list[index].IsValue);
@@ -165,7 +165,6 @@ namespace ParserTests.samples
             Assert.False(r.IsError);
             Assert.NotNull(r.Result);
             Assert.NotNull(r.Result);
-            object val = r.Result;
             Assert.True(r.Result.IsList);
             var list = (JList) r.Result;
             Assert.Equal(5, ((JList) r.Result).Count);
@@ -202,8 +201,7 @@ namespace ParserTests.samples
         [Fact]
         public void TestManyPropertyObjectValue()
         {
-            var json = "{\"p1\":\"v1\",\"p2\":\"v2\"}";
-            json = "{\"p1\":\"v1\" , \"p2\":\"v2\" }";
+            var json = "{\"p1\":\"v1\" , \"p2\":\"v2\" }";
             var r = Parser.Parse(json);
             Assert.False(r.IsError);
             Assert.NotNull(r.Result);

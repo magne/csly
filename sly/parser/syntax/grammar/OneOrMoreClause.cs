@@ -20,11 +20,11 @@ namespace sly.parser.syntax.grammar
         {
             return true;
         }
-        
+
         [ExcludeFromCodeCoverage]
         public override string Dump()
         {
-            return Clause.Dump()+"+";
+            return Clause.Dump() + "+";
         }
     }
 }

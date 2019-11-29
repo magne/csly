@@ -6,31 +6,32 @@ using sly.parser.syntax.tree;
 
 namespace sly.parser.generator.visitor
 {
-[ExcludeFromCodeCoverage]
-    public class GraphVizEBNFSyntaxTreeVisitor<IN>  where IN : struct
+    [ExcludeFromCodeCoverage]
+    public class GraphVizEBNFSyntaxTreeVisitor<IN> where IN : struct
     {
-        public  DotGraph Graph { get; private set; }
+        public DotGraph Graph { get; }
 
         public GraphVizEBNFSyntaxTreeVisitor()
         {
-         Graph = new DotGraph("syntaxtree",true);
+            Graph = new DotGraph("syntaxtree", true);
         }
 
-        private int NodeCounter = 0;
+        private int NodeCounter;
 
 
         private DotNode Leaf(SyntaxLeaf<IN> leaf)
         {
             return Leaf(leaf.Token.TokenID, leaf.Token.Value);
         }
-        
+
         private DotNode Leaf(IN type, string value)
         {
             string label = type.ToString();
             label += "\n";
             var esc = value.Replace("\"", "\\\"");
             label += "\\\"" + esc + "\\\"";
-            var node =  new DotNode(NodeCounter.ToString()) {
+            var node = new DotNode(NodeCounter.ToString())
+            {
                 // Set all available properties
                 Shape = "doublecircle",
                 Label = label,
@@ -50,7 +51,8 @@ namespace sly.parser.generator.visitor
 
         private DotNode Node(string label)
         {
-            var node =  new DotNode(NodeCounter.ToString()) {
+            var node = new DotNode(NodeCounter.ToString())
+            {
                 // Set all available properties
                 Shape = "ellipse",
                 Label = label,
@@ -89,7 +91,7 @@ namespace sly.parser.generator.visitor
             var child = node.Children != null && node.Children.Any() ? node.Children[0] : null;
             if (child == null || node.IsEmpty)
             {
-                    return null;
+                return null;
             }
 
             return Visit(child);
@@ -100,7 +102,7 @@ namespace sly.parser.generator.visitor
             string label = node.Name;
             if (node.IsExpressionNode)
             {
-                label =  node.Operation.OperatorToken.ToString();
+                label = node.Operation.OperatorToken.ToString();
             }
 
             return label;
@@ -126,18 +128,17 @@ namespace sly.parser.generator.visitor
             }
             else
             {
-
                 result = Node(GetNodeLabel(node));
                 Graph.Add(result);
                 children.ForEach(c =>
                 {
-                    var edge = new DotArrow(result, c) {
+                    var edge = new DotArrow(result, c)
+                    {
                         // Set all available properties
                         ArrowHeadShape = "none"
-                    };    
+                    };
                     Graph.Add(edge);
                 });
-                
             }
 
 
@@ -152,7 +153,7 @@ namespace sly.parser.generator.visitor
 
         private DotNode Visit(SyntaxLeaf<IN> leaf)
         {
-            return Leaf(leaf.Token.TokenID,leaf.Token.Value);
+            return Leaf(leaf.Token.TokenID, leaf.Token.Value);
         }
     }
 }

@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using expressionparser;
@@ -417,16 +416,7 @@ namespace ParserTests
             var jsonParser = new EbnfJsonGenericParser();
             var builder = new ParserBuilder<JsonTokenGeneric, JSon>();
             var parserTest = builder.BuildParser(jsonParser, ParserType.EBNF_LL_RECURSIVE_DESCENT, "root").Result;
-            ParseResult<JsonTokenGeneric, JSon> r = null;
-            try
-            {
-                r = parserTest.Parse("{");
-            }
-            catch (Exception e)
-            {
-                var stack = e.StackTrace;
-                var message = e.Message;
-            }
+            var r = parserTest.Parse("{");
 
             Assert.True(r.IsError);
         }

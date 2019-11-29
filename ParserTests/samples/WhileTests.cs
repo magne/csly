@@ -1,4 +1,5 @@
-﻿using csly.whileLang.compiler;
+﻿using System.Diagnostics.CodeAnalysis;
+using csly.whileLang.compiler;
 using csly.whileLang.interpreter;
 using csly.whileLang.model;
 using csly.whileLang.parser;
@@ -9,6 +10,8 @@ using Xunit;
 
 namespace ParserTests.samples
 {
+    [SuppressMessage("ReSharper", "UnusedVariable")]
+    [SuppressMessage("ReSharper", "PossibleNullReferenceException")]
     public class WhileTests
     {
         private static BuildResult<Parser<WhileToken, WhileAST>> Parser;

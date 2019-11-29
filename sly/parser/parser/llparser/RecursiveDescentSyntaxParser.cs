@@ -140,10 +140,7 @@ namespace sly.parser.llparser
                         if (nonTerminals.ContainsKey(nonterm.NonTerminalName))
                         {
                             var firstNonTerminal = nonTerminals[nonterm.NonTerminalName];
-                            firstNonTerminal.Rules.ForEach(r =>
-                            {
-                                rule.PossibleLeadingTokens.AddRange(r.PossibleLeadingTokens);
-                            });
+                            firstNonTerminal.Rules.ForEach(r => { rule.PossibleLeadingTokens.AddRange(r.PossibleLeadingTokens); });
                             rule.PossibleLeadingTokens = rule.PossibleLeadingTokens.Distinct().ToList();
                         }
                     }
@@ -168,7 +165,7 @@ namespace sly.parser.llparser
             {
                 errors.Add(new UnexpectedTokenSyntaxError<IN>(tokens[0], nt.PossibleLeadingTokens.ToArray()));
             }
-            
+
             var rs = new List<SyntaxParseResult<IN>>();
             foreach (var rule in rules)
             {
@@ -284,7 +281,7 @@ namespace sly.parser.llparser
                 if (rule.IsSubRule)
                     node = new GroupSyntaxNode<IN>(nonTerminalName, children);
                 else
-                    node = new SyntaxNode<IN>( nonTerminalName, children);
+                    node = new SyntaxNode<IN>(nonTerminalName, children);
                 node = ManageExpressionRules(rule, node);
                 if (node.IsByPassNode) // inutile de créer un niveau supplémentaire
                     result.Root = children[0];
@@ -292,7 +289,6 @@ namespace sly.parser.llparser
                 result.IsEnded = result.EndingPosition >= tokens.Count - 1
                                  || result.EndingPosition == tokens.Count - 2 &&
                                  tokens[tokens.Count - 1].TokenID.Equals(default(IN));
-                
             }
 
 
@@ -347,7 +343,7 @@ namespace sly.parser.llparser
             result.EndingPosition = !result.IsError ? position + 1 : position;
             var token = tokens[position];
             token.Discarded = terminal.Discarded;
-            result.Root = new SyntaxLeaf<IN>(token,terminal.Discarded);
+            result.Root = new SyntaxLeaf<IN>(token, terminal.Discarded);
             return result;
         }
 

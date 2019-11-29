@@ -142,7 +142,6 @@ namespace csly.whileLang.model
 
         private Emit<Func<int>> EmitConcat(CompilerContext context, Emit<Func<int>> emiter)
         {
-            var typer = new ExpressionTyper();
             Left.EmitByteCode(context, emiter);
             if (Left.Whiletype != WhileType.STRING)
             {

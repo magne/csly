@@ -24,7 +24,7 @@ namespace sly.parser.syntax.grammar
         {
             Clauses.AddRange(clauses.Clauses);
         }
-        
+
         public string Dump()
         {
             StringBuilder dump = new StringBuilder();

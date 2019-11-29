@@ -42,9 +42,13 @@ namespace sly.parser.generator
 
             SyntaxTreeVisitor<IN, OUT> visitor = null;
             if (parserType == ParserType.LL_RECURSIVE_DESCENT)
-                new SyntaxTreeVisitor<IN, OUT>(configuration, parserInstance);
+            {
+                visitor = new SyntaxTreeVisitor<IN, OUT>(configuration, parserInstance);
+            }
             else if (parserType == ParserType.EBNF_LL_RECURSIVE_DESCENT)
+            {
                 visitor = new EBNFSyntaxTreeVisitor<IN, OUT>(configuration, parserInstance);
+            }
             var parser = new Parser<IN, OUT>(syntaxParser, visitor);
             parser.Configuration = configuration;
             var lexerResult = BuildLexer();

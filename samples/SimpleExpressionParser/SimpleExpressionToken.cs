@@ -4,10 +4,10 @@ namespace simpleExpressionParser
 {
     public enum SimpleExpressionToken
     {
-        // float number 
+        // float number
         [Lexeme(GenericToken.Double)] DOUBLE = 1,
 
-        // integer        
+        // integer
         [Lexeme(GenericToken.Int)] INT = 3,
 
         [Lexeme(GenericToken.Identifier)] IDENTIFIER = 4,
@@ -33,8 +33,7 @@ namespace simpleExpressionParser
 
         // a right paranthesis )
         [Lexeme(GenericToken.SugarToken, ")")] RPAREN = 11,
-        
+
         // a variable
-        
     }
 }

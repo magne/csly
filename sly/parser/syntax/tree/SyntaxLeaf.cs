@@ -9,12 +9,9 @@ namespace sly.parser.syntax.tree
             Token = token;
             Discarded = discarded;
         }
-        
-        
 
-        public Token<IN> Token { get;  }
+        public Token<IN> Token { get; }
         public bool Discarded { get; }
         public string Name => Token.TokenID.ToString();
-
     }
 }

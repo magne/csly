@@ -4,10 +4,10 @@ namespace expressionparser
 {
     public enum ExpressionToken
     {
-        // float number 
+        // float number
         [Lexeme("[0-9]+\\.[0-9]+")] DOUBLE = 1,
 
-        // integer        
+        // integer
         [Lexeme("[0-9]+")] INT = 3,
 
         [Lexeme("[a-zA-Z]+")] IDENTIFIER = 4,
@@ -32,12 +32,9 @@ namespace expressionparser
 
         [Lexeme("!")] FACTORIAL = 13,
 
-
         // a whitespace
         [Lexeme("[ \\t]+", true)] WS = 11,
 
         [Lexeme("[\\n\\r]+", true, true)] EOL = 12,
-        
-        
     }
 }

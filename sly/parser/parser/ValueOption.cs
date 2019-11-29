@@ -11,13 +11,13 @@ namespace sly.parser.parser
 
         public static ValueOption<Group<IN, OUT>> NoneGroup<IN, OUT>()
         {
-            var noneGroup = new ValueOption<Group<IN,OUT>>(true);
+            var noneGroup = new ValueOption<Group<IN, OUT>>(true);
             return noneGroup;
         }
 
         public static ValueOption<T> Some<T>(T value)
         {
-            return  new ValueOption<T>(value);
+            return new ValueOption<T>(value);
         }
     }
 
@@ -27,7 +27,7 @@ namespace sly.parser.parser
         {
             IsNone = true;
         }
-        
+
         public ValueOption(bool none)
         {
             IsNone = none;

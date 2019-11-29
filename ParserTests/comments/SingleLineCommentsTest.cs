@@ -1,10 +1,11 @@
+using System.Diagnostics.CodeAnalysis;
 using sly.buildresult;
 using sly.lexer;
 using Xunit;
 
 namespace ParserTests.comments
 {
-    
+
     public enum SingleLineCommentsToken
     {
         [Lexeme(GenericToken.Int)] INT,
@@ -15,11 +16,11 @@ namespace ParserTests.comments
 
         [SingleLineComment("//")] COMMENT
     }
-    
+
+    [SuppressMessage("ReSharper", "UnusedVariable")]
+    [SuppressMessage("ReSharper", "PossibleNullReferenceException")]
     public class SingleLineCommentsTest
     {
-     
-
         [Fact]
         public void TestGenericMultiLineCommentWithSingleLineComment()
         {
@@ -77,6 +78,6 @@ comment on 2 lines */ 3.0");
             Assert.Equal(0, token4.Position.Column);
         }
 
-       
+
     }
 }

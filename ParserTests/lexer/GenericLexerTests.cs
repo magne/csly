@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Text;
 using GenericLexerWithCallbacks;
@@ -243,6 +244,8 @@ namespace ParserTests.lexer
         C,
     }
 
+    [SuppressMessage("ReSharper", "UnusedVariable")]
+    [SuppressMessage("ReSharper", "PossibleNullReferenceException")]
     public class GenericLexerTests
     {
         [Fact]

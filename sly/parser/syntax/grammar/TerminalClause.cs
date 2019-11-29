@@ -1,5 +1,5 @@
-using System.Text;
 using System.Diagnostics.CodeAnalysis;
+using System.Text;
 
 namespace sly.parser.syntax.grammar
 {
@@ -37,7 +37,7 @@ namespace sly.parser.syntax.grammar
             if (Discarded) b.Append("[d]");
             return b.ToString();
         }
-        
+
         public string Dump()
         {
             return ExpectedToken.ToString();

@@ -1,4 +1,5 @@
-﻿using jsonparser;
+﻿using System.Diagnostics.CodeAnalysis;
+using jsonparser;
 using jsonparser.JsonModel;
 using sly.parser;
 using sly.parser.generator;
@@ -6,6 +7,8 @@ using Xunit;
 
 namespace ParserTests.samples
 {
+    [SuppressMessage("ReSharper", "UnusedVariable")]
+    [SuppressMessage("ReSharper", "PossibleNullReferenceException")]
     public class JsonTests
     {
         public JsonTests()
@@ -36,7 +39,7 @@ namespace ParserTests.samples
             Assert.Equal(value, val.GetValue<int>());
         }
 
-
+        // ReSharper disable once UnusedMember.Local
         private void AssertDouble(JObject obj, string key, double value)
         {
             Assert.True(obj.ContainsKey(key));
@@ -46,7 +49,7 @@ namespace ParserTests.samples
             Assert.Equal(value, val.GetValue<double>());
         }
 
-
+        // ReSharper disable once UnusedMember.Local
         private void AssertString(JList list, int index, string value)
         {
             Assert.True(list[index].IsValue);
@@ -202,8 +205,7 @@ namespace ParserTests.samples
         [Fact]
         public void TestManyPropertyObjectValue()
         {
-            var json = "{\"p1\":\"v1\",\"p2\":\"v2\"}";
-            json = "{\"p1\":\"v1\" , \"p2\":\"v2\" }";
+            var json = "{\"p1\":\"v1\" , \"p2\":\"v2\" }";
             var r = Parser.Parse(json);
             Assert.False(r.IsError);
             Assert.NotNull(r.Result);

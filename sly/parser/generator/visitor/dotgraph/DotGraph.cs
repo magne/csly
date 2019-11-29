@@ -9,7 +9,7 @@ namespace sly.parser.generator.visitor.dotgraph
         private readonly bool Directed;
         private List<DotNode> nodes;
         private List<DotArrow> edges;
-        
+
         public DotGraph(string graphName, bool directed)
         {
             GraphName = graphName;
@@ -42,6 +42,7 @@ namespace sly.parser.generator.visitor.dotgraph
             {
                 builder.AppendLine(edge.ToGraph());
             }
+
             builder.AppendLine("}");
             return builder.ToString();
         }
