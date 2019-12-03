@@ -1,7 +1,7 @@
 using System.Collections.Generic;
 using System.Linq;
 
-namespace sly.lexer.regex
+namespace sly.v3.lexer.regex
 {
     // ----------------------------------------------------------------------
 

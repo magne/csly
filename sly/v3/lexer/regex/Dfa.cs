@@ -1,7 +1,7 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace sly.lexer.regex
+namespace sly.v3.lexer.regex
 {
     // Class Dfa, deterministic finite automata
 

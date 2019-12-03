@@ -4,7 +4,7 @@ using sly.lexer.fsm;
 
 namespace sly.v3.lexer
 {
-    internal class LexerBuilder
+    internal static class LexerBuilder
     {
         internal static BuildResult<ILexer<TLexeme>> BuildLexer<TLexeme>(BuildResult<ILexer<TLexeme>> result, BuildExtension<TLexeme> extensionBuilder)
             where TLexeme : struct

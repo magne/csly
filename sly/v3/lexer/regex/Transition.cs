@@ -1,4 +1,4 @@
-namespace sly.lexer.regex
+namespace sly.v3.lexer.regex
 {
     // Class Transition, a transition from one state to another
     internal class Transition
