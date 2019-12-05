@@ -28,6 +28,13 @@ namespace sly.lexer
 
     public class LexerBuilder
     {
+        public static bool UseV3 { get; set; }
+
+        static LexerBuilder()
+        {
+            UseV3 = Environment.GetEnvironmentVariable("SLY_V3") != null;
+        }
+
         public static Dictionary<IN, List<LexemeAttribute>> GetLexemes<IN>(BuildResult<ILexer<IN>> result) where IN: struct
         {
             var attributes = new Dictionary<IN, List<LexemeAttribute>>();
@@ -53,8 +60,13 @@ namespace sly.lexer
 
 
         public static BuildResult<ILexer<IN>> BuildLexer<IN>(BuildResult<ILexer<IN>> result,
-            BuildExtension<IN> extensionBuilder = null) where IN : struct
+                                                             BuildExtension<IN> extensionBuilder = null) where IN : struct
         {
+            if (UseV3)
+            {
+                return v3.lexer.LexerBuilder.BuildLexer(result, extensionBuilder);
+            }
+
             var attributes = GetLexemes(result);
 
             result = Build(attributes, result, extensionBuilder);
@@ -63,7 +75,7 @@ namespace sly.lexer
         }
 
 
-        private static BuildResult<ILexer<IN>> Build<IN>(Dictionary<IN, List<LexemeAttribute>> attributes,
+        internal static BuildResult<ILexer<IN>> Build<IN>(Dictionary<IN, List<LexemeAttribute>> attributes,
             BuildResult<ILexer<IN>> result, BuildExtension<IN> extensionBuilder = null) where IN : struct
         {
             var hasRegexLexemes = IsRegexLexer(attributes);
