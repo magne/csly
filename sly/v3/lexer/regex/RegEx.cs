@@ -1,4 +1,7 @@
 using System;
+using System.Collections;
+using System.Collections.Generic;
+using System.Text;
 
 namespace sly.v3.lexer.regex
 {
@@ -87,18 +90,25 @@ namespace sly.v3.lexer.regex
 
             private RegEx factor()
             {
-                var @base = this.@base();
+                var atom = this.atom();
 
-                while (More() && Peek() == '*')
+                while (More() && (Peek() == '*' || Peek() == '+'))
                 {
-                    Eat('*');
-                    @base = new Star(@base);
+                    switch (Next())
+                    {
+                        case '*':
+                            atom = new Star(atom);
+                            break;
+                        case '+':
+                            atom = new Plus(atom);
+                            break;
+                    }
                 }
 
-                return @base;
+                return atom;
             }
 
-            private RegEx @base()
+            private RegEx atom()
             {
                 switch (Peek())
                 {
@@ -113,9 +123,33 @@ namespace sly.v3.lexer.regex
                         var esc = Next();
                         return new Sym(esc.ToString());
 
+                    case '[':
+                        Eat('[');
+                        var set = Until(']');
+                        return new Range(set);
+
                     default:
                         return new Sym(Next().ToString());
                 }
+            }
+
+            private string Until(char terminator)
+            {
+                var buf = new StringBuilder();
+
+                var ch = Next();
+                while (ch != terminator)
+                {
+                    if (ch == '\\')
+                    {
+                        ch = Next();
+                    }
+
+                    buf.Append(ch);
+                    ch = Next();
+                }
+
+                return buf.ToString();
             }
         }
     }
@@ -301,8 +335,8 @@ namespace sly.v3.lexer.regex
                 nfa0.AddTrans(entry);
             }
 
-            nfa0.AddTrans(s0s,       null, nfa1.Start);
-            nfa0.AddTrans(s0s,       null, nfa2.Start);
+            nfa0.AddTrans(s0s, null, nfa1.Start);
+            nfa0.AddTrans(s0s, null, nfa2.Start);
             nfa0.AddTrans(nfa1.Exit, null, s0e);
             nfa0.AddTrans(nfa2.Exit, null, s0e);
             return nfa0;
@@ -364,7 +398,7 @@ namespace sly.v3.lexer.regex
                 nfa0.AddTrans(entry);
             }
 
-            nfa0.AddTrans(s0s,       null, nfa1.Start);
+            nfa0.AddTrans(s0s, null, nfa1.Start);
             nfa0.AddTrans(nfa1.Exit, null, s0s);
             return nfa0;
         }
@@ -399,6 +433,166 @@ namespace sly.v3.lexer.regex
             }
 
             return $"{r}*";
+        }
+    }
+
+    internal class Plus : RegEx
+    {
+        private readonly RegEx r;
+
+        public Plus(RegEx r)
+        {
+            this.r = r;
+        }
+
+        // If   nfa1 has form s1s ----> s1e
+        // then nfa0 has form s0s ----> s0s
+        //                    s0s -eps-> s1s
+        //                    s1e -eps-> s0s
+        public override Nfa MkNfa(Nfa.NameSource names)
+        {
+            var nfa1 = r.MkNfa(names);
+            var s0s = Nfa.NameSource.Next();
+            var s0e = Nfa.NameSource.Next();
+            var nfa0 = new Nfa(s0s, s0e);
+            foreach (var entry in nfa1.Trans)
+            {
+                nfa0.AddTrans(entry);
+            }
+
+            nfa0.AddTrans(s0s, null, nfa1.Start);
+            nfa0.AddTrans(nfa1.Exit, null, s0s);
+            nfa0.AddTrans(nfa1.Exit, null, s0e);
+            return nfa0;
+        }
+
+        protected internal override int Priority => 1;
+
+        public override bool Equals(object obj)
+        {
+            if (this == obj)
+            {
+                return true;
+            }
+
+            if (obj is Plus other)
+            {
+                return r.Equals(other.r);
+            }
+
+            return false;
+        }
+
+        public override int GetHashCode()
+        {
+            return r.GetHashCode();
+        }
+
+        public override string ToString()
+        {
+            if (Priority < r.Priority)
+            {
+                return $"({r})+";
+            }
+
+            return $"{r}+";
+        }
+    }
+
+    internal class Range : RegEx
+    {
+        private readonly bool complement;
+
+        private readonly (char start, char end)[] ranges;
+
+        public Range(string pattern)
+        {
+            var i = 0;
+            if (pattern[i] == '^')
+            {
+                complement = true;
+                i++;
+            }
+
+            var list = new List<(char, char)>();
+            for (; i < pattern.Length;)
+            {
+                var start = pattern[i++];
+                if (i < pattern.Length && pattern[i] == '-')
+                {
+                    i++;
+                    if (i < pattern.Length)
+                    {
+                        list.Add((start, pattern[i++]));
+                    }
+                    else
+                    {
+                        throw new Exception($"Invalid range: ${pattern}");
+                    }
+                }
+                else
+                {
+                    list.Add((start, start));
+                }
+
+                ranges = list.ToArray();
+            }
+        }
+
+        public override Nfa MkNfa(Nfa.NameSource names)
+        {
+            throw new NotImplementedException();
+        }
+
+        protected internal override int Priority => 0;
+
+        public override bool Equals(object obj)
+        {
+            if (this == obj)
+            {
+                return true;
+            }
+
+            if (obj is Range other)
+            {
+                return complement == other.complement && ((IStructuralEquatable) ranges).Equals(other.ranges, StructuralComparisons.StructuralEqualityComparer);
+            }
+
+            return false;
+        }
+
+        public override int GetHashCode()
+        {
+            var hash = complement ? 1 : 0;
+            foreach (var (start, end) in ranges)
+            {
+                hash = 31 * hash + start;
+                hash = 37 * hash + end;
+            }
+
+            return hash;
+        }
+
+        public override string ToString()
+        {
+            var buf = new StringBuilder();
+            buf.Append('[');
+            if (complement)
+            {
+                buf.Append('^');
+            }
+
+            foreach (var (start, end) in ranges)
+            {
+                buf.Append(start);
+                if (start != end)
+                {
+                    buf.Append('-').Append(end);
+                }
+            }
+
+            buf.Append(']');
+            return buf.ToString();
         }
     }
 }
