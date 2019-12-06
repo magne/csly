@@ -1,40 +1,12 @@
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using sly.buildresult;
-using sly.lexer;
-using sly.lexer.fsm;
 
 namespace sly.v3.lexer
 {
     internal static class LexerBuilder
     {
-        internal static BuildResult<ILexer<TLexeme>> BuildLexer<TLexeme>(BuildResult<ILexer<TLexeme>> result, BuildExtension<TLexeme> extensionBuilder)
-            where TLexeme : struct
-        {
-            var attributes = sly.lexer.LexerBuilder.GetLexemes(result);
-
-            if (IsRegexLexer(attributes) && !IsGenericLexer(attributes))
-            {
-                return BuildRegexLexer(attributes, result);
-            }
-
-            return sly.lexer.LexerBuilder.Build(attributes, result, extensionBuilder);
-        }
-
-        private static bool IsRegexLexer<TLexeme>(IDictionary<TLexeme, List<LexemeAttribute>> attributes)
-        {
-            return attributes.Values.SelectMany(list => list)
-                             .Any(lexeme => !string.IsNullOrEmpty(lexeme.Pattern));
-        }
-
-        private static bool IsGenericLexer<IN>(Dictionary<IN, List<LexemeAttribute>> attributes)
-        {
-            return attributes.Values.SelectMany(list => list)
-                             .Any(lexeme => lexeme.GenericToken != default);
-        }
-
-        private static BuildResult<ILexer<IN>> BuildRegexLexer<IN>(Dictionary<IN, List<LexemeAttribute>> attributes,
+        internal static BuildResult<ILexer<IN>> BuildRegexLexer<IN>(Dictionary<IN, List<LexemeAttribute>> attributes,
                                                                    BuildResult<ILexer<IN>> result) where IN : struct
         {
             var lexer = new Lexer<IN>();

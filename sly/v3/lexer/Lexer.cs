@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using sly.lexer;
 using sly.v3.lexer.regex;
 
 namespace sly.v3.lexer
@@ -9,7 +8,7 @@ namespace sly.v3.lexer
     ///     T is the token type
     /// </summary>
     /// <typeparam name="T">T is the enum Token type</typeparam>
-    public class Lexer<T> : ILexer<T> where T : struct
+    internal class Lexer<T> : ILexer<T> where T : struct
     {
         private readonly IList<TokenDefinition<T>> tokenDefinitions = new List<TokenDefinition<T>>();
 

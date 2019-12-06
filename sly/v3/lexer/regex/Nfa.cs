@@ -231,7 +231,7 @@ namespace sly.v3.lexer.regex
         }
 
         // Nested class for creating distinctly named states when constructing NFAs
-        public class NameSource
+        internal class NameSource
         {
             private static int nextName;
 

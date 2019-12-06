@@ -64,7 +64,7 @@ namespace sly.lexer
         {
             if (UseV3)
             {
-                return v3.lexer.LexerBuilder.BuildLexer(result, extensionBuilder);
+                return v3.adapter.LexerBuilderAdapter.BuildLexer(result, extensionBuilder);
             }
 
             var attributes = GetLexemes(result);
@@ -181,7 +181,7 @@ namespace sly.lexer
 
             return (config, statics.Distinct().ToArray());
         }
-        
+
         private static IEnumerable<char[]> ParseIdentifierPattern(string pattern)
         {
             var index = 0;
@@ -312,7 +312,7 @@ namespace sly.lexer
                         {
                             lexer.MultiLineCommentStart = commentAttr.MultiLineCommentStart;
                             lexer.MultiLineCommentEnd = commentAttr.MultiLineCommentEnd;
-                            
+
                             fsmBuilder.GoTo(GenericLexer<IN>.start);
                             fsmBuilder.ConstantTransition(commentAttr.MultiLineCommentStart);
                             fsmBuilder.Mark(GenericLexer<IN>.multi_line_comment_start);
@@ -322,7 +322,7 @@ namespace sly.lexer
                     }
                 }
             }
-            
+
             result.Result = lexer;
             return result;
         }
