@@ -4,18 +4,17 @@ namespace sly.v3.lexer.fsm.transitioncheck
 {
     internal class TransitionSingle : AbstractTransitionCheck
     {
-        private readonly char TransitionToken;
+        private readonly char transitionToken;
 
-        public TransitionSingle(char token)
+        public TransitionSingle(char token, TransitionPrecondition precondition = null)
         {
-            TransitionToken = token;
+            transitionToken = token;
+            Precondition = precondition;
         }
 
-
-        public TransitionSingle(char token, TransitionPrecondition precondition)
+        public override bool Match(char input)
         {
-            TransitionToken = token;
-            Precondition = precondition;
+            return input.Equals(transitionToken);
         }
 
         [ExcludeFromCodeCoverage]
@@ -23,13 +22,8 @@ namespace sly.v3.lexer.fsm.transitioncheck
         {
             var t = "";
             if (Precondition != null) t = "[|] ";
-             t += TransitionToken.ToEscaped();
+            t += transitionToken.ToEscaped();
             return $@"[ label=""{t}"" ]";
-        }
-
-        public override bool Match(char input)
-        {
-            return input.Equals(TransitionToken);
         }
     }
 }

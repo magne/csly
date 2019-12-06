@@ -4,13 +4,14 @@ namespace sly.v3.lexer.fsm.transitioncheck
 {
     internal class TransitionAny : AbstractTransitionCheck
     {
-        public TransitionAny(char token)
-        {
-        }
-
-        public TransitionAny(char token, TransitionPrecondition transitionPrecondition)
+        public TransitionAny(char token, TransitionPrecondition transitionPrecondition = null)
         {
             Precondition = transitionPrecondition;
+        }
+
+        public override bool Match(char input)
+        {
+            return true;
         }
 
         [ExcludeFromCodeCoverage]
@@ -18,11 +19,6 @@ namespace sly.v3.lexer.fsm.transitioncheck
         {
             var label = (Precondition != null) ? "[|]*" : "*";
             return  $@"[ label=""{label}"" ]";
-        }
-
-        public override bool Match(char input)
-        {
-            return true;
         }
     }
 }

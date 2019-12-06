@@ -1,6 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
+using System;
 
 namespace sly.v3.lexer.fsm.transitioncheck
 {
@@ -21,7 +21,8 @@ namespace sly.v3.lexer.fsm.transitioncheck
     }
     internal abstract class AbstractTransitionCheck
     {
-        public TransitionPrecondition Precondition { get; set; }
+        protected TransitionPrecondition Precondition { get; set; }
+
         public abstract bool Match(char input);
 
         public bool Check(char input, ReadOnlyMemory<char> value)

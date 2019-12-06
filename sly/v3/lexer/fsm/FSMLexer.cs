@@ -6,8 +6,10 @@ using System.Text;
 
 namespace sly.v3.lexer.fsm
 {
+
     internal static class MemoryExtensions
     {
+
         public static T At<T>(this ReadOnlyMemory<T> memory, int index)
         {
             return memory.Span[index];
@@ -18,17 +20,14 @@ namespace sly.v3.lexer.fsm
 
     internal class FSMLexer<N>
     {
-        private readonly Dictionary<int, FSMNode<N>> Nodes;
+        private readonly List<FSMNode<N>> Nodes;
 
-        public char StringDelimiter = '"';
+        private readonly List<List<FSMTransition>> Transitions;
 
-        private readonly Dictionary<int, List<FSMTransition>> Transitions;
-
-        public FSMLexer()
+        public FSMLexer(List<FSMNode<N>> nodes, List<List<FSMTransition>> transitions)
         {
-            Nodes = new Dictionary<int, FSMNode<N>>();
-            Transitions = new Dictionary<int, List<FSMTransition>>();
-            Callbacks = new Dictionary<int, NodeCallback<N>>();
+            Nodes = nodes;
+            Transitions = transitions;
             IgnoreWhiteSpace = false;
             IgnoreEOL = false;
             AggregateEOL = false;
@@ -37,100 +36,28 @@ namespace sly.v3.lexer.fsm
 
         public bool IgnoreWhiteSpace { get; set; }
 
-        public List<char> WhiteSpaces { get; set; }
+        public List<char> WhiteSpaces { get; }
 
         public bool IgnoreEOL { get; set; }
 
         public bool AggregateEOL { get; set; }
 
-
-        private Dictionary<int, NodeCallback<N>> Callbacks { get; }
-
         [ExcludeFromCodeCoverage]
         public string ToGraphViz()
         {
             var dump = new StringBuilder();
-            foreach (var transitions in Transitions.Values)
+            foreach (var transitions in Transitions.Where(t => t != null))
                 foreach (var transition in transitions)
                     dump.AppendLine(transition.ToGraphViz(Nodes));
             return dump.ToString();
         }
-
-        #region accessors
-
-        internal bool HasState(int state)
-        {
-            return Nodes.ContainsKey(state);
-        }
-
-        internal FSMNode<N> GetNode(int state)
-        {
-            Nodes.TryGetValue(state, out var node);
-            return node;
-        }
-
-        internal int NewNodeId => Nodes.Count;
-
-        internal bool HasCallback(int nodeId)
-        {
-            return Callbacks.ContainsKey(nodeId);
-        }
-
-        internal void SetCallback(int nodeId, NodeCallback<N> callback)
-        {
-            Callbacks[nodeId] = callback;
-        }
-
-        #endregion
-
-        #region build
-
-        public FSMTransition GetTransition(int nodeId, char token)
-        {
-            FSMTransition transition = null;
-            if (HasState(nodeId))
-                if (Transitions.ContainsKey(nodeId))
-                {
-                    var leavingTransitions = Transitions[nodeId];
-                    transition = leavingTransitions.FirstOrDefault(t => t.Match(token));
-                }
-
-            return transition;
-        }
-
-
-        public void AddTransition(FSMTransition transition)
-        {
-            var transitions = new List<FSMTransition>();
-            if (Transitions.ContainsKey(transition.FromNode)) transitions = Transitions[transition.FromNode];
-            transitions.Add(transition);
-            Transitions[transition.FromNode] = transitions;
-        }
-
-
-        public FSMNode<N> AddNode(N value)
-        {
-            var node = new FSMNode<N>(value);
-            node.Id = Nodes.Count;
-            Nodes[node.Id] = node;
-            return node;
-        }
-
-        public FSMNode<N> AddNode()
-        {
-            var node = new FSMNode<N>(default(N));
-            node.Id = Nodes.Count;
-            Nodes[node.Id] = node;
-            return node;
-        }
-
-        #endregion
 
         #region run
 
         public int CurrentPosition { get; private set; }
         public int CurrentColumn { get; private set; }
         public int CurrentLine { get; private set; }
+
 
         public void MovePosition(int newPosition, int newLine, int newColumn)
         {
@@ -156,116 +83,140 @@ namespace sly.v3.lexer.fsm
 
         public FSMMatch<N> Run(ReadOnlyMemory<char> source, int start)
         {
+            var tokenStartIndex = start;
+            var result = new FSMMatch<N>(false);
+            var successes = new Stack<FSMMatch<N>>();
             CurrentPosition = start;
-            ConsumeIgnored(source);
-
-            // End of token stream
-            if (CurrentPosition >= source.Length)
-            {
-                return new FSMMatch<N>(false);
-            }
-
-            // Make a note of where current token starts
-            var position = new TokenPosition(CurrentPosition, CurrentLine, CurrentColumn);
-
-            FSMMatch<N> result = null;
             var currentNode = Nodes[0];
-            while (CurrentPosition < source.Length)
+            TokenPosition position = null;
+
+            var tokenStarted = false;
+
+
+            if (CurrentPosition < source.Length)
             {
-                var currentCharacter = source.At(CurrentPosition);
-                var currentValue = source.Slice(position.Index, CurrentPosition - position.Index + 1);
-                currentNode = Move(currentNode, currentCharacter, currentValue);
-                if (currentNode == null)
+                while (CurrentPosition < source.Length && currentNode != null)
                 {
-                    // No more viable transitions, so exit loop
-                    break;
-                }
+                    var currentCharacter = source.Span[CurrentPosition];
 
-                if (currentNode.IsEnd)
-                {
-                    // Remember the possible match
-                    result = new FSMMatch<N>(true, currentNode.Value, currentValue, position, currentNode.Id);
-                }
+                    var consumeSkipped = true;
 
-                CurrentPosition++;
-                CurrentColumn++;
+                    while (consumeSkipped && !tokenStarted && CurrentPosition < source.Length)
+                    {
+                        currentCharacter = source.At(CurrentPosition);
+                        if (IgnoreWhiteSpace && WhiteSpaces.Contains(currentCharacter))
+                        {
+                            if (successes.Any())
+                                currentNode = null;
+                            else
+                                currentNode = Nodes[0];
+                            CurrentPosition++;
+                            CurrentColumn++;
+                        }
+                        else
+                        {
+                            var eol = EOLManager.IsEndOfLine(source, CurrentPosition);
+
+                            if (IgnoreEOL && eol != EOLType.No)
+                            {
+                                if (successes.Any())
+                                    currentNode = null;
+                                else
+                                    currentNode = Nodes[0];
+                                CurrentPosition += eol == EOLType.Windows ? 2 : 1;
+                                CurrentColumn = 0;
+                                CurrentLine++;
+                            }
+                            else
+                            {
+                                consumeSkipped = false;
+                            }
+                        }
+                        tokenStartIndex = CurrentPosition;
+                    }
+
+                    if (CurrentPosition >= source.Length)
+                    {
+                        return new FSMMatch<N>(false);
+                    }
+                    var currentValue = source.Slice(tokenStartIndex, CurrentPosition - tokenStartIndex + 1);
+
+
+                    currentNode = Move(currentNode, currentCharacter, currentValue);
+                    if (currentNode != null)
+                    {
+                        if (!tokenStarted)
+                        {
+                            tokenStarted = true;
+                            position = new TokenPosition(CurrentPosition, CurrentLine, CurrentColumn);
+                        }
+
+                        if (currentNode.IsEnd)
+                        {
+                            var resultInter = new FSMMatch<N>(true, currentNode.Value, currentValue, position, currentNode.Id);
+                            successes.Push(resultInter);
+                        }
+
+                        CurrentPosition++;
+                        CurrentColumn++;
+                    }
+                    else
+                    {
+                        if (!successes.Any() && CurrentPosition < source.Length)
+                        {
+                            var errorChar = source.Slice(CurrentPosition, 1);
+                            var errorPosition = new TokenPosition(CurrentPosition, CurrentLine, CurrentColumn);
+                            var ko = new FSMMatch<N>(false, default(N), errorChar, errorPosition, -1);
+                            return ko;
+                        }
+                    }
+                }
             }
 
-            if (result != null)
-            {
-                // Backtrack
-                var length = result.Result.Value.Length;
-                CurrentPosition = result.Result.Position.Index + length;
-                CurrentColumn = result.Result.Position.Column + length;
 
-                if (HasCallback(result.NodeId))
+            if (successes.Any())
+            {
+                result = successes.Pop();
+                var node = Nodes[result.NodeId];
+                if (node.HasCallback)
                 {
-                    result = Callbacks[result.NodeId](result);
+                    result = node.Callback(result);
                 }
-
-                return result;
             }
 
-            if (CurrentPosition >= source.Length)
-            {
-                // Failed on last character, so need to backtrack
-                CurrentPosition -= 1;
-                CurrentColumn -= 1;
-            }
-
-            var errorChar = source.Slice(CurrentPosition, 1);
-            var errorPosition = new TokenPosition(CurrentPosition, CurrentLine, CurrentColumn);
-            var ko = new FSMMatch<N>(false, default(N), errorChar, errorPosition, -1);
-            return ko;
+            return result;
         }
 
         private FSMNode<N> Move(FSMNode<N> from, char token, ReadOnlyMemory<char> value)
         {
-            if (from != null && Transitions.TryGetValue(from.Id, out var transitions))
+            FSMNode<N> next = null;
+            if (from != null)
             {
-                // Do NOT use Linq, increases allocations AND running time
-                for (var i = 0; i < transitions.Count; ++i)
+                if (Transitions[from.Id] != null)
                 {
-                    var transition = transitions[i];
-                    if (transition.Match(token, value))
+                    var transitions = Transitions[from.Id];
+                    if (transitions.Any())
                     {
-                        return Nodes[transition.ToNode];
+                        var i = 0;
+                        var transition = transitions[i];
+                        var match = transition.Match(token, value);
+
+                        while (i < transitions.Count && !match)
+                        {
+                            transition = transitions[i];
+                            match = transition.Match(token, value);
+                            i++;
+                        }
+
+                        if (match)
+                        {
+                            next = Nodes[transition.ToNode];
+                        }
                     }
                 }
             }
 
-            return null;
-        }
-
-        private void ConsumeIgnored(ReadOnlyMemory<char> source)
-        {
-            while (CurrentPosition < source.Length)
-            {
-                if (IgnoreWhiteSpace)
-                {
-                    var currentCharacter = source.At(CurrentPosition);
-                    if (WhiteSpaces.Contains(currentCharacter))
-                    {
-                        CurrentPosition++;
-                        CurrentColumn++;
-                        continue;
-                    }
-                }
-
-                if (IgnoreEOL)
-                {
-                    var eol = EOLManager.IsEndOfLine(source, CurrentPosition);
-                    if (eol != EOLType.No)
-                    {
-                        CurrentPosition += eol == EOLType.Windows ? 2 : 1;
-                        CurrentColumn = 0;
-                        CurrentLine++;
-                        continue;
-                    }
-                }
-
-                break;
-            }
+            return next;
         }
 
         #endregion
