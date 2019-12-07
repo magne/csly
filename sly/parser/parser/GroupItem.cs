@@ -4,7 +4,7 @@ using sly.lexer;
 
 namespace sly.parser.parser
 {
-    public class GroupItem<IN, OUT>
+    public class GroupItem<TIn, TOut>
     {
         public string Name;
 
@@ -15,50 +15,50 @@ namespace sly.parser.parser
             IsValue = false;
         }
 
-        public GroupItem(string name, Token<IN> token)
+        public GroupItem(string name, Token<TIn> token)
         {
             Name = name;
             IsToken = true;
             Token = token;
         }
 
-        public GroupItem(string name, OUT value)
+        public GroupItem(string name, TOut value)
         {
             Name = name;
             IsValue = true;
             Value = value;
         }
 
-        public Token<IN> Token { get; }
+        public Token<TIn> Token { get; }
 
         public bool IsToken { get; set; }
 
-        public OUT Value { get; set; }
+        public TOut Value { get; set; }
 
         public bool IsValue { get; }
 
 
-        public X Match<X>(Func<string, Token<IN>, X> fToken, Func<string, OUT, X> fValue)
+        public TX Match<TX>(Func<string, Token<TIn>, TX> fToken, Func<string, TOut, TX> fValue)
         {
             if (IsToken)
                 return fToken(Name, Token);
             return fValue(Name, Value);
         }
 
-        public static implicit operator OUT(GroupItem<IN, OUT> item)
+        public static implicit operator TOut(GroupItem<TIn, TOut> item)
         {
-            return item.Match((name, token) => default(OUT), (name, value) => item.Value);
+            return item.Match((name, token) => default(TOut), (name, value) => item.Value);
         }
 
-        public static implicit operator Token<IN>(GroupItem<IN, OUT> item)
+        public static implicit operator Token<TIn>(GroupItem<TIn, TOut> item)
         {
-            return item.Match((name, token) => item.Token, (name, value) => default(Token<IN>));
+            return item.Match((name, token) => item.Token, (name, value) => default(Token<TIn>));
         }
 
         [ExcludeFromCodeCoverage]
         public override string ToString()
         {
-            return IsValue ? ((OUT) this).ToString() : ((Token<IN>) this).Value;
+            return IsValue ? ((TOut) this).ToString() : ((Token<TIn>) this).Value;
         }
     }
 }

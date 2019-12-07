@@ -49,13 +49,13 @@ namespace ParserTests.lexer
             Assert.True(r.IsOk);
             var tokens = r.Tokens;
             Assert.Equal(6, tokens.Count);
-            var expectedTokensID = new List<ExpressionToken>
+            var expectedTokensId = new List<ExpressionToken>
             {
                 ExpressionToken.INT, ExpressionToken.PLUS, ExpressionToken.INT,
                 ExpressionToken.TIMES, ExpressionToken.INT
             };
-            var tokensID = tokens.Take(5).Select(tok => tok.TokenID).ToList();
-            Assert.Equal(expectedTokensID, tokensID);
+            var tokensId = tokens.Take(5).Select(tok => tok.TokenID).ToList();
+            Assert.Equal(expectedTokensId, tokensId);
 
             var expectedColumnPositions = new List<int>
             {
@@ -84,14 +84,14 @@ namespace ParserTests.lexer
             Assert.True(r.IsOk);
             var tokens = r.Tokens;
             Assert.Equal(10, tokens.Count);
-            var expectedTokensID = new List<JsonToken>
+            var expectedTokensId = new List<JsonToken>
             {
                 JsonToken.ACCG, JsonToken.STRING, JsonToken.COLON, JsonToken.INT,
                 JsonToken.COMMA, JsonToken.STRING, JsonToken.COLON, JsonToken.STRING,
                 JsonToken.ACCD
             };
-            var tokensID = tokens.Take(9).Select(tok => tok.TokenID).ToList();
-            Assert.Equal(expectedTokensID, tokensID);
+            var tokensId = tokens.Take(9).Select(tok => tok.TokenID).ToList();
+            Assert.Equal(expectedTokensId, tokensId);
 
             var expectedColumnPositions = new List<int>
             {
@@ -120,13 +120,13 @@ namespace ParserTests.lexer
             Assert.True(r.IsOk);
             var tokens = r.Tokens;
             Assert.Equal(6, tokens.Count);
-            var expectedTokensID = new List<ExpressionToken>
+            var expectedTokensId = new List<ExpressionToken>
             {
                 ExpressionToken.INT, ExpressionToken.PLUS, ExpressionToken.INT,
                 ExpressionToken.TIMES, ExpressionToken.INT
             };
-            var tokensID = tokens.Take(5).Select(tok => tok.TokenID).ToList();
-            Assert.Equal(expectedTokensID, tokensID);
+            var tokensId = tokens.Take(5).Select(tok => tok.TokenID).ToList();
+            Assert.Equal(expectedTokensId, tokensId);
 
             var expectedColumnPositions = new List<int>
             {
@@ -147,14 +147,14 @@ namespace ParserTests.lexer
             Assert.True(r.IsOk);
             var tokens = r.Tokens;
             Assert.Equal(10, tokens.Count);
-            var expectedTokensID = new List<JsonToken>
+            var expectedTokensId = new List<JsonToken>
             {
                 JsonToken.ACCG, JsonToken.STRING, JsonToken.COLON, JsonToken.INT,
                 JsonToken.COMMA, JsonToken.STRING, JsonToken.COLON, JsonToken.STRING,
                 JsonToken.ACCD
             };
-            var tokensID = tokens.Take(9).Select(tok => tok.TokenID).ToList();
-            Assert.Equal(expectedTokensID, tokensID);
+            var tokensId = tokens.Take(9).Select(tok => tok.TokenID).ToList();
+            Assert.Equal(expectedTokensId, tokensId);
 
             var expectedColumnPositions = new List<int>
             {

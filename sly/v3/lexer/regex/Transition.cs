@@ -3,18 +3,18 @@ namespace sly.v3.lexer.regex
     // Class Transition, a transition from one state to another
     internal class Transition
     {
-        public readonly string lab;
-        public readonly int target;
+        public readonly string Lab;
+        public readonly int Target;
 
         public Transition(string lab, int target)
         {
-            this.lab = lab;
-            this.target = target;
+            this.Lab = lab;
+            this.Target = target;
         }
 
         public override string ToString()
         {
-            return $"-{lab}-> {target}";
+            return $"-{Lab}-> {Target}";
         }
     }
 }

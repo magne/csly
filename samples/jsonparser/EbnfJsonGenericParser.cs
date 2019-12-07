@@ -113,7 +113,7 @@ namespace jsonparser
 
 
         [Production("listElements: value additionalValue*")]
-        public JSon listElements(JSon head, List<JSon> tail)
+        public JSon ListElements(JSon head, List<JSon> tail)
         {
             var values = new JList(head);
             values.AddRange(tail);
@@ -140,13 +140,13 @@ namespace jsonparser
         }
 
         [Production("additionalProperty : COMMA property")]
-        public object property(Token<JsonTokenGeneric> comma, JObject property)
+        public object Property(Token<JsonTokenGeneric> comma, JObject property)
         {
             return property;
         }
 
         [Production("property: STRING COLON value")]
-        public object property(Token<JsonTokenGeneric> key, object colon, JSon value)
+        public object Property(Token<JsonTokenGeneric> key, object colon, JSon value)
         {
             return new JObject(key.StringWithoutQuotes, value);
         }

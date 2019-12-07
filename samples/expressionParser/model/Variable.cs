@@ -1,18 +1,18 @@
 ﻿namespace expressionparser.model
 {
-    public sealed class Variable : Expression
+    public sealed class Variable : IExpression
     {
-        private readonly string VariableName;
+        private readonly string variableName;
 
         public Variable(string varName)
         {
-            VariableName = varName;
+            variableName = varName;
         }
 
 
         public int? Evaluate(ExpressionContext context)
         {
-            return context.GetValue(VariableName);
+            return context.GetValue(variableName);
         }
     }
 }

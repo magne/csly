@@ -1,8 +1,10 @@
+using System.Diagnostics.CodeAnalysis;
 using sly.lexer;
 
 // ReSharper disable once CheckNamespace
 namespace bench.json
 {
+    [SuppressMessage("ReSharper", "InconsistentNaming")]
     public enum JsonTokenGeneric
     {
         [Lexeme(GenericToken.String)] STRING = 1,

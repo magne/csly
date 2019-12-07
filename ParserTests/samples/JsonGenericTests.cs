@@ -12,10 +12,10 @@ namespace ParserTests.samples
         {
             var jsonParser = new EbnfJsonGenericParser();
             var builder = new ParserBuilder<JsonTokenGeneric, JSon>();
-            Parser = builder.BuildParser(jsonParser, ParserType.EBNF_LL_RECURSIVE_DESCENT, "root").Result;
+            parser = builder.BuildParser(jsonParser, ParserType.EBNF_LL_RECURSIVE_DESCENT, "root").Result;
         }
 
-        private static Parser<JsonTokenGeneric, JSon> Parser;
+        private static Parser<JsonTokenGeneric, JSon> parser;
 
 
         private void AssertString(JObject obj, string key, string value)
@@ -92,7 +92,7 @@ namespace ParserTests.samples
         [Fact]
         public void TestDoubleValue()
         {
-            var r = Parser.Parse("0.1");
+            var r = parser.Parse("0.1");
             Assert.False(r.IsError);
             Assert.NotNull(r.Result);
             Assert.True(r.Result.IsValue);
@@ -104,7 +104,7 @@ namespace ParserTests.samples
         [Fact]
         public void TestEmptyListValue()
         {
-            var r = Parser.Parse("[]");
+            var r = parser.Parse("[]");
             Assert.False(r.IsError);
             Assert.NotNull(r.Result);
             Assert.True(r.Result.IsList);
@@ -114,7 +114,7 @@ namespace ParserTests.samples
         [Fact]
         public void TestEmptyObjectValue()
         {
-            var r = Parser.Parse("{}");
+            var r = parser.Parse("{}");
             Assert.False(r.IsError);
             Assert.NotNull(r.Result);
             Assert.True(r.Result.IsObject);
@@ -124,7 +124,7 @@ namespace ParserTests.samples
         [Fact]
         public void TestFalseBooleanValue()
         {
-            var r = Parser.Parse("false");
+            var r = parser.Parse("false");
             Assert.False(r.IsError);
             Assert.NotNull(r.Result);
             Assert.True(r.Result.IsValue);
@@ -136,7 +136,7 @@ namespace ParserTests.samples
         [Fact]
         public void TestIntValue()
         {
-            var r = Parser.Parse("1");
+            var r = parser.Parse("1");
             Assert.False(r.IsError);
             Assert.False(r.IsError);
             Assert.NotNull(r.Result);
@@ -148,7 +148,7 @@ namespace ParserTests.samples
         [Fact]
         public void TestManyListValue()
         {
-            var r = Parser.Parse("[1,2]");
+            var r = parser.Parse("[1,2]");
             Assert.False(r.IsError);
             Assert.NotNull(r.Result);
             Assert.True(r.Result.IsList);
@@ -161,7 +161,7 @@ namespace ParserTests.samples
         [Fact]
         public void TestManyMixedListValue()
         {
-            var r = Parser.Parse("[1,null,{},true,42.58]");
+            var r = parser.Parse("[1,null,{},true,42.58]");
             Assert.False(r.IsError);
             Assert.NotNull(r.Result);
             Assert.NotNull(r.Result);
@@ -180,7 +180,7 @@ namespace ParserTests.samples
         {
             var json = "{\"p1\":\"v1\",\"p2\":\"v2\",\"p3\":{\"inner1\":1}}";
 
-            var r = Parser.Parse(json);
+            var r = parser.Parse(json);
             Assert.False(r.IsError);
             Assert.NotNull(r);
             Assert.True(r.Result.IsObject);
@@ -202,7 +202,7 @@ namespace ParserTests.samples
         public void TestManyPropertyObjectValue()
         {
             var json = "{\"p1\":\"v1\" , \"p2\":\"v2\" }";
-            var r = Parser.Parse(json);
+            var r = parser.Parse(json);
             Assert.False(r.IsError);
             Assert.NotNull(r.Result);
             Assert.True(r.Result.IsObject);
@@ -215,7 +215,7 @@ namespace ParserTests.samples
         [Fact]
         public void TestNullValue()
         {
-            var r = Parser.Parse("null");
+            var r = parser.Parse("null");
             Assert.False(r.IsError);
             Assert.True(r.Result.IsNull);
         }
@@ -223,7 +223,7 @@ namespace ParserTests.samples
         [Fact]
         public void TestSingleListValue()
         {
-            var r = Parser.Parse("[1]");
+            var r = parser.Parse("[1]");
             Assert.False(r.IsError);
             Assert.NotNull(r.Result);
             Assert.True(r.Result.IsList);
@@ -236,7 +236,7 @@ namespace ParserTests.samples
         [Fact]
         public void TestSinglePropertyObjectValue()
         {
-            var r = Parser.Parse("{\"prop\":\"value\"}");
+            var r = parser.Parse("{\"prop\":\"value\"}");
             Assert.False(r.IsError);
             Assert.NotNull(r.Result);
             Assert.True(r.Result.IsObject);
@@ -249,7 +249,7 @@ namespace ParserTests.samples
         public void TestStringValue()
         {
             var val = "hello";
-            var r = Parser.Parse("\"" + val + "\"");
+            var r = parser.Parse("\"" + val + "\"");
             Assert.False(r.IsError);
             Assert.NotNull(r.Result);
             Assert.True(r.Result.IsValue);
@@ -260,7 +260,7 @@ namespace ParserTests.samples
         [Fact]
         public void TestTrueBooleanValue()
         {
-            var r = Parser.Parse("true");
+            var r = parser.Parse("true");
             Assert.False(r.IsError);
             Assert.NotNull(r.Result);
             Assert.True(r.Result.IsValue);

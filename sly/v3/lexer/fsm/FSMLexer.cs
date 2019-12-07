@@ -16,21 +16,21 @@ namespace sly.v3.lexer.fsm
         }
     }
 
-    internal delegate void BuildExtension<IN>(IN token, LexemeAttribute lexem, GenericLexer<IN> lexer) where IN : struct;
+    internal delegate void BuildExtension<TIn>(TIn token, LexemeAttribute lexem, GenericLexer<TIn> lexer) where TIn : struct;
 
-    internal class FSMLexer<N>
+    // ReSharper disable once InconsistentNaming
+    internal class FSMLexer<T>
     {
-        private readonly List<FSMNode<N>> Nodes;
+        private readonly List<FSMNode<T>> nodes;
 
-        private readonly List<List<FSMTransition>> Transitions;
+        private readonly List<List<FSMTransition>> transitions;
 
-        public FSMLexer(List<FSMNode<N>> nodes, List<List<FSMTransition>> transitions)
+        public FSMLexer(List<FSMNode<T>> nodes, List<List<FSMTransition>> transitions)
         {
-            Nodes = nodes;
-            Transitions = transitions;
+            this.nodes = nodes;
+            this.transitions = transitions;
             IgnoreWhiteSpace = false;
             IgnoreEOL = false;
-            AggregateEOL = false;
             WhiteSpaces = new List<char>();
         }
 
@@ -38,17 +38,16 @@ namespace sly.v3.lexer.fsm
 
         public List<char> WhiteSpaces { get; }
 
+        // ReSharper disable once InconsistentNaming
         public bool IgnoreEOL { get; set; }
-
-        public bool AggregateEOL { get; set; }
 
         [ExcludeFromCodeCoverage]
         public string ToGraphViz()
         {
             var dump = new StringBuilder();
-            foreach (var transitions in Transitions.Where(t => t != null))
-                foreach (var transition in transitions)
-                    dump.AppendLine(transition.ToGraphViz(Nodes));
+            foreach (var fsmTransitions in transitions.Where(t => t != null))
+                foreach (var transition in fsmTransitions)
+                    dump.AppendLine(transition.ToGraphViz(nodes));
             return dump.ToString();
         }
 
@@ -66,22 +65,22 @@ namespace sly.v3.lexer.fsm
             CurrentColumn = newColumn;
         }
 
-        public FSMMatch<N> Run(string source)
+        public FSMMatch<T> Run(string source)
         {
             return Run(source, CurrentPosition);
         }
 
-        public FSMMatch<N> Run(ReadOnlyMemory<char> source)
+        public FSMMatch<T> Run(ReadOnlyMemory<char> source)
         {
             return Run(source, CurrentPosition);
         }
 
-        public FSMMatch<N> Run(string source, int start)
+        public FSMMatch<T> Run(string source, int start)
         {
             return Run(new ReadOnlyMemory<char>(source.ToCharArray()), start);
         }
 
-        public FSMMatch<N> Run(ReadOnlyMemory<char> source, int start)
+        public FSMMatch<T> Run(ReadOnlyMemory<char> source, int start)
         {
             CurrentPosition = start;
             ConsumeIgnored(source);
@@ -89,14 +88,14 @@ namespace sly.v3.lexer.fsm
             // End of token stream
             if (CurrentPosition >= source.Length)
             {
-                return new FSMMatch<N>(false);
+                return new FSMMatch<T>(false);
             }
 
             // Make a note of where current token starts
             var position = new TokenPosition(CurrentPosition, CurrentLine, CurrentColumn);
 
-            FSMMatch<N> result = null;
-            var currentNode = Nodes[0];
+            FSMMatch<T> result = null;
+            var currentNode = nodes[0];
             while (CurrentPosition < source.Length)
             {
                 var currentCharacter = source.At(CurrentPosition);
@@ -111,7 +110,7 @@ namespace sly.v3.lexer.fsm
                 if (currentNode.IsEnd)
                 {
                     // Remember the possible match
-                    result = new FSMMatch<N>(true, currentNode.Value, currentValue, position, currentNode.Id);
+                    result = new FSMMatch<T>(true, currentNode.Value, currentValue, position, currentNode.Id);
                 }
 
                 CurrentPosition++;
@@ -125,7 +124,7 @@ namespace sly.v3.lexer.fsm
                 CurrentPosition = result.Result.Position.Index + length;
                 CurrentColumn = result.Result.Position.Column + length;
 
-                var node = Nodes[result.NodeId];
+                var node = nodes[result.NodeId];
                 if (node.HasCallback)
                 {
                     result = node.Callback(result);
@@ -143,34 +142,34 @@ namespace sly.v3.lexer.fsm
 
             var errorChar = source.Slice(CurrentPosition, 1);
             var errorPosition = new TokenPosition(CurrentPosition, CurrentLine, CurrentColumn);
-            var ko = new FSMMatch<N>(false, default(N), errorChar, errorPosition, -1);
+            var ko = new FSMMatch<T>(false, default(T), errorChar, errorPosition, -1);
             return ko;
         }
 
-        private FSMNode<N> Move(FSMNode<N> from, char token, ReadOnlyMemory<char> value)
+        private FSMNode<T> Move(FSMNode<T> from, char token, ReadOnlyMemory<char> value)
         {
-            FSMNode<N> next = null;
+            FSMNode<T> next = null;
             if (from != null)
             {
-                if (Transitions[from.Id] != null)
+                if (transitions[from.Id] != null)
                 {
-                    var transitions = Transitions[from.Id];
-                    if (transitions.Any())
+                    var fsmTransitions = this.transitions[from.Id];
+                    if (fsmTransitions.Any())
                     {
                         var i = 0;
-                        var transition = transitions[i];
+                        var transition = fsmTransitions[i];
                         var match = transition.Match(token, value);
 
-                        while (i < transitions.Count && !match)
+                        while (i < fsmTransitions.Count && !match)
                         {
-                            transition = transitions[i];
+                            transition = fsmTransitions[i];
                             match = transition.Match(token, value);
                             i++;
                         }
 
                         if (match)
                         {
-                            next = Nodes[transition.ToNode];
+                            next = nodes[transition.ToNode];
                         }
                     }
                 }

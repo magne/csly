@@ -17,7 +17,7 @@ namespace sly.v3.lexer.regex
 
         public static RegEx Parse(string s)
         {
-            return new RexExParser(s).regex();
+            return new RexExParser(s).Regex();
         }
 
 
@@ -61,36 +61,36 @@ namespace sly.v3.lexer.regex
                 return index < input.Length;
             }
 
-            internal RegEx regex()
+            internal RegEx Regex()
             {
-                var term = this.term();
+                var term = this.Term();
 
                 if (More() && Peek() == '|')
                 {
                     Eat('|');
-                    var regex = this.regex();
+                    var regex = this.Regex();
                     return new Alt(term, regex);
                 }
 
                 return term;
             }
 
-            private RegEx term()
+            private RegEx Term()
             {
                 RegEx factor = Eps.Instance;
 
                 while (More() && Peek() != ')' && Peek() != '|')
                 {
-                    var nextFactor = this.factor();
+                    var nextFactor = this.Factor();
                     factor = new Seq(factor, nextFactor);
                 }
 
                 return factor;
             }
 
-            private RegEx factor()
+            private RegEx Factor()
             {
-                var atom = this.atom();
+                var atom = this.Atom();
 
                 while (More() && (Peek() == '*' || Peek() == '+'))
                 {
@@ -108,13 +108,13 @@ namespace sly.v3.lexer.regex
                 return atom;
             }
 
-            private RegEx atom()
+            private RegEx Atom()
             {
                 switch (Peek())
                 {
                     case '(':
                         Eat('(');
-                        var r = regex();
+                        var r = Regex();
                         Eat(')');
                         return r;
 

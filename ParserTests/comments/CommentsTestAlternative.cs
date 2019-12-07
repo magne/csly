@@ -5,6 +5,7 @@ using Xunit;
 
 namespace ParserTests.comments
 {
+  [SuppressMessage("ReSharper", "InconsistentNaming")]
     public enum CommentsTokenAlternative
     {
         [Lexeme(GenericToken.Int)] INT,
@@ -16,8 +17,6 @@ namespace ParserTests.comments
         [SingleLineComment("//")] [MultiLineComment("/*", "*/")] COMMENT
     }
 
-    [SuppressMessage("ReSharper", "UnusedVariable")]
-    [SuppressMessage("ReSharper", "PossibleNullReferenceException")]
     public class CommentsTestAlternative
     {
         [Fact]
@@ -189,13 +188,13 @@ comment on 2 lines ", multiLineCommentToken.Value);
         }
 
         [Fact]
+        // ReSharper disable once InconsistentNaming
         public void TestMixedEOLComment()
         {
             var lexerRes = LexerBuilder.BuildLexer(new BuildResult<ILexer<CommentsTokenAlternative>>());
             Assert.False(lexerRes.IsError);
             var lexer = lexerRes.Result;
 
-            var dump = lexer.ToString();
             var code = "1\n2\r\n/* multi line \rcomment on 2 lines */ 3.0";
             var r = lexer.Tokenize(code);
             Assert.True(r.IsOk);

@@ -7,24 +7,24 @@ using Sigil;
 
 namespace csly.whileLang.model
 {
-    public class SequenceStatement : Statement
+    public class SequenceStatement : IStatement
     {
         public SequenceStatement()
         {
-            Statements = new List<Statement>();
+            Statements = new List<IStatement>();
         }
 
-        public SequenceStatement(Statement statement)
+        public SequenceStatement(IStatement statement)
         {
-            Statements = new List<Statement> {statement};
+            Statements = new List<IStatement> {statement};
         }
 
-        public SequenceStatement(List<Statement> seq)
+        public SequenceStatement(List<IStatement> seq)
         {
             Statements = seq;
         }
 
-        private List<Statement> Statements { get; }
+        private List<IStatement> Statements { get; }
         public int Count => Statements.Count;
 
         public Scope CompilerScope { get; set; }
@@ -59,17 +59,17 @@ namespace csly.whileLang.model
             return emiter;
         }
 
-        public Statement Get(int i)
+        public IStatement Get(int i)
         {
             return Statements[i];
         }
 
-        public void Add(Statement statement)
+        public void Add(IStatement statement)
         {
             Statements.Add(statement);
         }
 
-        public void AddRange(List<Statement> stmts)
+        public void AddRange(List<IStatement> stmts)
         {
             Statements.AddRange(stmts);
         }

@@ -6,24 +6,24 @@ using sly.parser.syntax.grammar;
 
 namespace sly.parser.generator
 {
-    public class NonTerminal<IN> where IN : struct
+    public class NonTerminal<TIn> where TIn : struct
     {
-        public NonTerminal(string name, List<Rule<IN>> rules)
+        public NonTerminal(string name, List<Rule<TIn>> rules)
         {
             Name = name;
             Rules = rules;
         }
 
-        public NonTerminal(string name) : this(name, new List<Rule<IN>>())
+        public NonTerminal(string name) : this(name, new List<Rule<TIn>>())
         { }
 
         public string Name { get; set; }
 
-        public List<Rule<IN>> Rules { get; set; }
+        public List<Rule<TIn>> Rules { get; set; }
 
         public bool IsSubRule { get; set; }
 
-        public List<IN> PossibleLeadingTokens => Rules.SelectMany(r => r.PossibleLeadingTokens).ToList();
+        public List<TIn> PossibleLeadingTokens => Rules.SelectMany(r => r.PossibleLeadingTokens).ToList();
 
         [ExcludeFromCodeCoverage]
         public string Dump()
@@ -33,7 +33,7 @@ namespace sly.parser.generator
             foreach (var rule in Rules)
             {
                 dump.Append(Name).Append(" : ");
-                foreach (IClause<IN> clause in rule.Clauses)
+                foreach (IClause<TIn> clause in rule.Clauses)
                 {
                     dump.Append(clause.Dump()).Append(" ");
                 }

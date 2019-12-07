@@ -1,8 +1,10 @@
+using System.Diagnostics.CodeAnalysis;
 using sly.lexer;
 
 // ReSharper disable once CheckNamespace
 namespace bench.json
 {
+    [SuppressMessage("ReSharper", "InconsistentNaming")]
     public enum JsonToken
     {
         [Lexeme("(\\\")([^(\\\")]*)(\\\")")] STRING = 1,

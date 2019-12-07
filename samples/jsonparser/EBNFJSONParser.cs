@@ -37,7 +37,7 @@ namespace jsonparser
         [Production("value : DOUBLE")]
         public object DoubleValue(Token<JsonToken> doubleToken)
         {
-            var dbl = double.MinValue;
+            double dbl;
             try
             {
                 var doubleParts = doubleToken.Value.Split('.');
@@ -115,7 +115,7 @@ namespace jsonparser
 
 
         [Production("listElements: value (COMMA [d] value)*")]
-        public JSon listElements(JSon head, List<Group<JsonToken, JSon>> tail)
+        public JSon ListElements(JSon head, List<Group<JsonToken, JSon>> tail)
         {
             var values = new JList(head);
             values.AddRange(tail.Select(group => group.Value(0)).ToList());
@@ -142,13 +142,13 @@ namespace jsonparser
         }
 
         [Production("additionalProperty : COMMA property")]
-        public object property(Token<JsonToken> comma, JObject property)
+        public object Property(Token<JsonToken> comma, JObject property)
         {
             return property;
         }
 
         [Production("property: STRING COLON value")]
-        public object property(Token<JsonToken> key, object colon, JSon value)
+        public object Property(Token<JsonToken> key, object colon, JSon value)
         {
             return new JObject(key.StringWithoutQuotes, value);
         }

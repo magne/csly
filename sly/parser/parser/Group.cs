@@ -5,52 +5,52 @@ using sly.lexer;
 
 namespace sly.parser.parser
 {
-    public class Group<IN, OUT>
+    public class Group<TIn, TOut>
     {
-        public List<GroupItem<IN, OUT>> Items;
+        public List<GroupItem<TIn, TOut>> Items;
 
-        public Dictionary<string, GroupItem<IN, OUT>> ItemsByName;
+        public Dictionary<string, GroupItem<TIn, TOut>> ItemsByName;
 
         public Group()
         {
-            Items = new List<GroupItem<IN, OUT>>();
-            ItemsByName = new Dictionary<string, GroupItem<IN, OUT>>();
+            Items = new List<GroupItem<TIn, TOut>>();
+            ItemsByName = new Dictionary<string, GroupItem<TIn, TOut>>();
         }
 
         public int Count => Items.Count;
 
 
-        public OUT Value(int i)
+        public TOut Value(int i)
         {
             return Items[i].Value;
         }
 
-        public Token<IN> Token(int i)
+        public Token<TIn> Token(int i)
         {
             return Items[i].Token;
         }
 
 
-        public OUT Value(string name)
+        public TOut Value(string name)
         {
-            return ItemsByName.ContainsKey(name) ? ItemsByName[name].Value : default(OUT);
+            return ItemsByName.ContainsKey(name) ? ItemsByName[name].Value : default;
         }
 
-        public Token<IN> Token(string name)
+        public Token<TIn> Token(string name)
         {
             return ItemsByName.ContainsKey(name) ? ItemsByName[name].Token : null;
         }
 
-        public void Add(string name, Token<IN> token)
+        public void Add(string name, Token<TIn> token)
         {
-            var groupItem = new GroupItem<IN, OUT>(name, token);
+            var groupItem = new GroupItem<TIn, TOut>(name, token);
             Items.Add(groupItem);
             ItemsByName[name] = groupItem;
         }
 
-        public void Add(string name, OUT value)
+        public void Add(string name, TOut value)
         {
-            var groupItem = new GroupItem<IN, OUT>(name, value);
+            var groupItem = new GroupItem<TIn, TOut>(name, value);
             Items.Add(groupItem);
             ItemsByName[name] = groupItem;
         }

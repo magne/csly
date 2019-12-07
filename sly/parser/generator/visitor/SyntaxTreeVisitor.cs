@@ -8,23 +8,23 @@ using static sly.parser.parser.ValueOptionConstructors;
 
 namespace sly.parser.generator.visitor
 {
-    public class SyntaxVisitorResult<IN, OUT> where IN : struct
+    public class SyntaxVisitorResult<TIn, TOut> where TIn : struct
     {
-        public List<Group<IN, OUT>> GroupListResult;
+        public List<Group<TIn, TOut>> GroupListResult;
 
-        public Group<IN, OUT> GroupResult;
+        public Group<TIn, TOut> GroupResult;
 
-        public ValueOption<Group<IN, OUT>> OptionGroupResult;
+        public ValueOption<Group<TIn, TOut>> OptionGroupResult;
 
-        public ValueOption<OUT> OptionResult;
+        public ValueOption<TOut> OptionResult;
 
-        public List<Token<IN>> TokenListResult;
+        public List<Token<TIn>> TokenListResult;
 
-        public Token<IN> TokenResult;
+        public Token<TIn> TokenResult;
 
-        public List<OUT> ValueListResult;
+        public List<TOut> ValueListResult;
 
-        public OUT ValueResult;
+        public TOut ValueResult;
 
         public bool IsOption => OptionResult != null;
         public bool IsOptionGroup => OptionGroupResult != null;
@@ -43,93 +43,93 @@ namespace sly.parser.generator.visitor
 
         public bool IsNone => !IsToken && !IsValue && !IsTokenList && !IsValueList && !IsGroup && !IsGroupList;
 
-        public static SyntaxVisitorResult<IN, OUT> NewToken(Token<IN> tok)
+        public static SyntaxVisitorResult<TIn, TOut> NewToken(Token<TIn> tok)
         {
-            var res = new SyntaxVisitorResult<IN, OUT>();
+            var res = new SyntaxVisitorResult<TIn, TOut>();
             res.TokenResult = tok;
             res.IsToken = true;
             return res;
         }
 
-        public static SyntaxVisitorResult<IN, OUT> NewValue(OUT val)
+        public static SyntaxVisitorResult<TIn, TOut> NewValue(TOut val)
         {
-            var res = new SyntaxVisitorResult<IN, OUT>();
+            var res = new SyntaxVisitorResult<TIn, TOut>();
             res.ValueResult = val;
             res.IsValue = true;
             return res;
         }
 
-        public static SyntaxVisitorResult<IN, OUT> NewValueList(List<OUT> values)
+        public static SyntaxVisitorResult<TIn, TOut> NewValueList(List<TOut> values)
         {
-            var res = new SyntaxVisitorResult<IN, OUT>();
+            var res = new SyntaxVisitorResult<TIn, TOut>();
             res.ValueListResult = values;
             res.IsValueList = true;
             return res;
         }
 
-        public static SyntaxVisitorResult<IN, OUT> NewGroupList(List<Group<IN, OUT>> values)
+        public static SyntaxVisitorResult<TIn, TOut> NewGroupList(List<Group<TIn, TOut>> values)
         {
-            var res = new SyntaxVisitorResult<IN, OUT>();
+            var res = new SyntaxVisitorResult<TIn, TOut>();
             res.GroupListResult = values;
             res.IsGroupList = true;
             return res;
         }
 
-        public static SyntaxVisitorResult<IN, OUT> NewTokenList(List<Token<IN>> tokens)
+        public static SyntaxVisitorResult<TIn, TOut> NewTokenList(List<Token<TIn>> tokens)
         {
-            var res = new SyntaxVisitorResult<IN, OUT>();
+            var res = new SyntaxVisitorResult<TIn, TOut>();
             res.TokenListResult = tokens;
             res.IsTokenList = true;
             return res;
         }
 
-        public static SyntaxVisitorResult<IN, OUT> NewOptionSome(OUT value)
+        public static SyntaxVisitorResult<TIn, TOut> NewOptionSome(TOut value)
         {
-            var res = new SyntaxVisitorResult<IN, OUT>();
+            var res = new SyntaxVisitorResult<TIn, TOut>();
             res.OptionResult = Some(value);
             return res;
         }
 
-        public static SyntaxVisitorResult<IN, OUT> NewOptionGroupSome(Group<IN, OUT> group)
+        public static SyntaxVisitorResult<TIn, TOut> NewOptionGroupSome(Group<TIn, TOut> group)
         {
-            var res = new SyntaxVisitorResult<IN, OUT>();
+            var res = new SyntaxVisitorResult<TIn, TOut>();
             res.OptionGroupResult = Some(group);
             return res;
         }
 
-        public static SyntaxVisitorResult<IN, OUT> NewOptionGroupNone()
+        public static SyntaxVisitorResult<TIn, TOut> NewOptionGroupNone()
         {
-            var res = new SyntaxVisitorResult<IN, OUT>();
-            res.OptionGroupResult = NoneGroup<IN, OUT>();
+            var res = new SyntaxVisitorResult<TIn, TOut>();
+            res.OptionGroupResult = NoneGroup<TIn, TOut>();
             return res;
         }
 
 
-        public static SyntaxVisitorResult<IN, OUT> NewOptionNone()
+        public static SyntaxVisitorResult<TIn, TOut> NewOptionNone()
         {
-            var res = new SyntaxVisitorResult<IN, OUT>();
-            res.OptionResult = None<OUT>();
+            var res = new SyntaxVisitorResult<TIn, TOut>();
+            res.OptionResult = None<TOut>();
             return res;
         }
 
-        public static SyntaxVisitorResult<IN, OUT> NewGroup(Group<IN, OUT> group)
+        public static SyntaxVisitorResult<TIn, TOut> NewGroup(Group<TIn, TOut> group)
         {
-            var res = new SyntaxVisitorResult<IN, OUT>();
+            var res = new SyntaxVisitorResult<TIn, TOut>();
             res.GroupResult = group;
             res.IsGroup = true;
             return res;
         }
 
-        public static SyntaxVisitorResult<IN, OUT> NoneResult()
+        public static SyntaxVisitorResult<TIn, TOut> NoneResult()
         {
-            var res = new SyntaxVisitorResult<IN, OUT>();
+            var res = new SyntaxVisitorResult<TIn, TOut>();
             return res;
         }
     }
 
-    public class SyntaxTreeVisitor<IN, OUT> where IN : struct
+    public class SyntaxTreeVisitor<TIn, TOut> where TIn : struct
     {
-        public SyntaxTreeVisitor(ParserConfiguration<IN, OUT> conf, object parserInstance)
+        public SyntaxTreeVisitor(ParserConfiguration<TIn, TOut> conf, object parserInstance)
         {
             ParserClass = ParserClass;
             Configuration = conf;
@@ -140,26 +140,26 @@ namespace sly.parser.generator.visitor
 
         public object ParserVsisitorInstance { get; set; }
 
-        public ParserConfiguration<IN, OUT> Configuration { get; set; }
+        public ParserConfiguration<TIn, TOut> Configuration { get; set; }
 
-        public OUT VisitSyntaxTree(ISyntaxNode<IN> root, object context = null)
+        public TOut VisitSyntaxTree(ISyntaxNode<TIn> root, object context = null)
         {
             var result = Visit(root, context);
             return result.ValueResult;
         }
 
-        protected virtual SyntaxVisitorResult<IN, OUT> Visit(ISyntaxNode<IN> n, object context = null)
+        protected virtual SyntaxVisitorResult<TIn, TOut> Visit(ISyntaxNode<TIn> n, object context = null)
         {
-            if (n is SyntaxLeaf<IN>)
-                return Visit(n as SyntaxLeaf<IN>);
-            if (n is SyntaxNode<IN>)
-                return Visit(n as SyntaxNode<IN>, context);
+            if (n is SyntaxLeaf<TIn>)
+                return Visit(n as SyntaxLeaf<TIn>);
+            if (n is SyntaxNode<TIn>)
+                return Visit(n as SyntaxNode<TIn>, context);
             return null;
         }
 
-        private SyntaxVisitorResult<IN, OUT> Visit(SyntaxNode<IN> node, object context = null)
+        private SyntaxVisitorResult<TIn, TOut> Visit(SyntaxNode<TIn> node, object context = null)
         {
-            var result = SyntaxVisitorResult<IN, OUT>.NoneResult();
+            var result = SyntaxVisitorResult<TIn, TOut>.NoneResult();
             if (node.Visitor != null || node.IsByPassNode)
             {
                 var args = new List<object>();
@@ -179,7 +179,7 @@ namespace sly.parser.generator.visitor
 
                 if (node.IsByPassNode)
                 {
-                    result = SyntaxVisitorResult<IN, OUT>.NewValue((OUT) args[0]);
+                    result = SyntaxVisitorResult<TIn, TOut>.NewValue((TOut) args[0]);
                 }
                 else
                 {
@@ -193,8 +193,8 @@ namespace sly.parser.generator.visitor
 
                         method = node.Visitor;
                         var t = method?.Invoke(ParserVsisitorInstance, args.ToArray());
-                        var res = (OUT) t;
-                        result = SyntaxVisitorResult<IN, OUT>.NewValue(res);
+                        var res = (TOut) t;
+                        result = SyntaxVisitorResult<TIn, TOut>.NewValue(res);
                     }
                     catch (Exception e)
                     {
@@ -206,9 +206,9 @@ namespace sly.parser.generator.visitor
             return result;
         }
 
-        private SyntaxVisitorResult<IN, OUT> Visit(SyntaxLeaf<IN> leaf)
+        private SyntaxVisitorResult<TIn, TOut> Visit(SyntaxLeaf<TIn> leaf)
         {
-            return SyntaxVisitorResult<IN, OUT>.NewToken(leaf.Token);
+            return SyntaxVisitorResult<TIn, TOut>.NewToken(leaf.Token);
         }
     }
 }

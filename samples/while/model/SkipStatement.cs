@@ -5,7 +5,7 @@ using Sigil;
 
 namespace csly.whileLang.model
 {
-    public sealed class SkipStatement : Statement
+    public sealed class SkipStatement : IStatement
     {
         public Scope CompilerScope { get; set; }
 

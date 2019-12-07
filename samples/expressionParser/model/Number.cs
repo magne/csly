@@ -1,17 +1,17 @@
 ﻿namespace expressionparser.model
 {
-    public sealed class Number : Expression
+    public sealed class Number : IExpression
     {
-        private readonly int Value;
+        private readonly int value;
 
         public Number(int value)
         {
-            Value = value;
+            this.value = value;
         }
 
         public int? Evaluate(ExpressionContext context)
         {
-            return Value;
+            return value;
         }
     }
 }

@@ -5,7 +5,7 @@ using Xunit;
 
 namespace ParserTests.comments
 {
-
+    [SuppressMessage("ReSharper", "InconsistentNaming")]
     public enum SingleLineCommentsToken
     {
         [Lexeme(GenericToken.Int)] INT,

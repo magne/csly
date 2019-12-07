@@ -14,8 +14,8 @@ namespace csly.whileLang.parser
         [Operation((int) WhileTokenGeneric.GREATER, Affix.InFix, Associativity.Right, 50)]
         [Operation((int) WhileTokenGeneric.EQUALS, Affix.InFix, Associativity.Right, 50)]
         [Operation((int) WhileTokenGeneric.DIFFERENT, Affix.InFix, Associativity.Right, 50)]
-        public WhileAST binaryComparisonExpression(WhileAST left, Token<WhileTokenGeneric> operatorToken,
-            WhileAST right)
+        public IWhileAst BinaryComparisonExpression(IWhileAst left, Token<WhileTokenGeneric> operatorToken,
+            IWhileAst right)
         {
             var oper = BinaryOperator.ADD;
 
@@ -43,7 +43,7 @@ namespace csly.whileLang.parser
                 }
             }
 
-            var operation = new BinaryOperation(left as Expression, oper, right as Expression);
+            var operation = new BinaryOperation(left as IExpression, oper, right as IExpression);
             return operation;
         }
 
@@ -52,10 +52,10 @@ namespace csly.whileLang.parser
         #region STRING OPERATIONS
 
         [Operation((int) WhileTokenGeneric.CONCAT, Affix.InFix, Associativity.Right, 10)]
-        public WhileAST binaryStringExpression(WhileAST left, Token<WhileTokenGeneric> operatorToken, WhileAST right)
+        public IWhileAst BinaryStringExpression(IWhileAst left, Token<WhileTokenGeneric> operatorToken, IWhileAst right)
         {
             var oper = BinaryOperator.CONCAT;
-            var operation = new BinaryOperation(left as Expression, oper, right as Expression);
+            var operation = new BinaryOperation(left as IExpression, oper, right as IExpression);
             return operation;
         }
 
@@ -64,66 +64,66 @@ namespace csly.whileLang.parser
         #region statements
 
         [Production("statement :  LPAREN statement RPAREN ")]
-        public WhileAST block(Token<WhileTokenGeneric> discardLpar, Statement statement,
+        public IWhileAst Block(Token<WhileTokenGeneric> discardLpar, IStatement statement,
             Token<WhileTokenGeneric> discardRpar)
         {
             return statement;
         }
 
         [Production("statement : sequence")]
-        public WhileAST statementSequence(WhileAST sequence)
+        public IWhileAst StatementSequence(IWhileAst sequence)
         {
             return sequence;
         }
 
         [Production("sequence : statementPrim additionalStatements*")]
-        public WhileAST sequenceStatements(WhileAST first, List<WhileAST> next)
+        public IWhileAst SequenceStatements(IWhileAst first, List<IWhileAst> next)
         {
-            var seq = new SequenceStatement(first as Statement);
-            seq.AddRange(next.Cast<Statement>().ToList());
+            var seq = new SequenceStatement(first as IStatement);
+            seq.AddRange(next.Cast<IStatement>().ToList());
             return seq;
         }
 
         [Production("additionalStatements : SEMICOLON statementPrim")]
-        public WhileAST additional(Token<WhileTokenGeneric> semi, WhileAST statement)
+        public IWhileAst Additional(Token<WhileTokenGeneric> semi, IWhileAst statement)
         {
             return statement;
         }
 
         [Production("statementPrim: IF WhileParserGeneric_expressions THEN statement ELSE statement")]
-        public WhileAST ifStmt(Token<WhileTokenGeneric> discardIf, WhileAST cond, Token<WhileTokenGeneric> dicardThen,
-            WhileAST thenStmt, Token<WhileTokenGeneric> dicardElse, Statement elseStmt)
+        public IWhileAst IfStmt(Token<WhileTokenGeneric> discardIf, IWhileAst cond, Token<WhileTokenGeneric> dicardThen,
+            IWhileAst thenStmt, Token<WhileTokenGeneric> dicardElse, IStatement elseStmt)
         {
-            var stmt = new IfStatement(cond as Expression, thenStmt as Statement, elseStmt);
+            var stmt = new IfStatement(cond as IExpression, thenStmt as IStatement, elseStmt);
             return stmt;
         }
 
         [Production("statementPrim: WHILE WhileParserGeneric_expressions DO statement")]
-        public WhileAST whileStmt(Token<WhileTokenGeneric> discardWhile, WhileAST cond,
-            Token<WhileTokenGeneric> dicardDo, WhileAST blockStmt)
+        public IWhileAst WhileStmt(Token<WhileTokenGeneric> discardWhile, IWhileAst cond,
+            Token<WhileTokenGeneric> dicardDo, IWhileAst blockStmt)
         {
-            var stmt = new WhileStatement(cond as Expression, blockStmt as Statement);
+            var stmt = new WhileStatement(cond as IExpression, blockStmt as IStatement);
             return stmt;
         }
 
         [Production("statementPrim: IDENTIFIER ASSIGN WhileParserGeneric_expressions")]
-        public WhileAST assignStmt(Token<WhileTokenGeneric> variable, Token<WhileTokenGeneric> discardAssign,
-            Expression value)
+        public IWhileAst AssignStmt(Token<WhileTokenGeneric> variable, Token<WhileTokenGeneric> discardAssign,
+            IExpression value)
         {
             var assign = new AssignStatement(variable.StringWithoutQuotes, value);
             return assign;
         }
 
         [Production("statementPrim: SKIP")]
-        public WhileAST skipStmt(Token<WhileTokenGeneric> discard)
+        public IWhileAst SkipStmt(Token<WhileTokenGeneric> discard)
         {
             return new SkipStatement();
         }
 
         [Production("statementPrim: PRINT WhileParserGeneric_expressions")]
-        public WhileAST skipStmt(Token<WhileTokenGeneric> discard, WhileAST expression)
+        public IWhileAst SkipStmt(Token<WhileTokenGeneric> discard, IWhileAst expression)
         {
-            return new PrintStatement(expression as Expression);
+            return new PrintStatement(expression as IExpression);
         }
 
         #endregion
@@ -132,33 +132,33 @@ namespace csly.whileLang.parser
         #region OPERANDS
 
         [Production("primary: INT")]
-        public WhileAST PrimaryInt(Token<WhileTokenGeneric> intToken)
+        public IWhileAst PrimaryInt(Token<WhileTokenGeneric> intToken)
         {
             return new IntegerConstant(intToken.IntValue);
         }
 
         [Production("primary: TRUE")]
         [Production("primary: FALSE")]
-        public WhileAST PrimaryBool(Token<WhileTokenGeneric> boolToken)
+        public IWhileAst PrimaryBool(Token<WhileTokenGeneric> boolToken)
         {
             return new BoolConstant(bool.Parse(boolToken.StringWithoutQuotes));
         }
 
         [Production("primary: STRING")]
-        public WhileAST PrimaryString(Token<WhileTokenGeneric> stringToken)
+        public IWhileAst PrimaryString(Token<WhileTokenGeneric> stringToken)
         {
             return new StringConstant(stringToken.StringWithoutQuotes);
         }
 
         [Production("primary: IDENTIFIER")]
-        public WhileAST PrimaryId(Token<WhileTokenGeneric> varToken)
+        public IWhileAst PrimaryId(Token<WhileTokenGeneric> varToken)
         {
             return new Variable(varToken.StringWithoutQuotes);
         }
 
         [Operand]
         [Production("operand: primary")]
-        public WhileAST Operand(WhileAST prim)
+        public IWhileAst Operand(IWhileAst prim)
         {
             return prim;
         }
@@ -169,8 +169,8 @@ namespace csly.whileLang.parser
 
         [Operation((int) WhileTokenGeneric.PLUS, Affix.InFix, Associativity.Right, 10)]
         [Operation((int) WhileTokenGeneric.MINUS, Affix.InFix, Associativity.Right, 10)]
-        public WhileAST binaryTermNumericExpression(WhileAST left, Token<WhileTokenGeneric> operatorToken,
-            WhileAST right)
+        public IWhileAst BinaryTermNumericExpression(IWhileAst left, Token<WhileTokenGeneric> operatorToken,
+            IWhileAst right)
         {
             var oper = BinaryOperator.ADD;
 
@@ -188,14 +188,14 @@ namespace csly.whileLang.parser
                 }
             }
 
-            var operation = new BinaryOperation(left as Expression, oper, right as Expression);
+            var operation = new BinaryOperation(left as IExpression, oper, right as IExpression);
             return operation;
         }
 
         [Operation((int) WhileTokenGeneric.TIMES, Affix.InFix, Associativity.Right, 50)]
         [Operation((int) WhileTokenGeneric.DIVIDE, Affix.InFix, Associativity.Right, 50)]
-        public WhileAST binaryFactorNumericExpression(WhileAST left, Token<WhileTokenGeneric> operatorToken,
-            WhileAST right)
+        public IWhileAst BinaryFactorNumericExpression(IWhileAst left, Token<WhileTokenGeneric> operatorToken,
+            IWhileAst right)
         {
             var oper = BinaryOperator.MULTIPLY;
 
@@ -213,14 +213,14 @@ namespace csly.whileLang.parser
                 }
             }
 
-            var operation = new BinaryOperation(left as Expression, oper, right as Expression);
+            var operation = new BinaryOperation(left as IExpression, oper, right as IExpression);
             return operation;
         }
 
         [Operation((int) WhileTokenGeneric.MINUS, Affix.PreFix, Associativity.Right, 100)]
-        public WhileAST unaryNumericExpression(Token<WhileTokenGeneric> operation, WhileAST value)
+        public IWhileAst UnaryNumericExpression(Token<WhileTokenGeneric> operation, IWhileAst value)
         {
-            return new Neg(value as Expression);
+            return new Neg(value as IExpression);
         }
 
         #endregion
@@ -229,29 +229,29 @@ namespace csly.whileLang.parser
         #region BOOLEAN OPERATIONS
 
         [Operation((int) WhileTokenGeneric.OR, Affix.InFix, Associativity.Right, 10)]
-        public WhileAST binaryOrExpression(WhileAST left, Token<WhileTokenGeneric> operatorToken, WhileAST right)
+        public IWhileAst BinaryOrExpression(IWhileAst left, Token<WhileTokenGeneric> operatorToken, IWhileAst right)
         {
             var oper = BinaryOperator.OR;
 
 
-            var operation = new BinaryOperation(left as Expression, oper, right as Expression);
+            var operation = new BinaryOperation(left as IExpression, oper, right as IExpression);
             return operation;
         }
 
         [Operation((int) WhileTokenGeneric.AND, Affix.InFix, Associativity.Right, 50)]
-        public WhileAST binaryAndExpression(WhileAST left, Token<WhileTokenGeneric> operatorToken, WhileAST right)
+        public IWhileAst BinaryAndExpression(IWhileAst left, Token<WhileTokenGeneric> operatorToken, IWhileAst right)
         {
             var oper = BinaryOperator.AND;
 
 
-            var operation = new BinaryOperation(left as Expression, oper, right as Expression);
+            var operation = new BinaryOperation(left as IExpression, oper, right as IExpression);
             return operation;
         }
 
         [Operation((int) WhileTokenGeneric.NOT, Affix.PreFix, Associativity.Right, 100)]
-        public WhileAST binaryOrExpression(Token<WhileTokenGeneric> operatorToken, WhileAST value)
+        public IWhileAst BinaryOrExpression(Token<WhileTokenGeneric> operatorToken, IWhileAst value)
         {
-            return new Not(value as Expression);
+            return new Not(value as IExpression);
         }
 
         #endregion

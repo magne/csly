@@ -1,22 +1,22 @@
 ﻿namespace expressionparser.model
 {
-    public class UnaryOperation : Expression
+    public class UnaryOperation : IExpression
     {
-        private readonly ExpressionToken Operator;
-        private readonly Expression RightExpression;
+        private readonly ExpressionToken @operator;
+        private readonly IExpression rightExpression;
 
-        public UnaryOperation(ExpressionToken op, Expression right)
+        public UnaryOperation(ExpressionToken op, IExpression right)
         {
-            Operator = op;
-            RightExpression = right;
+            @operator = op;
+            rightExpression = right;
         }
 
         public int? Evaluate(ExpressionContext context)
         {
-            var right = RightExpression.Evaluate(context);
+            var right = rightExpression.Evaluate(context);
 
             if (right.HasValue)
-                switch (Operator)
+                switch (@operator)
                 {
                     case ExpressionToken.PLUS:
                     {

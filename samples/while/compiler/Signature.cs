@@ -2,21 +2,21 @@
 {
     public class Signature
     {
-        private readonly WhileType Left;
+        private readonly WhileType left;
         public WhileType Result;
-        private readonly WhileType Right;
+        private readonly WhileType right;
 
         public Signature(WhileType left, WhileType right, WhileType result)
         {
-            Left = left;
-            Right = right;
+            this.left = left;
+            this.right = right;
             Result = result;
         }
 
         public bool Match(WhileType l, WhileType r)
         {
-            return (Left == WhileType.ANY || l == Left) &&
-                   (Right == WhileType.ANY || r == Right);
+            return (left == WhileType.ANY || l == left) &&
+                   (right == WhileType.ANY || r == right);
         }
     }
 }

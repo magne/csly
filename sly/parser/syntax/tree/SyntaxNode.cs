@@ -5,20 +5,20 @@ using sly.parser.generator;
 
 namespace sly.parser.syntax.tree
 {
-    public class SyntaxNode<IN> : ISyntaxNode<IN> where IN : struct
+    public class SyntaxNode<TIn> : ISyntaxNode<TIn> where TIn : struct
     {
-        public SyntaxNode(string name, List<ISyntaxNode<IN>> children = null, MethodInfo visitor = null)
+        public SyntaxNode(string name, List<ISyntaxNode<TIn>> children = null, MethodInfo visitor = null)
         {
             Name = name;
-            Children = children == null ? new List<ISyntaxNode<IN>>() : children;
+            Children = children ?? new List<ISyntaxNode<TIn>>();
             Visitor = visitor;
         }
 
-        public List<ISyntaxNode<IN>> Children { get; }
+        public List<ISyntaxNode<TIn>> Children { get; }
 
         public MethodInfo Visitor { get; set; }
 
-        public bool IsByPassNode { get; set; } = false;
+        public bool IsByPassNode { get; set; }
 
         public bool IsEmpty => Children == null || !Children.Any();
 
@@ -30,12 +30,12 @@ namespace sly.parser.syntax.tree
 
         #region expression syntax nodes
 
-        public OperationMetaData<IN> Operation { get; set; } = null;
+        public OperationMetaData<TIn> Operation { get; set; }
 
         public bool IsExpressionNode => Operation != null;
 
-        public bool IsBinaryOperationNode => IsExpressionNode ? Operation.Affix == Affix.InFix : false;
-        public bool IsUnaryOperationNode => IsExpressionNode ? Operation.Affix != Affix.InFix : false;
+        public bool IsBinaryOperationNode => IsExpressionNode && Operation.Affix == Affix.InFix;
+        public bool IsUnaryOperationNode => IsExpressionNode && Operation.Affix != Affix.InFix;
         public int Precedence => IsExpressionNode ? Operation.Precedence : -1;
 
         public Associativity Associativity =>
@@ -43,11 +43,11 @@ namespace sly.parser.syntax.tree
 
         public bool IsLeftAssociative => Associativity == Associativity.Left;
 
-        public ISyntaxNode<IN> Left
+        public ISyntaxNode<TIn> Left
         {
             get
             {
-                ISyntaxNode<IN> l = null;
+                ISyntaxNode<TIn> l = null;
                 if (IsExpressionNode)
                 {
                     var leftindex = -1;
@@ -59,11 +59,11 @@ namespace sly.parser.syntax.tree
             }
         }
 
-        public ISyntaxNode<IN> Right
+        public ISyntaxNode<TIn> Right
         {
             get
             {
-                ISyntaxNode<IN> r = null;
+                ISyntaxNode<TIn> r = null;
                 if (IsExpressionNode)
                 {
                     var rightIndex = -1;

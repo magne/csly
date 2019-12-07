@@ -5,7 +5,7 @@ using Sigil;
 
 namespace csly.whileLang.model
 {
-    public class Variable : Expression
+    public class Variable : IExpression
     {
         public Variable(string name)
         {

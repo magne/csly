@@ -1,7 +1,9 @@
-﻿using sly.lexer;
+﻿using System.Diagnostics.CodeAnalysis;
+using sly.lexer;
 
 namespace jsonparser
 {
+    [SuppressMessage("ReSharper", "InconsistentNaming")]
     public enum JsonToken
     {
         [Lexeme("(\\\")([^(\\\")]*)(\\\")")] STRING = 1,

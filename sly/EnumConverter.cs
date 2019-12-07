@@ -4,13 +4,13 @@ namespace sly
 {
     public class EnumConverter
     {
-        public static IN ConvertIntToEnum<IN>(int intValue)
+        public static T ConvertIntToEnum<T>(int intValue)
         {
-            var genericType = typeof(IN);
+            var genericType = typeof(T);
             if (genericType.IsEnum)
-                foreach (IN value in Enum.GetValues(genericType))
+                foreach (T value in Enum.GetValues(genericType))
                 {
-                    var test = Enum.Parse(typeof(IN), value.ToString()) as Enum;
+                    var test = Enum.Parse(typeof(T), value.ToString()) as Enum;
                     var val = Convert.ToInt32(test);
                     if (val == intValue)
                     {
@@ -18,7 +18,7 @@ namespace sly
                     }
                 }
 
-            return default(IN);
+            return default(T);
         }
     }
 }

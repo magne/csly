@@ -4,6 +4,7 @@ using System;
 
 namespace sly.v3.lexer.fsm
 {
+    // ReSharper disable once InconsistentNaming
     internal class FSMTransition
     {
         private readonly int fromNode;
@@ -20,7 +21,7 @@ namespace sly.v3.lexer.fsm
         private AbstractTransitionCheck Check { get; set; }
 
 
-        public string ToGraphViz<N>(List<FSMNode<N>> nodes)
+        public string ToGraphViz<T>(List<FSMNode<T>> nodes)
         {
             return $"{nodes[fromNode]} -> {nodes[ToNode]} {Check.ToGraphViz()}";
         }

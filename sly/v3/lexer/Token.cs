@@ -15,17 +15,20 @@ namespace sly.v3.lexer
     {
         public char StringDelimiter = '"';
 
-        public char CharDelimiter ='\'';
+        public char CharDelimiter = '\'';
 
 
-        public Token(T token, string value, TokenPosition position, bool isCommentStart = false,
-            CommentType commentType = CommentType.Single) : this(token,new ReadOnlyMemory<char>(value.ToCharArray()),position,isCommentStart,commentType )
-        {
+        public Token(T token,
+                     string value,
+                     TokenPosition position,
+                     CommentType commentType = CommentType.Single)
+            : this(token, new ReadOnlyMemory<char>(value.ToCharArray()), position, commentType)
+        { }
 
-        }
-
-        public Token(T token, ReadOnlyMemory<char> value, TokenPosition position, bool isCommentStart = false,
-            CommentType commentType = CommentType.Single)
+        public Token(T token,
+                     ReadOnlyMemory<char> value,
+                     TokenPosition position,
+                     CommentType commentType = CommentType.Single)
         {
             TokenID = token;
             SpanValue = value;
@@ -37,22 +40,23 @@ namespace sly.v3.lexer
         public Token()
         {
             IsEOS = true;
-            End = true;
             TokenID = DefaultToken;
             Position = new TokenPosition(0, 0, 0);
         }
 
 
-        public  ReadOnlyMemory<char> SpanValue { get; set; }
+        public ReadOnlyMemory<char> SpanValue { get; set; }
 
         public TokenPosition Position { get; set; }
 
         public int PositionInTokenFlow { get; set; }
+        // ReSharper disable once InconsistentNaming
         public T TokenID { get; set; }
         public bool IsComment { get; set; }
 
-        public bool Discarded { get; set; } = false;
+        public bool Discarded { get; set; }
 
+        // ReSharper disable once InconsistentNaming
         public bool IsEOS { get; set; }
 
         public CommentType CommentType { get; set; } = CommentType.No;
@@ -88,51 +92,59 @@ namespace sly.v3.lexer
         }
 
 
-
         public int IntValue => int.Parse(Value);
 
-        public  double DoubleValue
+        public double DoubleValue
         {
             get
             {
                 // Try parsing in the current culture
-                if (!double.TryParse(Value, NumberStyles.Any, CultureInfo.CurrentCulture,
-                        out var result) &&
+                if (!double.TryParse(Value,
+                                     NumberStyles.Any,
+                                     CultureInfo.CurrentCulture,
+                                     out var result) &&
                     // Then try in US english
-                    !double.TryParse(Value, NumberStyles.Any, CultureInfo.GetCultureInfo("en-US"),
-                        out result) &&
+                    !double.TryParse(Value,
+                                     NumberStyles.Any,
+                                     CultureInfo.GetCultureInfo("en-US"),
+                                     out result) &&
                     // Then in neutral language
-                    !double.TryParse(Value, NumberStyles.Any, CultureInfo.InvariantCulture,
-                        out result))
+                    !double.TryParse(Value,
+                                     NumberStyles.Any,
+                                     CultureInfo.InvariantCulture,
+                                     out result))
                 {
                     result = 0.0;
                 }
 
                 return result;
             }
-            set { }
         }
 
-        public char CharValue  {
+        public char CharValue
+        {
             get
             {
                 var result = Value;
                 if (CharDelimiter != (char) 0)
                 {
-                    if (result.StartsWith(CharDelimiter.ToString()))  {
+                    if (result.StartsWith(CharDelimiter.ToString()))
+                    {
                         result = result.Substring(1);
                     }
-                    if (result.EndsWith(CharDelimiter.ToString())) {
+
+                    if (result.EndsWith(CharDelimiter.ToString()))
+                    {
                         result = result.Substring(0, result.Length - 1);
                     }
                 }
+
                 return result[0];
             }
         }
 
 
-        public bool End { get; set; }
-        public static T DefTok { get; set; }
+        private static T DefTok { get; set; }
 
         public static Token<T> Empty()
         {

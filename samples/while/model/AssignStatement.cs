@@ -6,9 +6,9 @@ using Sigil;
 
 namespace csly.whileLang.model
 {
-    public class AssignStatement : Statement
+    public class AssignStatement : IStatement
     {
-        public AssignStatement(string variableName, Expression value)
+        public AssignStatement(string variableName, IExpression value)
         {
             VariableName = variableName;
             Value = value;
@@ -16,7 +16,7 @@ namespace csly.whileLang.model
 
         public string VariableName { get; set; }
 
-        public Expression Value { get; set; }
+        public IExpression Value { get; set; }
         public bool IsVariableCreation { get; internal set; }
         public Scope CompilerScope { get; set; }
 

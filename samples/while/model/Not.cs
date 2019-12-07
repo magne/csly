@@ -6,14 +6,14 @@ using Sigil;
 
 namespace csly.whileLang.model
 {
-    public class Not : Expression
+    public class Not : IExpression
     {
-        public Not(Expression value)
+        public Not(IExpression value)
         {
             Value = value;
         }
 
-        public Expression Value { get; set; }
+        public IExpression Value { get; set; }
 
         public Scope CompilerScope { get; set; }
 

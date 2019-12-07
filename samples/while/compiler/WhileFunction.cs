@@ -1,6 +1,6 @@
 ﻿namespace csly.whileLang.compiler
 {
-    public interface WhileFunction
+    public interface IWhileFunction
     {
         void Run();
     }

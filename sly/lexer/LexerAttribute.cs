@@ -7,20 +7,24 @@ namespace sly.lexer
     {
         private static readonly GenericLexer<int>.Config Defaults = new GenericLexer<int>.Config();
 
+        // ReSharper disable once InconsistentNaming
         private bool? ignoreWS;
 
+        // ReSharper disable once InconsistentNaming
         private bool? ignoreEOL;
 
         private char[] whiteSpace;
 
         private bool? keyWordIgnoreCase;
 
+        // ReSharper disable once InconsistentNaming
         public bool IgnoreWS
         {
             get => ignoreWS ?? Defaults.IgnoreWS;
             set => ignoreWS = value;
         }
 
+        // ReSharper disable once InconsistentNaming
         public bool IgnoreEOL
         {
             get => ignoreEOL ?? Defaults.IgnoreEOL;

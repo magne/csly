@@ -64,11 +64,11 @@ namespace ParserTests
         [Fact]
         public void SyntaxTreeGraphVizTest()
         {
-            var StartingRule = $"{typeof(SimpleExpressionParser).Name}_expressions";
+            var startingRule = $"{typeof(SimpleExpressionParser).Name}_expressions";
             var parserInstance = new SimpleExpressionParser();
             var builder = new ParserBuilder<ExpressionToken, int>();
-            var  Parser = builder.BuildParser(parserInstance, ParserType.LL_RECURSIVE_DESCENT, StartingRule);
-            var result = Parser.Result.Parse("1+1");
+            var  parser = builder.BuildParser(parserInstance, ParserType.LL_RECURSIVE_DESCENT, startingRule);
+            var result = parser.Result.Parse("1+1");
 
             var tree = result.SyntaxTree;
             var graphviz = new GraphVizEBNFSyntaxTreeVisitor<ExpressionToken>();

@@ -1,8 +1,10 @@
+using System.Diagnostics.CodeAnalysis;
 using sly.lexer;
 
 namespace GenericLexerWithCallbacks
 {
     [CallBacks(typeof(TestCallbacks))]
+    [SuppressMessage("ReSharper", "InconsistentNaming")]
     public enum CallbackTokens
     {
         #region keywords 0 -> 19

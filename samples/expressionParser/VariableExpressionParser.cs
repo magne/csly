@@ -7,19 +7,19 @@ namespace expressionparser
     public class VariableExpressionParser
     {
         [Production("primary: INT")]
-        public Expression PrimaryNumber(Token<ExpressionToken> intToken)
+        public IExpression PrimaryNumber(Token<ExpressionToken> intToken)
         {
             return new Number(intToken.IntValue);
         }
 
         [Production("primary: IDENTIFIER")]
-        public Expression PrimaryIdentifier(Token<ExpressionToken> idToken)
+        public IExpression PrimaryIdentifier(Token<ExpressionToken> idToken)
         {
             return new Variable(idToken.StringWithoutQuotes);
         }
 
         [Production("primary: LPAREN expression RPAREN")]
-        public Expression Group(object discaredLParen, Expression groupValue, object discardedRParen)
+        public IExpression Group(object discaredLParen, IExpression groupValue, object discardedRParen)
         {
             return new Group(groupValue);
         }
@@ -27,38 +27,38 @@ namespace expressionparser
 
         [Production("expression : term PLUS expression")]
         [Production("expression : term MINUS expression")]
-        public Expression Expression(Expression left, Token<ExpressionToken> operatorToken, Expression right)
+        public IExpression Expression(IExpression left, Token<ExpressionToken> operatorToken, IExpression right)
         {
             return new BinaryOperation(left, operatorToken.TokenID, right);
         }
 
         [Production("expression : term")]
-        public Expression Expression_Term(Expression termValue)
+        public IExpression Expression_Term(IExpression termValue)
         {
             return termValue;
         }
 
         [Production("term : factor TIMES term")]
         [Production("term : factor DIVIDE term")]
-        public Expression Term(Expression left, Token<ExpressionToken> operatorToken, Expression right)
+        public IExpression Term(IExpression left, Token<ExpressionToken> operatorToken, IExpression right)
         {
             return new BinaryOperation(left, operatorToken.TokenID, right);
         }
 
         [Production("term : factor")]
-        public Expression Term_Factor(Expression factorValue)
+        public IExpression Term_Factor(IExpression factorValue)
         {
             return factorValue;
         }
 
         [Production("factor : primary")]
-        public Expression primaryFactor(Expression primValue)
+        public IExpression PrimaryFactor(IExpression primValue)
         {
             return primValue;
         }
 
         [Production("factor : MINUS factor")]
-        public Expression Factor(Token<ExpressionToken> minus, Expression factorValue)
+        public IExpression Factor(Token<ExpressionToken> minus, IExpression factorValue)
         {
             return new UnaryOperation(minus.TokenID, factorValue);
         }

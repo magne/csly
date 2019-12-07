@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Text;
 using expressionparser;
@@ -18,12 +19,14 @@ namespace ParserTests
 {
     public static class ListExtensions
     {
-        public static bool ContainsAll<IN>(this IEnumerable<IN> list1, IEnumerable<IN> list2)
+        public static bool ContainsAll<TLexeme>(this IEnumerable<TLexeme> list1, IEnumerable<TLexeme> list2)
         {
-            return list1.Intersect(list2).Count() == list1.Count();
+          var lst1 = list1.ToList();
+          return lst1.Intersect(list2).Count() == lst1.Count;
         }
     }
 
+    [SuppressMessage("ReSharper", "InconsistentNaming")]
     public enum OptionTestToken
     {
         [Lexeme("a")] a = 1,
@@ -36,6 +39,7 @@ namespace ParserTests
         [Lexeme("\\n\\r]+", true, true)] EOF = 101
     }
 
+    [SuppressMessage("ReSharper", "InconsistentNaming")]
     public enum GroupTestToken
     {
         [Lexeme("a")] A = 1,
@@ -63,7 +67,7 @@ namespace ParserTests
         }
 
         [Production("root : a B c? ")]
-        public string root(Token<OptionTestToken> a, string b, Token<OptionTestToken> c)
+        public string Root(Token<OptionTestToken> a, string b, Token<OptionTestToken> c)
         {
             var r = $"R({a.StringWithoutQuotes},{b}";
             if (c.IsEmpty)
@@ -74,7 +78,7 @@ namespace ParserTests
         }
 
         [Production("root : a b? c ")]
-        public string root(Token<OptionTestToken> a, Token<OptionTestToken> b, Token<OptionTestToken> c)
+        public string Root(Token<OptionTestToken> a, Token<OptionTestToken> b, Token<OptionTestToken> c)
         {
             var result = new StringBuilder();
             result.Append("R(");
@@ -93,7 +97,7 @@ namespace ParserTests
 
 
         [Production("B : b ")]
-        public string bee(Token<OptionTestToken> b)
+        public string Bee(Token<OptionTestToken> b)
         {
             return $"B({b.Value})";
         }
@@ -102,7 +106,7 @@ namespace ParserTests
     public class GroupTestParser
     {
         [Production("rootGroup : A ( COMMA A ) ")]
-        public string root(Token<GroupTestToken> a, Group<GroupTestToken, string> group)
+        public string Root(Token<GroupTestToken> a, Group<GroupTestToken, string> group)
         {
             var r = new StringBuilder();
             r.Append("R(");
@@ -119,7 +123,7 @@ namespace ParserTests
         }
 
         [Production("rootMany : A ( COMMA [d] A )* ")]
-        public string rootMany(Token<GroupTestToken> a, List<Group<GroupTestToken, string>> groups)
+        public string RootMany(Token<GroupTestToken> a, List<Group<GroupTestToken, string>> groups)
         {
             var r = new StringBuilder();
             r.Append("R(");
@@ -140,7 +144,7 @@ namespace ParserTests
         }
 
         [Production("rootOption : A ( SEMICOLON [d] A )? ")]
-        public string rootOption(Token<GroupTestToken> a, ValueOption<Group<GroupTestToken, string>> option)
+        public string RootOption(Token<GroupTestToken> a, ValueOption<Group<GroupTestToken, string>> option)
         {
             var builder = new StringBuilder();
             builder.Append("R(");
@@ -162,7 +166,7 @@ namespace ParserTests
         }
 
         [Production("root3 : A ( COMMA [d] A )* ")]
-        public string root3(Token<GroupTestToken> a, List<Group<GroupTestToken, string>> groups)
+        public string Root3(Token<GroupTestToken> a, List<Group<GroupTestToken, string>> groups)
         {
             var r = new StringBuilder();
             r.Append("R(");
@@ -189,7 +193,7 @@ namespace ParserTests
         }
 
         [Production("sub : A")]
-        public int sub(Token<GroupTestToken> token)
+        public int Sub(Token<GroupTestToken> token)
         {
             return 1;
         }
@@ -211,21 +215,23 @@ namespace ParserTests
         }
 
         [Production("sub : A")]
-        public int sub(Token<GroupTestToken> token)
+        public int Sub(Token<GroupTestToken> token)
         {
             return 1;
         }
 
 
         [Production("unreachable : A")]
-        public int unreachable(Token<GroupTestToken> token)
+        public int Unreachable(Token<GroupTestToken> token)
         {
             return 1;
         }
     }
 
+    // ReSharper disable once InconsistentNaming
     public class EBNFTests
     {
+        [SuppressMessage("ReSharper", "InconsistentNaming")]
         public enum TokenType
         {
             [Lexeme("a")] a = 1,
@@ -239,17 +245,18 @@ namespace ParserTests
 
 
         [Production("R : A B c ")]
-        public string R(string A, string B, Token<TokenType> c)
+        public string R(string a, string b, Token<TokenType> c)
         {
             var result = "R(";
-            result += A + ",";
-            result += B + ",";
+            result += a + ",";
+            result += b + ",";
             result += c.Value;
             result += ")";
             return result;
         }
 
         [Production("R : G+ ")]
+        // ReSharper disable once InconsistentNaming
         public string RManyNT(List<string> gs)
         {
             var result = "R(";
@@ -261,6 +268,7 @@ namespace ParserTests
         }
 
         [Production("G : e f ")]
+        // ReSharper disable once InconsistentNaming
         public string RManyNT(Token<TokenType> e, Token<TokenType> f)
         {
             var result = $"G({e.Value},{f.Value})";
@@ -293,9 +301,6 @@ namespace ParserTests
 
             return "B()";
         }
-
-
-        private Parser<TokenType, string> Parser;
 
         private BuildResult<Parser<TokenType, string>> BuildParser()
         {
@@ -534,8 +539,8 @@ namespace ParserTests
         {
             var buildResult = BuildParser();
             Assert.False(buildResult.IsError);
-            Parser = buildResult.Result;
-            var result = Parser.Parse("e f e f");
+            var parser = buildResult.Result;
+            var result = parser.Parse("e f e f");
             Assert.False(result.IsError);
             Assert.Equal("R(G(e,f),G(e,f))", result.Result.Replace(" ", ""));
         }
@@ -546,8 +551,8 @@ namespace ParserTests
         {
             var buildResult = BuildParser();
             Assert.False(buildResult.IsError);
-            Parser = buildResult.Result;
-            var result = Parser.Parse("aaa b c");
+            var parser = buildResult.Result;
+            var result = parser.Parse("aaa b c");
             Assert.False(result.IsError);
             Assert.Equal("R(A(a,a,a),B(b),c)", result.Result.Replace(" ", ""));
         }
@@ -557,8 +562,8 @@ namespace ParserTests
         {
             var buildResult = BuildParser();
             Assert.False(buildResult.IsError);
-            Parser = buildResult.Result;
-            var result = Parser.Parse(" b c");
+            var parser = buildResult.Result;
+            var result = parser.Parse(" b c");
             Assert.True(result.IsError);
         }
 
@@ -567,17 +572,17 @@ namespace ParserTests
         {
             var buildResult = BuildParser();
             Assert.False(buildResult.IsError);
-            Parser = buildResult.Result;
-            Assert.Equal(typeof(EBNFRecursiveDescentSyntaxParser<TokenType, string>), Parser.SyntaxParser.GetType());
-            Assert.Equal(4, Parser.Configuration.NonTerminals.Count);
-            var nt = Parser.Configuration.NonTerminals["R"];
+            var parser = buildResult.Result;
+            Assert.Equal(typeof(EBNFRecursiveDescentSyntaxParser<TokenType, string>), parser.SyntaxParser.GetType());
+            Assert.Equal(4, parser.Configuration.NonTerminals.Count);
+            var nt = parser.Configuration.NonTerminals["R"];
             Assert.Equal(2, nt.Rules.Count);
-            nt = Parser.Configuration.NonTerminals["A"];
+            nt = parser.Configuration.NonTerminals["A"];
             Assert.Single(nt.Rules);
             var rule = nt.Rules[0];
             Assert.Single(rule.Clauses);
             Assert.IsType<OneOrMoreClause<TokenType>>(rule.Clauses[0]);
-            nt = Parser.Configuration.NonTerminals["B"];
+            nt = parser.Configuration.NonTerminals["B"];
             Assert.Single(nt.Rules);
             rule = nt.Rules[0];
             Assert.Single(rule.Clauses);
@@ -589,8 +594,8 @@ namespace ParserTests
         {
             var buildResult = BuildParser();
             Assert.False(buildResult.IsError);
-            Parser = buildResult.Result;
-            var result = Parser.Parse("a bb c");
+            var parser = buildResult.Result;
+            var result = parser.Parse("a bb c");
             Assert.False(result.IsError);
             Assert.Equal("R(A(a),B(b,b),c)", result.Result.Replace(" ", ""));
         }
@@ -600,8 +605,8 @@ namespace ParserTests
         {
             var buildResult = BuildParser();
             Assert.False(buildResult.IsError);
-            Parser = buildResult.Result;
-            var result = Parser.Parse("a  c");
+            var parser = buildResult.Result;
+            var result = parser.Parse("a  c");
             Assert.False(result.IsError);
             Assert.Equal("R(A(a),B(),c)", result.Result.Replace(" ", ""));
         }
@@ -611,8 +616,8 @@ namespace ParserTests
         {
             var buildResult = BuildParser();
             Assert.False(buildResult.IsError);
-            Parser = buildResult.Result;
-            var result = Parser.Parse("a b c");
+            var parser = buildResult.Result;
+            var result = parser.Parse("a b c");
             Assert.False(result.IsError);
             Assert.Equal("R(A(a),B(b),c)", result.Result.Replace(" ", ""));
         }

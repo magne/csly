@@ -5,6 +5,7 @@ using Xunit;
 
 namespace ParserTests.comments
 {
+    [SuppressMessage("ReSharper", "InconsistentNaming")]
     public enum MultiLineCommentsToken
     {
         [Lexeme(GenericToken.Int)] INT,
@@ -16,8 +17,6 @@ namespace ParserTests.comments
         [MultiLineComment("/*", "*/")] COMMENT
     }
 
-    [SuppressMessage("ReSharper", "UnusedVariable")]
-    [SuppressMessage("ReSharper", "PossibleNullReferenceException")]
     public class MultiLineCommentsTest
     {
         [Fact]
@@ -26,9 +25,6 @@ namespace ParserTests.comments
             var lexerRes = LexerBuilder.BuildLexer(new BuildResult<ILexer<MultiLineCommentsToken>>());
             Assert.False(lexerRes.IsError);
             var lexer = lexerRes.Result;
-
-
-            var dump = lexer.ToString();
 
             var code = @"1
 2 /* not ending
@@ -67,9 +63,6 @@ comment", token3.Value);
             var lexerRes = LexerBuilder.BuildLexer(new BuildResult<ILexer<MultiLineCommentsToken>>());
             Assert.False(lexerRes.IsError);
             var lexer = lexerRes.Result;
-
-
-            var dump = lexer.ToString();
 
             var code = @"1
 2 /* multi line 
@@ -113,8 +106,6 @@ comment on 2 lines ", multiLineCommentToken.Value);
             Assert.False(lexerRes.IsError);
             var lexer = lexerRes.Result;
 
-            var dump = lexer.ToString();
-
             var r = lexer.Tokenize(@"1
 2 // single line comment
 3.0");
@@ -128,8 +119,6 @@ comment on 2 lines ", multiLineCommentToken.Value);
             var lexerRes = LexerBuilder.BuildLexer(new BuildResult<ILexer<MultiLineCommentsToken>>());
             Assert.False(lexerRes.IsError);
             var lexer = lexerRes.Result;
-
-            var dump = lexer.ToString();
 
             var code = @"1
 2 /* inner */ 3
@@ -174,13 +163,13 @@ comment on 2 lines ", multiLineCommentToken.Value);
         }
 
         [Fact]
+        // ReSharper disable once InconsistentNaming
         public void TestMixedEOLComment()
         {
             var lexerRes = LexerBuilder.BuildLexer(new BuildResult<ILexer<MultiLineCommentsToken>>());
             Assert.False(lexerRes.IsError);
             var lexer = lexerRes.Result;
 
-            var dump = lexer.ToString();
             var code = "1\n2\r\n/* multi line \rcomment on 2 lines */ 3.0";
             var r = lexer.Tokenize(code);
             Assert.True(r.IsOk);

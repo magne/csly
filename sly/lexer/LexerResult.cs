@@ -1,17 +1,17 @@
 using System.Collections.Generic;
 namespace sly.lexer
 {
-    public class LexerResult<IN> where IN : struct
+    public class LexerResult<TLexeme> where TLexeme : struct
     {
         public bool IsError { get; set; }
 
         public bool IsOk => !IsError;
-        
+
         public LexicalError Error { get; }
-        
-        public List<Token<IN>> Tokens { get; set; }
-        
-        public LexerResult(List<Token<IN>> tokens)
+
+        public List<Token<TLexeme>> Tokens { get; set; }
+
+        public LexerResult(List<Token<TLexeme>> tokens)
         {
             IsError = false;
             Tokens = tokens;

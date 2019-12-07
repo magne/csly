@@ -1,7 +1,9 @@
-﻿using sly.lexer;
+﻿using System.Diagnostics.CodeAnalysis;
+using sly.lexer;
 
 namespace sly.parser.generator
 {
+    [SuppressMessage("ReSharper", "InconsistentNaming")]
     public enum EbnfToken
     {
         [Lexeme("^[A-Za-z][A-Za-z0-9_]*")] IDENTIFIER = 1,
@@ -19,6 +21,7 @@ namespace sly.parser.generator
         [Lexeme("[\\n\\r]+", true, true)] EOL = 10
     }
 
+    [SuppressMessage("ReSharper", "InconsistentNaming")]
     public enum EbnfTokenGeneric
     {
         [Lexeme(GenericToken.Identifier,IdentifierType.AlphaNumericDash)]

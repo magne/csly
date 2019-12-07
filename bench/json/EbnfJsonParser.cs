@@ -116,7 +116,7 @@ namespace bench.json
 
 
         [Production("listElements: value (COMMA [d] value)*")]
-        public Json listElements(Json head, List<Group<JsonToken, Json>> tail)
+        public Json ListElements(Json head, List<Group<JsonToken, Json>> tail)
         {
             var values = new JList(head);
             values.AddRange(tail.Select(group => group.Value(0)).ToList());
@@ -143,13 +143,13 @@ namespace bench.json
         }
 
         [Production("additionalProperty : COMMA property")]
-        public object property(Token<JsonToken> comma, JObject property)
+        public object Property(Token<JsonToken> comma, JObject property)
         {
             return property;
         }
 
         [Production("property: STRING COLON value")]
-        public object property(Token<JsonToken> key, object colon, Json value)
+        public object Property(Token<JsonToken> key, object colon, Json value)
         {
             return new JObject(key.StringWithoutQuotes, value);
         }

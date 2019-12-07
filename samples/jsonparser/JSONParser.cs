@@ -13,6 +13,7 @@ namespace jsonparser
         }
     }
 
+    // ReSharper disable once InconsistentNaming
     public class JSONParser
     {
         #region root
@@ -42,7 +43,7 @@ namespace jsonparser
         [Production("value : DOUBLE")]
         public JSon DoubleValue(Token<JsonToken> doubleToken)
         {
-            var dbl = double.MinValue;
+            double dbl;
             try
             {
                 var doubleParts = doubleToken.Value.Split('.');
@@ -138,7 +139,7 @@ namespace jsonparser
         #region PROPERTIES
 
         [Production("property: STRING COLON value")]
-        public JSon property(Token<JsonToken> key, object colon, JSon value)
+        public JSon Property(Token<JsonToken> key, object colon, JSon value)
         {
             return new JObject(key.StringWithoutQuotes, value);
         }

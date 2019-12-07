@@ -3,21 +3,20 @@ using System.Collections.Generic;
 
 namespace sly.lexer.fsm
 {
-    public class EOLManager
+    // ReSharper disable once InconsistentNaming
+    public static class EOLManager
     {
         public static ReadOnlyMemory<char> GetToEndOfLine(ReadOnlyMemory<char> value, int position)
         {
-            var CurrentPosition = position;
-            var spanValue = value.Span;
-            var current = spanValue[CurrentPosition];
-            var end = IsEndOfLine(value, CurrentPosition);
-            while (CurrentPosition < value.Length && end == EOLType.No)
+            var currentPosition = position;
+            var end = IsEndOfLine(value, currentPosition);
+            while (currentPosition < value.Length && end == EOLType.No)
             {
-                CurrentPosition++;
-                end = IsEndOfLine(value, CurrentPosition);
+                currentPosition++;
+                end = IsEndOfLine(value, currentPosition);
             }
 
-            return value.Slice(position, CurrentPosition - position + (end == EOLType.Windows ? 2 : 1));
+            return value.Slice(position, currentPosition - position + (end == EOLType.Windows ? 2 : 1));
         }
 
         public static EOLType IsEndOfLine(ReadOnlyMemory<char> value, int position)
@@ -42,7 +41,6 @@ namespace sly.lexer.fsm
         public static List<int> GetLinesLength(ReadOnlyMemory<char> value)
         {
             var lineLengths = new List<int>();
-            var lines = new List<string>();
             var previousStart = 0;
             var i = 0;
             while (i < value.Length)
@@ -53,7 +51,6 @@ namespace sly.lexer.fsm
                     if (end == EOLType.Windows) i ++;
                     var line = value.Slice(previousStart, i - previousStart);
                     lineLengths.Add(line.Length);
-                    lines.Add(line.ToString());
                     previousStart = i + 1;
                 }
 

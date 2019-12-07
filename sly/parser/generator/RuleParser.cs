@@ -4,14 +4,14 @@ using sly.parser.syntax.grammar;
 
 namespace sly.parser.generator
 {
-    public class RuleParser<IN> where IN : struct
+    public class RuleParser<TIn> where TIn : struct
     {
         #region rules grammar
 
         [Production("rule : IDENTIFIER COLON clauses")]
-        public object Root(Token<EbnfTokenGeneric> name, Token<EbnfTokenGeneric> discarded, ClauseSequence<IN> clauses)
+        public object Root(Token<EbnfTokenGeneric> name, Token<EbnfTokenGeneric> discarded, ClauseSequence<TIn> clauses)
         {
-            var rule = new Rule<IN>();
+            var rule = new Rule<TIn>();
             rule.NonTerminalName = name.Value;
             rule.Clauses = clauses.Clauses;
             return rule;
@@ -19,50 +19,50 @@ namespace sly.parser.generator
 
 
         [Production("clauses : clause clauses")]
-        public object Clauses(IClause<IN> clause, ClauseSequence<IN> clauses)
+        public object Clauses(IClause<TIn> clause, ClauseSequence<TIn> clauses)
         {
-            var list = new ClauseSequence<IN>(clause);
+            var list = new ClauseSequence<TIn>(clause);
             if (clauses != null) list.AddRange(clauses);
             return list;
         }
 
         [Production("clauses : clause ")]
-        public ClauseSequence<IN> SingleClause(IClause<IN> clause)
+        public ClauseSequence<TIn> SingleClause(IClause<TIn> clause)
         {
-            return new ClauseSequence<IN>(clause);
+            return new ClauseSequence<TIn>(clause);
         }
 
 
         [Production("clause : IDENTIFIER ZEROORMORE")]
-        public IClause<IN> ZeroMoreClause(Token<EbnfTokenGeneric> id, Token<EbnfTokenGeneric> discarded)
+        public IClause<TIn> ZeroMoreClause(Token<EbnfTokenGeneric> id, Token<EbnfTokenGeneric> discarded)
         {
             var innerClause = BuildTerminalOrNonTerimal(id.Value, true);
-            return new ZeroOrMoreClause<IN>(innerClause);
+            return new ZeroOrMoreClause<TIn>(innerClause);
         }
 
         [Production("clause : IDENTIFIER ONEORMORE")]
-        public IClause<IN> OneMoreClause(Token<EbnfTokenGeneric> id, Token<EbnfTokenGeneric> discarded)
+        public IClause<TIn> OneMoreClause(Token<EbnfTokenGeneric> id, Token<EbnfTokenGeneric> discarded)
         {
             var innerClause = BuildTerminalOrNonTerimal(id.Value);
-            return new OneOrMoreClause<IN>(innerClause);
+            return new OneOrMoreClause<TIn>(innerClause);
         }
 
         [Production("clause : IDENTIFIER OPTION")]
-        public IClause<IN> OptionClause(Token<EbnfTokenGeneric> id, Token<EbnfTokenGeneric> discarded)
+        public IClause<TIn> OptionClause(Token<EbnfTokenGeneric> id, Token<EbnfTokenGeneric> discarded)
         {
             var innerClause = BuildTerminalOrNonTerimal(id.Value);
-            return new OptionClause<IN>(innerClause);
+            return new OptionClause<TIn>(innerClause);
         }
 
         [Production("clause : IDENTIFIER DISCARD ")]
-        public IClause<IN> SimpleDiscardedClause(Token<EbnfTokenGeneric> id, Token<EbnfTokenGeneric> discard)
+        public IClause<TIn> SimpleDiscardedClause(Token<EbnfTokenGeneric> id, Token<EbnfTokenGeneric> discard)
         {
             var clause = BuildTerminalOrNonTerimal(id.Value, true);
             return clause;
         }
 
         [Production("clause : IDENTIFIER ")]
-        public IClause<IN> SimpleClause(Token<EbnfTokenGeneric> id)
+        public IClause<TIn> SimpleClause(Token<EbnfTokenGeneric> id)
         {
             var clause = BuildTerminalOrNonTerimal(id.Value);
             return clause;
@@ -72,79 +72,78 @@ namespace sly.parser.generator
         #region  groups
 
         [Production("clause : LPAREN  groupclauses RPAREN ")]
-        public GroupClause<IN> Group(Token<EbnfTokenGeneric> discardLeft, GroupClause<IN> clauses,
+        public GroupClause<TIn> Group(Token<EbnfTokenGeneric> discardLeft, GroupClause<TIn> clauses,
             Token<EbnfTokenGeneric> discardRight)
         {
             return clauses;
         }
 
         [Production("clause : LPAREN  groupclauses RPAREN ONEORMORE ")]
-        public IClause<IN> GroupOneOrMore(Token<EbnfTokenGeneric> discardLeft, GroupClause<IN> clauses,
+        public IClause<TIn> GroupOneOrMore(Token<EbnfTokenGeneric> discardLeft, GroupClause<TIn> clauses,
             Token<EbnfTokenGeneric> discardRight, Token<EbnfTokenGeneric> oneZeroOrMore)
         {
-            return new OneOrMoreClause<IN>(clauses);
+            return new OneOrMoreClause<TIn>(clauses);
         }
 
         [Production("clause : LPAREN  groupclauses RPAREN ZEROORMORE ")]
-        public IClause<IN> GroupZeroOrMore(Token<EbnfTokenGeneric> discardLeft, GroupClause<IN> clauses,
+        public IClause<TIn> GroupZeroOrMore(Token<EbnfTokenGeneric> discardLeft, GroupClause<TIn> clauses,
             Token<EbnfTokenGeneric> discardRight, Token<EbnfTokenGeneric> discardZeroOrMore)
         {
-            return new ZeroOrMoreClause<IN>(clauses);
+            return new ZeroOrMoreClause<TIn>(clauses);
         }
 
         [Production("clause : LPAREN  groupclauses RPAREN OPTION ")]
-        public IClause<IN> GroupOptional(Token<EbnfTokenGeneric> discardLeft, GroupClause<IN> group,
+        public IClause<TIn> GroupOptional(Token<EbnfTokenGeneric> discardLeft, GroupClause<TIn> group,
             Token<EbnfTokenGeneric> discardRight, Token<EbnfTokenGeneric> option)
         {
-            return new OptionClause<IN>(group);
+            return new OptionClause<TIn>(group);
         }
 
 
         [Production("groupclauses : groupclause groupclauses")]
-        public object GroupClauses(GroupClause<IN> group, GroupClause<IN> groups)
+        public object GroupClauses(GroupClause<TIn> group, GroupClause<TIn> groups)
         {
             if (groups != null) group.AddRange(groups);
             return group;
         }
 
         [Production("groupclauses : groupclause")]
-        public object GroupClausesOne(GroupClause<IN> group)
+        public object GroupClausesOne(GroupClause<TIn> group)
         {
             return group;
         }
 
         [Production("groupclause : IDENTIFIER ")]
-        public GroupClause<IN> GroupClause(Token<EbnfTokenGeneric> id)
+        public GroupClause<TIn> GroupClause(Token<EbnfTokenGeneric> id)
         {
             var clause = BuildTerminalOrNonTerimal(id.Value);
-            return new GroupClause<IN>(clause);
+            return new GroupClause<TIn>(clause);
         }
 
         [Production("groupclause : IDENTIFIER DISCARD ")]
-        public GroupClause<IN> GroupClauseDiscarded(Token<EbnfTokenGeneric> id, Token<EbnfTokenGeneric> discarded)
+        public GroupClause<TIn> GroupClauseDiscarded(Token<EbnfTokenGeneric> id, Token<EbnfTokenGeneric> discarded)
         {
             var clause = BuildTerminalOrNonTerimal(id.Value, true);
-            return new GroupClause<IN>(clause);
+            return new GroupClause<TIn>(clause);
         }
 
         #endregion
 
 
-        private IClause<IN> BuildTerminalOrNonTerimal(string name, bool discard = false)
+        private IClause<TIn> BuildTerminalOrNonTerimal(string name, bool discard = false)
         {
-            var token = default(IN);
-            IClause<IN> clause;
+            IClause<TIn> clause;
             var isTerminal = false;
-            var b = Enum.TryParse(name, out token);
+            var b = Enum.TryParse(name, out TIn token);
             if (b)
             {
                 isTerminal = true;
             }
 
             if (isTerminal)
-                clause = new TerminalClause<IN>(token, discard);
+                clause = new TerminalClause<TIn>(token, discard);
             else
-                clause = new NonTerminalClause<IN>(name);
+                clause = new NonTerminalClause<TIn>(name);
             return clause;
         }
 

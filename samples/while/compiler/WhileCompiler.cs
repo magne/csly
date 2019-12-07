@@ -10,13 +10,13 @@ namespace csly.whileLang.compiler
 {
     public class WhileCompiler
     {
-        private readonly Parser<WhileToken, WhileAST> whileParser;
+        private readonly Parser<WhileToken, IWhileAst> whileParser;
 
 
         public WhileCompiler()
         {
             var parser = new WhileParser();
-            var builder = new ParserBuilder<WhileToken, WhileAST>();
+            var builder = new ParserBuilder<WhileToken, IWhileAst>();
             var whileParserBuildResult = builder.BuildParser(parser, ParserType.EBNF_LL_RECURSIVE_DESCENT, "statement");
             whileParser = whileParserBuildResult.Result;
         }

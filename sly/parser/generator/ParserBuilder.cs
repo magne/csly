@@ -10,20 +10,20 @@ using sly.parser.syntax.grammar;
 
 namespace sly.parser.generator
 {
-    public delegate BuildResult<Parser<IN, OUT>> ParserChecker<IN, OUT>(BuildResult<Parser<IN, OUT>> result,
-        NonTerminal<IN> nonterminal) where IN : struct;
+    public delegate BuildResult<Parser<TIn, TOut>> ParserChecker<TIn, TOut>(BuildResult<Parser<TIn, TOut>> result,
+        NonTerminal<TIn> nonterminal) where TIn : struct;
 
     /// <summary>
     ///     this class provides API to build parser
     /// </summary>
-    public class ParserBuilder<IN, OUT> where IN : struct
+    public class ParserBuilder<TIn, TOut> where TIn : struct
     {
         #region API
 
         /// <summary>
         ///     Builds a parser (lexer, syntax parser and syntax tree visitor) according to a parser definition instance
         /// </summary>
-        /// <typeparam name="IN"></typeparam>
+        /// <typeparam name="TIn"></typeparam>
         /// <param name="parserInstance">
         ///     a parser definition instance , containing
         ///     [Reduction] methods for grammar rules
@@ -33,18 +33,18 @@ namespace sly.parser.generator
         ///     </param>
         ///     <param name="rootRule">the name of the root non terminal of the grammar</param>
         ///     <returns></returns>
-        public virtual BuildResult<Parser<IN, OUT>> BuildParser(object parserInstance, ParserType parserType,
+        public virtual BuildResult<Parser<TIn, TOut>> BuildParser(object parserInstance, ParserType parserType,
             string rootRule)
         {
-            Parser<IN, OUT> parser = null;
-            var result = new BuildResult<Parser<IN, OUT>>();
+            Parser<TIn, TOut> parser;
+            var result = new BuildResult<Parser<TIn, TOut>>();
             if (parserType == ParserType.LL_RECURSIVE_DESCENT)
             {
                 var configuration = ExtractParserConfiguration(parserInstance.GetType());
                 configuration.StartingRule = rootRule;
                 var syntaxParser = BuildSyntaxParser(configuration, parserType, rootRule);
-                var visitor = new SyntaxTreeVisitor<IN, OUT>(configuration, parserInstance);
-                parser = new Parser<IN, OUT>(syntaxParser, visitor);
+                var visitor = new SyntaxTreeVisitor<TIn, TOut>(configuration, parserInstance);
+                parser = new Parser<TIn, TOut>(syntaxParser, visitor);
                 var lexerResult = BuildLexer();
                 parser.Lexer = lexerResult.Result;
                 if (lexerResult.IsError) result.AddErrors(lexerResult.Errors);
@@ -54,7 +54,7 @@ namespace sly.parser.generator
             }
             else if (parserType == ParserType.EBNF_LL_RECURSIVE_DESCENT)
             {
-                var builder = new EBNFParserBuilder<IN, OUT>();
+                var builder = new EBNFParserBuilder<TIn, TOut>();
                 result = builder.BuildParser(parserInstance, ParserType.EBNF_LL_RECURSIVE_DESCENT, rootRule);
             }
 
@@ -72,15 +72,15 @@ namespace sly.parser.generator
         }
 
 
-        protected virtual ISyntaxParser<IN, OUT> BuildSyntaxParser(ParserConfiguration<IN, OUT> conf,
+        protected virtual ISyntaxParser<TIn, TOut> BuildSyntaxParser(ParserConfiguration<TIn, TOut> conf,
             ParserType parserType, string rootRule)
         {
-            ISyntaxParser<IN, OUT> parser = null;
+            ISyntaxParser<TIn, TOut> parser;
             switch (parserType)
             {
                 case ParserType.LL_RECURSIVE_DESCENT:
                 {
-                    parser = new RecursiveDescentSyntaxParser<IN, OUT>(conf, rootRule);
+                    parser = new RecursiveDescentSyntaxParser<TIn, TOut>(conf, rootRule);
                     break;
                 }
                 default:
@@ -103,9 +103,9 @@ namespace sly.parser.generator
             Tuple<string, string> result = null;
             if (ruleString != null)
             {
-                var nt = "";
-                var rule = "";
-                var i = ruleString.IndexOf(":");
+                string nt;
+                string rule;
+                var i = ruleString.IndexOf(":", StringComparison.Ordinal);
                 if (i > 0)
                 {
                     nt = ruleString.Substring(0, i).Trim();
@@ -118,18 +118,18 @@ namespace sly.parser.generator
         }
 
 
-        protected virtual BuildResult<ILexer<IN>> BuildLexer()
+        protected virtual BuildResult<ILexer<TIn>> BuildLexer()
         {
-            var lexer = LexerBuilder.BuildLexer(new BuildResult<ILexer<IN>>());
+            var lexer = LexerBuilder.BuildLexer(new BuildResult<ILexer<TIn>>());
             return lexer;
         }
 
 
-        protected virtual ParserConfiguration<IN, OUT> ExtractParserConfiguration(Type parserClass)
+        protected virtual ParserConfiguration<TIn, TOut> ExtractParserConfiguration(Type parserClass)
         {
-            var conf = new ParserConfiguration<IN, OUT>();
+            var conf = new ParserConfiguration<TIn, TOut>();
             var functions = new Dictionary<string, MethodInfo>();
-            var nonTerminals = new Dictionary<string, NonTerminal<IN>>();
+            var nonTerminals = new Dictionary<string, NonTerminal<TIn>>();
             var methods = parserClass.GetMethods().ToList();
             methods = methods.Where(m =>
             {
@@ -153,9 +153,9 @@ namespace sly.parser.generator
                     r.NonTerminalName = ntAndRule.Item1;
                     var key = ntAndRule.Item1 + "__" + r.Key;
                     functions[key] = m;
-                    NonTerminal<IN> nonT = null;
+                    NonTerminal<TIn> nonT;
                     if (!nonTerminals.ContainsKey(ntAndRule.Item1))
-                        nonT = new NonTerminal<IN>(ntAndRule.Item1, new List<Rule<IN>>());
+                        nonT = new NonTerminal<TIn>(ntAndRule.Item1, new List<Rule<TIn>>());
                     else
                         nonT = nonTerminals[ntAndRule.Item1];
                     nonT.Rules.Add(r);
@@ -168,21 +168,20 @@ namespace sly.parser.generator
             return conf;
         }
 
-        private Rule<IN> BuildNonTerminal(Tuple<string, string> ntAndRule)
+        private Rule<TIn> BuildNonTerminal(Tuple<string, string> ntAndRule)
         {
-            var rule = new Rule<IN>();
+            var rule = new Rule<TIn>();
 
-            var clauses = new List<IClause<IN>>();
+            var clauses = new List<IClause<TIn>>();
             var ruleString = ntAndRule.Item2;
             var clausesString = ruleString.Split(new[] {' '}, StringSplitOptions.RemoveEmptyEntries);
             foreach (var item in clausesString)
             {
-                IClause<IN> clause = null;
+                IClause<TIn> clause = null;
                 var isTerminal = false;
-                var token = default(IN);
+                var token = default(TIn);
                 try
                 {
-                    var tIn = typeof(IN);
                     var b = Enum.TryParse(item, out token);
                     if (b)
                     {
@@ -199,15 +198,15 @@ namespace sly.parser.generator
 
                 if (isTerminal)
                 {
-                    clause = new TerminalClause<IN>(token);
+                    clause = new TerminalClause<TIn>(token);
                 }
                 else if (item == "[d]")
                 {
-                    if (clauses.Last() is TerminalClause<IN> discardedTerminal) discardedTerminal.Discarded = true;
+                    if (clauses.Last() is TerminalClause<TIn> discardedTerminal) discardedTerminal.Discarded = true;
                 }
                 else
                 {
-                    clause = new NonTerminalClause<IN>(item);
+                    clause = new NonTerminalClause<TIn>(item);
                 }
 
                 if (clause != null) clauses.Add(clause);
@@ -223,9 +222,9 @@ namespace sly.parser.generator
 
         #region parser checking
 
-        private BuildResult<Parser<IN, OUT>> CheckParser(BuildResult<Parser<IN, OUT>> result)
+        private BuildResult<Parser<TIn, TOut>> CheckParser(BuildResult<Parser<TIn, TOut>> result)
         {
-            var checkers = new List<ParserChecker<IN, OUT>>();
+            var checkers = new List<ParserChecker<TIn, TOut>>();
             checkers.Add(CheckUnreachable);
             checkers.Add(CheckNotFound);
 
@@ -237,8 +236,8 @@ namespace sly.parser.generator
             return result;
         }
 
-        private static BuildResult<Parser<IN, OUT>> CheckUnreachable(BuildResult<Parser<IN, OUT>> result,
-            NonTerminal<IN> nonTerminal)
+        private static BuildResult<Parser<TIn, TOut>> CheckUnreachable(BuildResult<Parser<TIn, TOut>> result,
+            NonTerminal<TIn> nonTerminal)
         {
             var conf = result.Result.Configuration;
             var found = false;
@@ -260,7 +259,7 @@ namespace sly.parser.generator
         }
 
 
-        private static bool NonTerminalReferences(NonTerminal<IN> nonTerminal, string referenceName)
+        private static bool NonTerminalReferences(NonTerminal<TIn> nonTerminal, string referenceName)
         {
             var found = false;
             var iRule = 0;
@@ -271,23 +270,23 @@ namespace sly.parser.generator
                 while (iClause < rule.Clauses.Count && !found)
                 {
                     var clause = rule.Clauses[iClause];
-                    if (clause is NonTerminalClause<IN> ntClause)
+                    if (clause is NonTerminalClause<TIn> ntClause)
                     {
                         if (ntClause != null) found = found || ntClause.NonTerminalName == referenceName;
                     }
-                    else if (clause is OptionClause<IN> option)
+                    else if (clause is OptionClause<TIn> option)
                     {
-                        if (option != null && option.Clause is NonTerminalClause<IN> inner)
+                        if (option != null && option.Clause is NonTerminalClause<TIn> inner)
                             found = found || inner.NonTerminalName == referenceName;
                     }
-                    else if (clause is ZeroOrMoreClause<IN> zeroOrMore)
+                    else if (clause is ZeroOrMoreClause<TIn> zeroOrMore)
                     {
-                        if (zeroOrMore != null && zeroOrMore.Clause is NonTerminalClause<IN> inner)
+                        if (zeroOrMore != null && zeroOrMore.Clause is NonTerminalClause<TIn> inner)
                             found = found || inner.NonTerminalName == referenceName;
                     }
-                    else if (clause is OneOrMoreClause<IN> oneOrMore)
+                    else if (clause is OneOrMoreClause<TIn> oneOrMore)
                     {
-                        if (oneOrMore != null && oneOrMore.Clause is NonTerminalClause<IN> inner)
+                        if (oneOrMore != null && oneOrMore.Clause is NonTerminalClause<TIn> inner)
                             found = found || inner.NonTerminalName == referenceName;
                     }
 
@@ -301,13 +300,13 @@ namespace sly.parser.generator
         }
 
 
-        private static BuildResult<Parser<IN, OUT>> CheckNotFound(BuildResult<Parser<IN, OUT>> result,
-            NonTerminal<IN> nonTerminal)
+        private static BuildResult<Parser<TIn, TOut>> CheckNotFound(BuildResult<Parser<TIn, TOut>> result,
+            NonTerminal<TIn> nonTerminal)
         {
             var conf = result.Result.Configuration;
             foreach (var rule in nonTerminal.Rules)
             foreach (var clause in rule.Clauses)
-                if (clause is NonTerminalClause<IN> ntClause)
+                if (clause is NonTerminalClause<TIn> ntClause)
                     if (!conf.NonTerminals.ContainsKey(ntClause.NonTerminalName))
                         result.AddError(new ParserInitializationError(ErrorLevel.ERROR,
                             $"{ntClause.NonTerminalName} references from {rule.RuleString} does not exist."));

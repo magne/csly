@@ -24,8 +24,9 @@ namespace sly.lexer
             
         }
         
+        // ReSharper disable once UnusedParameter.Local
         public Token(T token, ReadOnlyMemory<char> value, TokenPosition position, bool isCommentStart = false,
-            CommentType commentType = CommentType.Single)
+                     CommentType commentType = CommentType.Single)
         {
             TokenID = token;
             SpanValue = value;
@@ -48,11 +49,13 @@ namespace sly.lexer
         public TokenPosition Position { get; set; }
 
         public int PositionInTokenFlow { get; set; }
+        // ReSharper disable once InconsistentNaming
         public T TokenID { get; set; }
         public bool IsComment { get; set; }
 
-        public bool Discarded { get; set; } = false;
+        public bool Discarded { get; set; }
 
+        // ReSharper disable once InconsistentNaming
         public bool IsEOS { get; set; }
 
         public CommentType CommentType { get; set; } = CommentType.No;
@@ -110,7 +113,6 @@ namespace sly.lexer
 
                 return result;
             }
-            set { }
         }
 
         public char CharValue  {
@@ -131,6 +133,7 @@ namespace sly.lexer
         } 
 
 
+        // ReSharper disable once UnusedAutoPropertyAccessor.Global
         public bool End { get; set; }
         public static T DefTok { get; set; }
 

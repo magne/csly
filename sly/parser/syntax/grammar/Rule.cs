@@ -5,12 +5,12 @@ using sly.parser.generator;
 
 namespace sly.parser.syntax.grammar
 {
-    public class Rule<IN> : GrammarNode<IN> where IN : struct
+    public class Rule<TIn> : GrammarNode<TIn> where TIn : struct
     {
         public Rule()
         {
-            Clauses = new List<IClause<IN>>();
-            VisitorMethodsForOperation = new Dictionary<IN, OperationMetaData<IN>>();
+            Clauses = new List<IClause<TIn>>();
+            VisitorMethodsForOperation = new Dictionary<TIn, OperationMetaData<TIn>>();
             Visitor = null;
             IsSubRule = false;
         }
@@ -18,7 +18,7 @@ namespace sly.parser.syntax.grammar
         public bool IsByPassRule { get; set; } = false;
 
         // visitors for operation rules
-        private Dictionary<IN, OperationMetaData<IN>> VisitorMethodsForOperation { get; }
+        private Dictionary<TIn, OperationMetaData<TIn>> VisitorMethodsForOperation { get; }
 
         // visitor for classical rules
         private MethodInfo Visitor { get; set; }
@@ -41,8 +41,8 @@ namespace sly.parser.syntax.grammar
             }
         }
 
-        public List<IClause<IN>> Clauses { get; set; }
-        public List<IN> PossibleLeadingTokens { get; set; }
+        public List<IClause<TIn>> Clauses { get; set; }
+        public List<TIn> PossibleLeadingTokens { get; set; }
 
         public string NonTerminalName { get; set; }
 
@@ -53,9 +53,9 @@ namespace sly.parser.syntax.grammar
                 if (Clauses != null && Clauses.Any())
                     foreach (var clause in Clauses)
                     {
-                        if (clause is GroupClause<IN>) return true;
-                        if (clause is ManyClause<IN> many) return many.Clause is GroupClause<IN>;
-                        if (clause is OptionClause<IN> option) return option.Clause is GroupClause<IN>;
+                        if (clause is GroupClause<TIn>) return true;
+                        if (clause is ManyClause<TIn> many) return many.Clause is GroupClause<TIn>;
+                        if (clause is OptionClause<TIn> option) return option.Clause is GroupClause<TIn>;
                     }
 
                 return false;
@@ -69,7 +69,7 @@ namespace sly.parser.syntax.grammar
                                   || Clauses.Count == 1 && Clauses[0].MayBeEmpty();
 
 
-        public OperationMetaData<IN> GetOperation(IN token = default(IN))
+        public OperationMetaData<TIn> GetOperation(TIn token = default(TIn))
         {
             if (IsExpressionRule)
             {
@@ -82,9 +82,9 @@ namespace sly.parser.syntax.grammar
             return null;
         }
 
-        public MethodInfo GetVisitor(IN token = default(IN))
+        public MethodInfo GetVisitor(TIn token = default(TIn))
         {
-            MethodInfo visitor = null;
+            MethodInfo visitor;
             if (IsExpressionRule)
             {
                 var operation = VisitorMethodsForOperation.ContainsKey(token)
@@ -105,7 +105,7 @@ namespace sly.parser.syntax.grammar
             Visitor = visitor;
         }
 
-        public void SetVisitor(OperationMetaData<IN> operation)
+        public void SetVisitor(OperationMetaData<TIn> operation)
         {
             VisitorMethodsForOperation[operation.OperatorToken] = operation;
         }

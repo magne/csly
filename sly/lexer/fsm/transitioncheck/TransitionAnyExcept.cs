@@ -6,18 +6,18 @@ namespace sly.lexer.fsm.transitioncheck
 {
     public class TransitionAnyExcept : AbstractTransitionCheck
     {
-        private readonly List<char> TokenExceptions;
+        private readonly List<char> tokenExceptions;
 
         public TransitionAnyExcept(params char[] tokens)
         {
-            TokenExceptions = new List<char>();
-            TokenExceptions.AddRange(tokens);
+            tokenExceptions = new List<char>();
+            tokenExceptions.AddRange(tokens);
         }
 
         public TransitionAnyExcept(TransitionPrecondition precondition, params char[] tokens)
         {
-            TokenExceptions = new List<char>();
-            TokenExceptions.AddRange(tokens);
+            tokenExceptions = new List<char>();
+            tokenExceptions.AddRange(tokens);
             Precondition = precondition;
         }
 
@@ -26,13 +26,13 @@ namespace sly.lexer.fsm.transitioncheck
         {
            var label = "";
             if (Precondition != null) label = "[|] ";
-            label += $"^({string.Join(", ",TokenExceptions.Select(c => c.ToEscaped()))})";
+            label += $"^({string.Join(", ",tokenExceptions.Select(c => c.ToEscaped()))})";
             return $@"[ label=""{label}"" ]";
         }
 
         public override bool Match(char input)
         {
-            return !TokenExceptions.Contains(input);
+            return !tokenExceptions.Contains(input);
         }
     }
 }

@@ -5,6 +5,7 @@ using sly.lexer.fsm;
 
 namespace jsonparser
 {
+    // ReSharper disable once InconsistentNaming
     public class JSONLexer : ILexer<JsonToken>
     {
         public void AddDefinition(TokenDefinition<JsonToken> tokenDefinition)
@@ -20,8 +21,6 @@ namespace jsonparser
         {
             var tokens = new List<Token<JsonToken>>();
             var position = 0;
-            var currentLine = 1;
-            var currentColumn = 1;
             var length = source.Length;
 
             var currentTokenLine = 1;
@@ -29,20 +28,22 @@ namespace jsonparser
             var currentTokenPosition = 1;
             var currentValue = "";
 
-            var InString = false;
-            var InNum = false;
-            var InNull = false;
-            var InTrue = false;
-            var InFalse = false;
-            var NumIsDouble = false;
+            var inString = false;
+            var inNum = false;
+            var inNull = false;
+            var inTrue = false;
+            var inFalse = false;
+            var numIsDouble = false;
 
             int tokenStartIndex = 0;
             int tokenLength = 0;
 
+            var line = currentTokenLine;
+            var column = currentTokenColumn;
             Func<JsonToken, Token<JsonToken>> NewToken = tok =>
             {
                 var token = new Token<JsonToken>();
-                token.Position = new TokenPosition(currentTokenPosition, currentTokenLine, currentTokenColumn);
+                token.Position = new TokenPosition(currentTokenPosition, line, column);
                 token.SpanValue = source.Slice(tokenStartIndex,tokenLength);
                 tokenStartIndex = tokenStartIndex + tokenLength;
                 token.TokenID = tok;
@@ -55,12 +56,12 @@ namespace jsonparser
             while (position < length)
             {
                 var current = source.At(position);
-                if (InString)
+                if (inString)
                 {
                     currentValue += current;
                     if (current == '"')
                     {
-                        InString = false;
+                        inString = false;
 
                         NewToken(JsonToken.STRING);
                         position++;
@@ -70,30 +71,30 @@ namespace jsonparser
                         position++;
                     }
                 }
-                else if (InNum)
+                else if (inNum)
                 {
                     if (current == '.')
                     {
-                        NumIsDouble = true;
+                        numIsDouble = true;
                         currentValue += current;
                     }
                     else if (char.IsDigit(current))
                     {
                         currentValue += current;
-                        var type = NumIsDouble ? JsonToken.DOUBLE : JsonToken.INT;
+                        var type = numIsDouble ? JsonToken.DOUBLE : JsonToken.INT;
                         if (position == length - 1) NewToken(type);
                     }
                     else
                     {
-                        InNum = false;
-                        var type = NumIsDouble ? JsonToken.DOUBLE : JsonToken.INT;
+                        inNum = false;
+                        var type = numIsDouble ? JsonToken.DOUBLE : JsonToken.INT;
                         NewToken(type);
                         position--;
                     }
 
                     position++;
                 }
-                else if (InNull)
+                else if (inNull)
                 {
                     if (current == "null"[currentValue.Length])
                     {
@@ -101,13 +102,13 @@ namespace jsonparser
                         if (currentValue.Length == 4)
                         {
                             NewToken(JsonToken.NULL);
-                            InNull = false;
+                            inNull = false;
                         }
                     }
 
                     position++;
                 }
-                else if (InFalse)
+                else if (inFalse)
                 {
                     if (current == "false"[currentValue.Length])
                     {
@@ -115,7 +116,7 @@ namespace jsonparser
                         if (currentValue.Length == 5)
                         {
                             NewToken(JsonToken.BOOLEAN);
-                            InFalse = false;
+                            inFalse = false;
                         }
                         else
                         {
@@ -123,7 +124,7 @@ namespace jsonparser
                         }
                     }
                 }
-                else if (InTrue)
+                else if (inTrue)
                 {
                     if (current == "true"[currentValue.Length])
                     {
@@ -131,7 +132,6 @@ namespace jsonparser
                         if (currentValue.Length == 5)
                         {
                             NewToken(JsonToken.BOOLEAN);
-                            InFalse = false;
                         }
                     }
 
@@ -142,26 +142,24 @@ namespace jsonparser
                     currentValue += current;
                     if (current == '"')
                     {
-                        InString = true;
+                        inString = true;
                         currentValue += current;
-                        currentTokenColumn = currentColumn;
-                        currentTokenLine = currentLine;
                     }
                     else if (char.IsDigit(current))
                     {
-                        InNum = true;
+                        inNum = true;
                     }
                     else if (current == 't')
                     {
-                        InTrue = true;
+                        inTrue = true;
                     }
                     else if (current == 'f')
                     {
-                        InFalse = true;
+                        inFalse = true;
                     }
                     else if (current == 'n')
                     {
-                        InNull = true;
+                        inNull = true;
                     }
                     else if (current == '[')
                     {
@@ -193,12 +191,9 @@ namespace jsonparser
                     }
                     else if (current == '\n' || current == '\r')
                     {
-                        currentLine++;
                         currentValue = ";;";
-                        currentColumn = 1;
                     }
 
-                    currentColumn++;
                     position++;
                 }
             }

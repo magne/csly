@@ -6,13 +6,13 @@ namespace csly.whileLang.compiler
     {
         private ExpressionTyper expressionTyper;
 
-        public CompilerContext SemanticCheck(WhileAST ast)
+        public CompilerContext SemanticCheck(IWhileAst ast)
         {
             expressionTyper = new ExpressionTyper();
             return SemanticCheck(ast, new CompilerContext());
         }
 
-        private CompilerContext SemanticCheck(WhileAST ast, CompilerContext context)
+        private CompilerContext SemanticCheck(IWhileAst ast, CompilerContext context)
         {
             if (ast is AssignStatement assign) SemanticCheck(assign, context);
             if (ast is SequenceStatement seq) SemanticCheck(seq, context);

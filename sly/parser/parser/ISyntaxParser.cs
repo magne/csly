@@ -4,12 +4,12 @@ using sly.parser.generator;
 
 namespace sly.parser
 {
-    public interface ISyntaxParser<IN, OUT> where IN : struct
+    public interface ISyntaxParser<TIn, TOut> where TIn : struct
     {
         string StartingNonTerminal { get; set; }
 
-        SyntaxParseResult<IN> Parse(IList<Token<IN>> tokens, string startingNonTerminal = null);
+        SyntaxParseResult<TIn> Parse(IList<Token<TIn>> tokens, string startingNonTerminal = null);
 
-        void Init(ParserConfiguration<IN, OUT> configuration, string root);
+        void Init(ParserConfiguration<TIn, TOut> configuration, string root);
     }
 }

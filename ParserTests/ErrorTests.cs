@@ -15,15 +15,16 @@ namespace ParserTests
         {
             var exprParser = new ExpressionParser();
             var builder = new ParserBuilder<ExpressionToken, int>();
-            var Parser = builder.BuildParser(exprParser, ParserType.LL_RECURSIVE_DESCENT, "expression").Result;
+            var parser = builder.BuildParser(exprParser, ParserType.LL_RECURSIVE_DESCENT, "expression").Result;
 
-            var r = Parser.Parse(" 2 + 3 + + 2");
+            var r = parser.Parse(" 2 + 3 + + 2");
             Assert.True(r.IsError);
             Assert.NotNull(r.Errors);
             Assert.True(r.Errors.Count > 0);
             Assert.IsAssignableFrom<UnexpectedTokenSyntaxError<ExpressionToken>>(r.Errors[0]);
             var error = r.Errors[0] as UnexpectedTokenSyntaxError<ExpressionToken>;
 
+            Assert.NotNull(error);
             Assert.Equal(ExpressionToken.PLUS, error.UnexpectedToken.TokenID);
 
             Assert.Equal(1, error.Line);
@@ -35,11 +36,11 @@ namespace ParserTests
         {
             var jsonParser = new EbnfJsonGenericParser();
             var builder = new ParserBuilder<JsonTokenGeneric, JSon>();
-            var Parser = builder.BuildParser(jsonParser, ParserType.EBNF_LL_RECURSIVE_DESCENT, "root").Result;
+            var parser = builder.BuildParser(jsonParser, ParserType.EBNF_LL_RECURSIVE_DESCENT, "root").Result;
 
             var source = "{";
 
-            var r = Parser.Parse(source);
+            var r = parser.Parse(source);
             Assert.True(r.IsError);
             Assert.Null(r.Result);
             Assert.NotNull(r.Errors);
@@ -48,10 +49,10 @@ namespace ParserTests
             var error = r.Errors[0] as UnexpectedTokenSyntaxError<JsonTokenGeneric>;
 
             Assert.NotNull(error);
-            Assert.Equal((JsonTokenGeneric) 0, error?.UnexpectedToken.TokenID);
+            Assert.Equal((JsonTokenGeneric) 0, error.UnexpectedToken.TokenID);
             Assert.Contains("end of stream", error.ErrorMessage);
-            Assert.Equal(0, error?.Line);
-            Assert.Equal(1, error?.Column);
+            Assert.Equal(0, error.Line);
+            Assert.Equal(1, error.Column);
         }
 
 
@@ -98,10 +99,10 @@ namespace ParserTests
             var error = r.Errors[0] as UnexpectedTokenSyntaxError<JsonToken>;
 
             Assert.NotNull(error);
-            Assert.Equal((JsonToken) 0, error?.UnexpectedToken.TokenID);
+            Assert.Equal((JsonToken) 0, error.UnexpectedToken.TokenID);
             Assert.Contains("end of stream", error.ErrorMessage);
-            Assert.Equal(1, error?.Line);
-            Assert.Equal(2, error?.Column);
+            Assert.Equal(1, error.Line);
+            Assert.Equal(2, error.Column);
         }
 
         [Fact]
@@ -110,13 +111,14 @@ namespace ParserTests
             var exprParser = new ExpressionParser();
 
             var builder = new ParserBuilder<ExpressionToken, int>();
-            var Parser = builder.BuildParser(exprParser, ParserType.LL_RECURSIVE_DESCENT, "root").Result;
-            var r = Parser.Parse("2 @ 2");
+            var parser = builder.BuildParser(exprParser, ParserType.LL_RECURSIVE_DESCENT, "root").Result;
+            var r = parser.Parse("2 @ 2");
             Assert.True(r.IsError);
             Assert.NotNull(r.Errors);
             Assert.True(r.Errors.Count > 0);
             Assert.IsType<LexicalError>(r.Errors[0]);
             var error = r.Errors[0] as LexicalError;
+            Assert.NotNull(error);
             Assert.Equal(1, error.Line);
             Assert.Equal(3, error.Column);
             Assert.Equal('@', error.UnexpectedChar);

@@ -12,7 +12,7 @@ namespace csly.whileLang.compiler
         }
 
 
-        public WhileType TypeExpression(Expression expr, CompilerContext context)
+        public WhileType TypeExpression(IExpression expr, CompilerContext context)
         {
             if (expr is BoolConstant b) return TypeExpression(b, context);
             if (expr is IntegerConstant i) return TypeExpression(i, context);

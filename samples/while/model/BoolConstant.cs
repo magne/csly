@@ -5,7 +5,7 @@ using Sigil;
 
 namespace csly.whileLang.model
 {
-    public class BoolConstant : Expression
+    public class BoolConstant : IExpression
     {
         public BoolConstant(bool value)
         {

@@ -1,19 +1,21 @@
 ﻿namespace sly.lexer.fsm
 {
-    public class FSMNode<N>
+    // ReSharper disable once InconsistentNaming
+    public class FSMNode<TNode>
     {
-        internal FSMNode(N value)
+        internal FSMNode(TNode value)
         {
             Value = value;
         }
 
-        internal N Value { get; set; }
+        internal TNode Value { get; set; }
 
-        internal int Id { get; set; } = 0;
+        internal int Id { get; set; }
 
-        internal bool IsEnd { get; set; } = false;
+        internal bool IsEnd { get; set; }
 
-        internal bool IsStart { get; set; } = false;
+        // ReSharper disable once UnusedAutoPropertyAccessor.Global
+        internal bool IsStart { get; set; }
         public string Mark { get; internal set; }
     }
 }

@@ -3,12 +3,12 @@ using System.Linq;
 
 namespace sly.buildresult
 {
-    public class BuildResult<R>
+    public class BuildResult<TResult>
     {
-        public BuildResult() : this(default(R))
+        public BuildResult() : this(default(TResult))
         { }
 
-        public BuildResult(R result)
+        public BuildResult(TResult result)
         {
             Result = result;
             Errors = new List<InitializationError>();
@@ -16,7 +16,7 @@ namespace sly.buildresult
 
         public List<InitializationError> Errors { get; }
 
-        public R Result { get; set; }
+        public TResult Result { get; set; }
 
         public bool IsError
         {

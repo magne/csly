@@ -8,6 +8,7 @@ using Sigil;
 
 namespace csly.whileLang.model
 {
+    [SuppressMessage("ReSharper", "InconsistentNaming")]
     public enum BinaryOperator
     {
         ADD,
@@ -23,20 +24,20 @@ namespace csly.whileLang.model
         CONCAT
     }
 
-    public class BinaryOperation : Expression
+    public class BinaryOperation : IExpression
     {
-        public BinaryOperation(Expression left, BinaryOperator oper, Expression right)
+        public BinaryOperation(IExpression left, BinaryOperator oper, IExpression right)
         {
             Left = left;
             Operator = oper;
             Right = right;
         }
 
-        public Expression Left { get; set; }
+        public IExpression Left { get; set; }
 
         public BinaryOperator Operator { get; set; }
 
-        public Expression Right { get; set; }
+        public IExpression Right { get; set; }
 
         public Scope CompilerScope { get; set; }
 

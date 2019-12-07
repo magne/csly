@@ -14,23 +14,23 @@ namespace ParserTests.samples
     [SuppressMessage("ReSharper", "PossibleNullReferenceException")]
     public class WhileTests
     {
-        private static BuildResult<Parser<WhileToken, WhileAST>> Parser;
+        private static BuildResult<Parser<WhileToken, IWhileAst>> classParser;
 
 
-        public BuildResult<Parser<WhileToken, WhileAST>> buildParser()
+        private static BuildResult<Parser<WhileToken, IWhileAst>> BuildParser()
         {
-            if (Parser == null)
+            if (classParser == null)
             {
                 var whileParser = new WhileParser();
-                var builder = new ParserBuilder<WhileToken, WhileAST>();
-                Parser = builder.BuildParser(whileParser, ParserType.EBNF_LL_RECURSIVE_DESCENT, "statement");
+                var builder = new ParserBuilder<WhileToken, IWhileAst>();
+                classParser = builder.BuildParser(whileParser, ParserType.EBNF_LL_RECURSIVE_DESCENT, "statement");
             }
 
-            return Parser;
+            return classParser;
         }
 
 
-        public bool CheckIntVariable(InterpreterContext context, string variable, int value)
+        private static bool CheckIntVariable(InterpreterContext context, string variable, int value)
         {
             var ok = false;
             if (context.GetVariable(variable) != null)
@@ -45,7 +45,7 @@ namespace ParserTests.samples
         [Fact]
         public void TestAssignAdd()
         {
-            var buildResult = buildParser();
+            var buildResult = BuildParser();
             Assert.False(buildResult.IsError);
             var parser = buildResult.Result;
             var result = parser.Parse("(a:=1+1)");
@@ -68,7 +68,7 @@ namespace ParserTests.samples
         [Fact]
         public void TestBuildParser()
         {
-            var buildResult = buildParser();
+            var buildResult = BuildParser();
             Assert.False(buildResult.IsError);
             var parser = buildResult.Result;
         }
@@ -76,7 +76,7 @@ namespace ParserTests.samples
         [Fact]
         public void TestCounterProgram()
         {
-            var buildResult = buildParser();
+            var buildResult = BuildParser();
             Assert.False(buildResult.IsError);
             var parser = buildResult.Result;
             var result = parser.Parse("(a:=0; while a < 10 do (print a; a := a +1 ))");
@@ -87,7 +87,7 @@ namespace ParserTests.samples
         [Fact]
         public void TestCounterProgramExec()
         {
-            var buildResult = buildParser();
+            var buildResult = BuildParser();
             Assert.False(buildResult.IsError);
             var parser = buildResult.Result;
             var result = parser.Parse("(a:=0; while a < 10 do (print a; a := a +1 ))");
@@ -95,7 +95,7 @@ namespace ParserTests.samples
             Assert.NotNull(result.Result);
             var interpreter = new Interpreter();
             var context = interpreter.Interprete(result.Result, true);
-            Assert.Single(context.variables);
+            Assert.Single(context.Variables);
             Assert.True(CheckIntVariable(context, "a", 10));
         }
 
@@ -113,7 +113,7 @@ namespace ParserTests.samples
     print i;
     i := i + 1 )
 )";
-            var buildResult = buildParser();
+            var buildResult = BuildParser();
             Assert.False(buildResult.IsError);
             var parser = buildResult.Result;
             var result = parser.Parse(program);
@@ -121,13 +121,14 @@ namespace ParserTests.samples
             Assert.NotNull(result.Result);
             var interpreter = new Interpreter();
             var context = interpreter.Interprete(result.Result, true);
-            Assert.Equal(2, context.variables.Count);
+            Assert.Equal(2, context.Variables.Count);
             Assert.True(CheckIntVariable(context, "i", 11));
             Assert.True(CheckIntVariable(context, "r", 3628800));
         }
 
 
         [Fact]
+        // ReSharper disable once InconsistentNaming
         public void TestFactorialProgramExecAsIL()
         {
             var program = @"
@@ -152,7 +153,7 @@ return r
         [Fact]
         public void TestIfThenElse()
         {
-            var buildResult = buildParser();
+            var buildResult = BuildParser();
             Assert.False(buildResult.IsError);
             var parser = buildResult.Result;
             var result = parser.Parse("if true then (a := \"hello\") else (b := \"world\")");
@@ -190,7 +191,7 @@ return r
         [Fact]
         public void TestInfiniteWhile()
         {
-            var buildResult = buildParser();
+            var buildResult = BuildParser();
             Assert.False(buildResult.IsError);
             var parser = buildResult.Result;
             var result = parser.Parse("while true do (skip)");
@@ -214,7 +215,7 @@ return r
         [Fact]
         public void TestPrintBoolExpression()
         {
-            var buildResult = buildParser();
+            var buildResult = BuildParser();
             Assert.False(buildResult.IsError);
             var parser = buildResult.Result;
             var result = parser.Parse("print true and false");
@@ -237,7 +238,7 @@ return r
         [Fact]
         public void TestSkip()
         {
-            var buildResult = buildParser();
+            var buildResult = BuildParser();
             Assert.False(buildResult.IsError);
             var parser = buildResult.Result;
             var result = parser.Parse("skip");
@@ -252,7 +253,7 @@ return r
         [Fact]
         public void TestSkipAssignSequence()
         {
-            var buildResult = buildParser();
+            var buildResult = BuildParser();
             Assert.False(buildResult.IsError);
             var parser = buildResult.Result;
             var result = parser.Parse("(a:=1; b:=2; c:=3)");
@@ -276,7 +277,7 @@ return r
         [Fact]
         public void TestSkipSkipSequence()
         {
-            var buildResult = buildParser();
+            var buildResult = BuildParser();
             Assert.False(buildResult.IsError);
             var parser = buildResult.Result;
             var result = parser.Parse("(skip; skip; skip)");

@@ -1,26 +1,26 @@
 ﻿namespace expressionparser.model
 {
-    public class BinaryOperation : Expression
+    public class BinaryOperation : IExpression
     {
-        private readonly Expression LeftExpresion;
-        private readonly ExpressionToken Operator;
-        private readonly Expression RightExpression;
+        private readonly IExpression leftExpresion;
+        private readonly ExpressionToken @operator;
+        private readonly IExpression rightExpression;
 
 
-        public BinaryOperation(Expression left, ExpressionToken op, Expression right)
+        public BinaryOperation(IExpression left, ExpressionToken op, IExpression right)
         {
-            LeftExpresion = left;
-            Operator = op;
-            RightExpression = right;
+            leftExpresion = left;
+            @operator = op;
+            rightExpression = right;
         }
 
         public int? Evaluate(ExpressionContext context)
         {
-            var left = LeftExpresion.Evaluate(context);
-            var right = RightExpression.Evaluate(context);
+            var left = leftExpresion.Evaluate(context);
+            var right = rightExpression.Evaluate(context);
 
             if (left.HasValue && right.HasValue)
-                switch (Operator)
+                switch (@operator)
                 {
                     case ExpressionToken.PLUS:
                     {

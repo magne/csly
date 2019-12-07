@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Text;
 using csly.whileLang.model;
 
@@ -12,6 +13,7 @@ namespace csly.whileLang.interpreter
         }
     }
 
+    [SuppressMessage("ReSharper", "InconsistentNaming")]
     public enum WhileType
     {
         BOOL,
@@ -64,42 +66,42 @@ namespace csly.whileLang.interpreter
 
     public class InterpreterContext
     {
-        public Dictionary<string, TypedValue> variables;
+        public readonly Dictionary<string, TypedValue> Variables;
 
         public InterpreterContext()
         {
-            variables = new Dictionary<string, TypedValue>();
+            Variables = new Dictionary<string, TypedValue>();
         }
 
         public void SetVariable(string name, TypedValue value)
         {
-            variables[name] = value;
+            Variables[name] = value;
         }
 
         public void SetVariable(string name, string value)
         {
-            variables[name] = new TypedValue(value);
+            Variables[name] = new TypedValue(value);
         }
 
         public void SetVariable(string name, int value)
         {
-            variables[name] = new TypedValue(value);
+            Variables[name] = new TypedValue(value);
         }
 
         public void SetVariable(string name, bool value)
         {
-            variables[name] = new TypedValue(value);
+            Variables[name] = new TypedValue(value);
         }
 
         public TypedValue GetVariable(string name)
         {
-            return variables.ContainsKey(name) ? variables[name] : null;
+            return Variables.ContainsKey(name) ? Variables[name] : null;
         }
 
         public override string ToString()
         {
             var dmp = new StringBuilder();
-            foreach (var pair in variables) dmp.AppendLine($"{pair.Key}={pair.Value}");
+            foreach (var pair in Variables) dmp.AppendLine($"{pair.Key}={pair.Value}");
             return dmp.ToString();
         }
     }
@@ -108,22 +110,22 @@ namespace csly.whileLang.interpreter
     {
         private ExpressionEvaluator evaluator;
 
-        private bool IsQuiet;
+        private bool isQuiet;
 
-        public InterpreterContext Interprete(WhileAST ast, bool quiet)
+        public InterpreterContext Interprete(IWhileAst ast, bool quiet)
         {
-            IsQuiet = quiet;
+            isQuiet = quiet;
             evaluator = new ExpressionEvaluator();
             return Interprete(ast, new InterpreterContext());
         }
 
-        public InterpreterContext Interprete(WhileAST ast)
+        public InterpreterContext Interprete(IWhileAst ast)
         {
             evaluator = new ExpressionEvaluator();
             return Interprete(ast, new InterpreterContext());
         }
 
-        private InterpreterContext Interprete(WhileAST ast, InterpreterContext context)
+        private InterpreterContext Interprete(IWhileAst ast, InterpreterContext context)
         {
             if (ast is AssignStatement assign) Interprete(assign, context);
             if (ast is SequenceStatement seq) Interprete(seq, context);
@@ -147,7 +149,7 @@ namespace csly.whileLang.interpreter
         private void Interprete(PrintStatement ast, InterpreterContext context)
         {
             var val = evaluator.Evaluate(ast.Value, context);
-            if (!IsQuiet) Console.WriteLine(val.StringValue);
+            if (!isQuiet) Console.WriteLine(val.StringValue);
         }
 
         private void Interprete(SequenceStatement ast, InterpreterContext context)
@@ -189,21 +191,21 @@ namespace csly.whileLang.interpreter
 
     internal class Signature
     {
-        private readonly WhileType Left;
+        private readonly WhileType left;
         public WhileType Result;
-        private readonly WhileType Right;
+        private readonly WhileType right;
 
         public Signature(WhileType left, WhileType right, WhileType result)
         {
-            Left = left;
-            Right = right;
+            this.left = left;
+            this.right = right;
             Result = result;
         }
 
         public bool Match(WhileType l, WhileType r)
         {
-            return (Left == WhileType.ANY || l == Left) &&
-                   (Right == WhileType.ANY || r == Right);
+            return (left == WhileType.ANY || l == left) &&
+                   (right == WhileType.ANY || r == right);
         }
     }
 
@@ -312,7 +314,7 @@ namespace csly.whileLang.interpreter
             return result;
         }
 
-        public TypedValue Evaluate(Expression expr, InterpreterContext context)
+        public TypedValue Evaluate(IExpression expr, InterpreterContext context)
         {
             if (expr is BoolConstant b) return Evaluate(b, context);
             if (expr is IntegerConstant i) return Evaluate(i, context);

@@ -4,10 +4,12 @@ namespace sly.lexer.fsm.transitioncheck
 {
     public class TransitionAny : AbstractTransitionCheck
     {
+        // ReSharper disable once UnusedParameter.Local
         public TransitionAny(char token)
         {
         }
 
+        // ReSharper disable once UnusedParameter.Local
         public TransitionAny(char token, TransitionPrecondition transitionPrecondition)
         {
             Precondition = transitionPrecondition;

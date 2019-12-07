@@ -5,15 +5,15 @@ namespace sly.parser.generator.visitor.dotgraph
 {
     public class DotGraph
     {
-        private readonly string GraphName;
-        private readonly bool Directed;
+        private readonly string graphName;
+        private readonly bool directed;
         private List<DotNode> nodes;
         private List<DotArrow> edges;
 
         public DotGraph(string graphName, bool directed)
         {
-            GraphName = graphName;
-            Directed = directed;
+            this.graphName = graphName;
+            this.directed = directed;
             nodes = new List<DotNode>();
             edges = new List<DotArrow>();
         }
@@ -31,8 +31,8 @@ namespace sly.parser.generator.visitor.dotgraph
         public string Compile()
         {
             StringBuilder builder = new StringBuilder();
-            builder.Append(Directed ? "digraph" : "graph");
-            builder.AppendLine($" {GraphName} {{");
+            builder.Append(directed ? "digraph" : "graph");
+            builder.AppendLine($" {graphName} {{");
             foreach (var node in nodes)
             {
                 builder.AppendLine(node.ToGraph());

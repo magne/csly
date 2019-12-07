@@ -35,23 +35,23 @@ namespace sly.lexer
             UseV3 = Environment.GetEnvironmentVariable("SLY_V3") != null;
         }
 
-        public static Dictionary<IN, List<LexemeAttribute>> GetLexemes<IN>(BuildResult<ILexer<IN>> result) where IN: struct
+        public static Dictionary<TLexeme, List<LexemeAttribute>> GetLexemes<TLexeme>(BuildResult<ILexer<TLexeme>> result) where TLexeme: struct
         {
-            var attributes = new Dictionary<IN, List<LexemeAttribute>>();
+            var attributes = new Dictionary<TLexeme, List<LexemeAttribute>>();
 
-            var values = Enum.GetValues(typeof(IN));
+            var values = Enum.GetValues(typeof(TLexeme));
             foreach (Enum value in values)
             {
-                var tokenID = (IN) (object) value;
+                var tokenId = (TLexeme) (object) value;
                 var enumAttributes = value.GetAttributesOfType<LexemeAttribute>();
                 if (enumAttributes.Length == 0)
                 {
                     result?.AddError(new LexerInitializationError(ErrorLevel.WARN,
-                        $"token {tokenID} in lexer definition {typeof(IN).FullName} does not have Lexeme"));
+                        $"token {tokenId} in lexer definition {typeof(TLexeme).FullName} does not have Lexeme"));
                 }
                 else
                 {
-                    attributes[tokenID] = enumAttributes.ToList();
+                    attributes[tokenId] = enumAttributes.ToList();
                 }
             }
 
@@ -59,8 +59,8 @@ namespace sly.lexer
         }
 
 
-        public static BuildResult<ILexer<IN>> BuildLexer<IN>(BuildResult<ILexer<IN>> result,
-                                                             BuildExtension<IN> extensionBuilder = null) where IN : struct
+        public static BuildResult<ILexer<TLexeme>> BuildLexer<TLexeme>(BuildResult<ILexer<TLexeme>> result,
+                                                             BuildExtension<TLexeme> extensionBuilder = null) where TLexeme : struct
         {
             if (UseV3)
             {
@@ -75,8 +75,8 @@ namespace sly.lexer
         }
 
 
-        internal static BuildResult<ILexer<IN>> Build<IN>(Dictionary<IN, List<LexemeAttribute>> attributes,
-            BuildResult<ILexer<IN>> result, BuildExtension<IN> extensionBuilder = null) where IN : struct
+        internal static BuildResult<ILexer<TLexeme>> Build<TLexeme>(Dictionary<TLexeme, List<LexemeAttribute>> attributes,
+            BuildResult<ILexer<TLexeme>> result, BuildExtension<TLexeme> extensionBuilder = null) where TLexeme : struct
         {
             var hasRegexLexemes = IsRegexLexer(attributes);
             var hasGenericLexemes = IsGenericLexer(attributes);
@@ -101,26 +101,26 @@ namespace sly.lexer
             return result;
         }
 
-        private static bool IsRegexLexer<IN>(Dictionary<IN, List<LexemeAttribute>> attributes)
+        private static bool IsRegexLexer<TLexeme>(Dictionary<TLexeme, List<LexemeAttribute>> attributes)
         {
             return attributes.Values.SelectMany(list => list)
                              .Any(lexeme => !string.IsNullOrEmpty(lexeme.Pattern));
         }
 
-        private static bool IsGenericLexer<IN>(Dictionary<IN, List<LexemeAttribute>> attributes)
+        private static bool IsGenericLexer<TLexeme>(Dictionary<TLexeme, List<LexemeAttribute>> attributes)
         {
             return attributes.Values.SelectMany(list => list)
                              .Any(lexeme => lexeme.GenericToken != default(GenericToken));
         }
 
 
-        private static BuildResult<ILexer<IN>> BuildRegexLexer<IN>(Dictionary<IN, List<LexemeAttribute>> attributes,
-            BuildResult<ILexer<IN>> result) where IN : struct
+        private static BuildResult<ILexer<TLexeme>> BuildRegexLexer<TLexeme>(Dictionary<TLexeme, List<LexemeAttribute>> attributes,
+            BuildResult<ILexer<TLexeme>> result) where TLexeme : struct
         {
-            var lexer = new Lexer<IN>();
+            var lexer = new Lexer<TLexeme>();
             foreach (var pair in attributes)
             {
-                var tokenID = pair.Key;
+                var tokenId = pair.Key;
 
                 var lexemes = pair.Value;
 
@@ -130,20 +130,20 @@ namespace sly.lexer
                     {
                         foreach (var lexeme in lexemes)
                         {
-                            lexer.AddDefinition(new TokenDefinition<IN>(tokenID, lexeme.Pattern, lexeme.IsSkippable,
+                            lexer.AddDefinition(new TokenDefinition<TLexeme>(tokenId, lexeme.Pattern, lexeme.IsSkippable,
                                 lexeme.IsLineEnding));
                         }
                     }
                     catch (Exception e)
                     {
                         result.AddError(new LexerInitializationError(ErrorLevel.ERROR,
-                            $"error at lexem {tokenID} : {e.Message}"));
+                            $"error at lexem {tokenId} : {e.Message}"));
                     }
                 }
-                else if (!tokenID.Equals(default(IN)))
+                else if (!tokenId.Equals(default(TLexeme)))
                 {
                     result.AddError(new LexerInitializationError(ErrorLevel.WARN,
-                        $"token {tokenID} in lexer definition {typeof(IN).FullName} does not have Lexeme"));
+                        $"token {tokenId} in lexer definition {typeof(TLexeme).FullName} does not have Lexeme"));
                 }
             }
 
@@ -151,11 +151,11 @@ namespace sly.lexer
             return result;
         }
 
-        private static (GenericLexer<IN>.Config, GenericToken[]) GetConfigAndGenericTokens<IN>(IDictionary<IN, List<LexemeAttribute>> attributes)
-            where IN : struct
+        private static (GenericLexer<TLexeme>.Config, GenericToken[]) GetConfigAndGenericTokens<TLexeme>(IDictionary<TLexeme, List<LexemeAttribute>> attributes)
+            where TLexeme : struct
         {
-            var config = new GenericLexer<IN>.Config();
-            var lexerAttribute = typeof(IN).GetCustomAttribute<LexerAttribute>();
+            var config = new GenericLexer<TLexeme>.Config();
+            var lexerAttribute = typeof(TLexeme).GetCustomAttribute<LexerAttribute>();
             if (lexerAttribute != null)
             {
                 config.IgnoreWS = lexerAttribute.IgnoreWS;
@@ -206,17 +206,17 @@ namespace sly.lexer
             }
         }
 
-        private static BuildResult<ILexer<IN>> BuildGenericLexer<IN>(Dictionary<IN, List<LexemeAttribute>> attributes,
-                                                                     BuildExtension<IN> extensionBuilder, BuildResult<ILexer<IN>> result) where IN : struct
+        private static BuildResult<ILexer<TLexeme>> BuildGenericLexer<TLexeme>(Dictionary<TLexeme, List<LexemeAttribute>> attributes,
+                                                                     BuildExtension<TLexeme> extensionBuilder, BuildResult<ILexer<TLexeme>> result) where TLexeme : struct
         {
             result = CheckStringAndCharTokens(attributes, result);
             var (config, tokens) = GetConfigAndGenericTokens(attributes);
             config.ExtensionBuilder = extensionBuilder;
-            var lexer = new GenericLexer<IN>(config, tokens);
-            var Extensions = new Dictionary<IN, LexemeAttribute>();
+            var lexer = new GenericLexer<TLexeme>(config, tokens);
+            var extensions = new Dictionary<TLexeme, LexemeAttribute>();
             foreach (var pair in attributes)
             {
-                var tokenID = pair.Key;
+                var tokenId = pair.Key;
 
                 var lexemes = pair.Value;
                 foreach (var lexeme in lexemes)
@@ -225,14 +225,14 @@ namespace sly.lexer
                     {
                         if (lexeme.IsStaticGeneric)
                         {
-                            lexer.AddLexeme(lexeme.GenericToken, tokenID);
+                            lexer.AddLexeme(lexeme.GenericToken, tokenId);
                         }
 
                         if (lexeme.IsKeyWord)
                         {
                             foreach (var param in lexeme.GenericTokenParameters)
                             {
-                                lexer.AddKeyWord(tokenID, param);
+                                lexer.AddKeyWord(tokenId, param);
                             }
                         }
 
@@ -240,25 +240,25 @@ namespace sly.lexer
                         {
                             foreach (var param in lexeme.GenericTokenParameters)
                             {
-                                lexer.AddSugarLexem(tokenID, param);
+                                lexer.AddSugarLexem(tokenId, param);
                             }
                         }
 
                         if (lexeme.IsString)
                         {
                             var (delimiter, escape) = GetDelimiters(lexeme, "\"", "\\");
-                            lexer.AddStringLexem(tokenID, delimiter, escape);
+                            lexer.AddStringLexem(tokenId, delimiter, escape);
                         }
 
                         if (lexeme.IsChar)
                         {
                             var (delimiter, escape) = GetDelimiters(lexeme, "'", "\\");
-                            lexer.AddCharLexem(tokenID, delimiter, escape);
+                            lexer.AddCharLexem(tokenId, delimiter, escape);
                         }
 
                         if (lexeme.IsExtension)
                         {
-                            Extensions[tokenID] = lexeme;
+                            extensions[tokenId] = lexeme;
                         }
                     }
                     catch (Exception e)
@@ -268,7 +268,7 @@ namespace sly.lexer
                 }
             }
 
-            AddExtensions(Extensions, extensionBuilder, lexer);
+            AddExtensions(extensions, extensionBuilder, lexer);
 
             var comments = GetCommentsAttribute(result);
             if (!result.IsError)
@@ -277,7 +277,7 @@ namespace sly.lexer
                 {
                     NodeCallback<GenericToken> callbackSingle = match =>
                     {
-                        match.Properties[GenericLexer<IN>.DerivedToken] = comment.Key;
+                        match.Properties[GenericLexer<TLexeme>.DerivedToken] = comment.Key;
                         match.Result.IsComment = true;
                         match.Result.CommentType = CommentType.Single;
                         return match;
@@ -285,7 +285,7 @@ namespace sly.lexer
 
                     NodeCallback<GenericToken> callbackMulti = match =>
                     {
-                        match.Properties[GenericLexer<IN>.DerivedToken] = comment.Key;
+                        match.Properties[GenericLexer<TLexeme>.DerivedToken] = comment.Key;
                         match.Result.IsComment = true;
                         match.Result.CommentType = CommentType.Multi;
                         return match;
@@ -300,9 +300,9 @@ namespace sly.lexer
                         {
                             lexer.SingleLineComment = commentAttr.SingleLineCommentStart;
 
-                            fsmBuilder.GoTo(GenericLexer<IN>.start);
+                            fsmBuilder.GoTo(GenericLexer<TLexeme>.start);
                             fsmBuilder.ConstantTransition(commentAttr.SingleLineCommentStart);
-                            fsmBuilder.Mark(GenericLexer<IN>.single_line_comment_start);
+                            fsmBuilder.Mark(GenericLexer<TLexeme>.single_line_comment_start);
                             fsmBuilder.End(GenericToken.Comment);
                             fsmBuilder.CallBack(callbackSingle);
                         }
@@ -313,9 +313,9 @@ namespace sly.lexer
                             lexer.MultiLineCommentStart = commentAttr.MultiLineCommentStart;
                             lexer.MultiLineCommentEnd = commentAttr.MultiLineCommentEnd;
 
-                            fsmBuilder.GoTo(GenericLexer<IN>.start);
+                            fsmBuilder.GoTo(GenericLexer<TLexeme>.start);
                             fsmBuilder.ConstantTransition(commentAttr.MultiLineCommentStart);
-                            fsmBuilder.Mark(GenericLexer<IN>.multi_line_comment_start);
+                            fsmBuilder.Mark(GenericLexer<TLexeme>.multi_line_comment_start);
                             fsmBuilder.End(GenericToken.Comment);
                             fsmBuilder.CallBack(callbackMulti);
                         }
@@ -341,8 +341,8 @@ namespace sly.lexer
             return (delimiter, escape);
         }
 
-        private static BuildResult<ILexer<IN>> CheckStringAndCharTokens<IN>(
-            Dictionary<IN, List<LexemeAttribute>> attributes, BuildResult<ILexer<IN>> result) where IN : struct
+        private static BuildResult<ILexer<TLexeme>> CheckStringAndCharTokens<TLexeme>(
+            Dictionary<TLexeme, List<LexemeAttribute>> attributes, BuildResult<ILexer<TLexeme>> result) where TLexeme : struct
         {
             var allLexemes = attributes.Values.SelectMany(a => a);
 
@@ -365,16 +365,16 @@ namespace sly.lexer
         }
 
 
-        private static Dictionary<IN, List<CommentAttribute>> GetCommentsAttribute<IN>(BuildResult<ILexer<IN>> result) where IN : struct
+        private static Dictionary<TLexeme, List<CommentAttribute>> GetCommentsAttribute<TLexeme>(BuildResult<ILexer<TLexeme>> result) where TLexeme : struct
         {
-            var attributes = new Dictionary<IN, List<CommentAttribute>>();
+            var attributes = new Dictionary<TLexeme, List<CommentAttribute>>();
 
-            var values = Enum.GetValues(typeof(IN));
+            var values = Enum.GetValues(typeof(TLexeme));
             foreach (Enum value in values)
             {
-                var tokenID = (IN) (object) value;
+                var tokenId = (TLexeme) (object) value;
                 var enumAttributes = value.GetAttributesOfType<CommentAttribute>();
-                if (enumAttributes != null && enumAttributes.Any()) attributes[tokenID] = enumAttributes.ToList();
+                if (enumAttributes != null && enumAttributes.Any()) attributes[tokenId] = enumAttributes.ToList();
             }
 
             var commentCount = attributes.Values.Select(l => l?.Count(attr => attr.GetType() == typeof(CommentAttribute)) ?? 0).Sum();
@@ -404,8 +404,8 @@ namespace sly.lexer
             return attributes;
         }
 
-        private static void AddExtensions<IN>(Dictionary<IN, LexemeAttribute> extensions,
-            BuildExtension<IN> extensionBuilder, GenericLexer<IN> lexer) where IN : struct
+        private static void AddExtensions<TLexeme>(Dictionary<TLexeme, LexemeAttribute> extensions,
+            BuildExtension<TLexeme> extensionBuilder, GenericLexer<TLexeme> lexer) where TLexeme : struct
         {
             if (extensionBuilder != null)
             {

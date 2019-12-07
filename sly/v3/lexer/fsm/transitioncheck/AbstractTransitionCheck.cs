@@ -11,8 +11,8 @@ namespace sly.v3.lexer.fsm.transitioncheck
 
         public static string ToEscaped(this char c)
         {
-            List<char> ToEscape = new List<char>() { '"', '\\' };
-            if (ToEscape.Contains(c))
+            var toEscape = new List<char> { '"', '\\' };
+            if (toEscape.Contains(c))
             {
                 return "\\" + c;
             }

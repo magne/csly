@@ -2,7 +2,7 @@
 
 namespace csly.whileLang.model
 {
-    public interface Expression : WhileAST
+    public interface IExpression : IWhileAst
     {
         WhileType Whiletype { get; set; }
     }

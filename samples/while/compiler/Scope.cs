@@ -5,17 +5,17 @@ namespace csly.whileLang.compiler
 {
     public class Scope
     {
-        public int Id;
+        private readonly int id;
 
-        public Scope ParentScope;
+        public readonly Scope ParentScope;
 
-        public List<Scope> scopes;
+        private readonly List<Scope> scopes;
 
         private readonly Dictionary<string, WhileType> variables;
 
         public Scope()
         {
-            Id = 0;
+            id = 0;
             ParentScope = null;
             variables = new Dictionary<string, WhileType>();
             scopes = new List<Scope>();
@@ -23,7 +23,7 @@ namespace csly.whileLang.compiler
 
         protected Scope(Scope parent, int id)
         {
-            Id = id;
+            this.id = id;
             ParentScope = parent;
             variables = new Dictionary<string, WhileType>();
             scopes = new List<Scope>();
@@ -33,11 +33,11 @@ namespace csly.whileLang.compiler
         {
             get
             {
-                var path = "";
+                string path;
                 if (ParentScope == null)
-                    path = Id.ToString();
+                    path = id.ToString();
                 else
-                    path = $"{ParentScope.Path}.{Id}";
+                    path = $"{ParentScope.Path}.{id}";
                 return path;
             }
         }

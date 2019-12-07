@@ -79,7 +79,7 @@ namespace expressionparser
         }
 
         [Production("factor : primary")]
-        public int primaryFactor(int primValue)
+        public int PrimaryFactor(int primValue)
         {
             return primValue;
         }

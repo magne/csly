@@ -117,17 +117,17 @@ namespace sly.v3.lexer.regex
                         // For all non-epsilon transitions s -lab-> t, add t to T
                         foreach (var tr in trans[s])
                         {
-                            if (tr.lab != null)
+                            if (tr.Lab != null)
                             {
                                 // Already a transition on lab
-                                if (!STrans.TryGetValue(tr.lab, out var toState))
+                                if (!STrans.TryGetValue(tr.Lab, out var toState))
                                 {
                                     // No transitions on lab yet
                                     toState = new HashSet<int>();
-                                    STrans.Add(tr.lab, toState);
+                                    STrans.Add(tr.Lab, toState);
                                 }
 
-                                toState.Add(tr.target);
+                                toState.Add(tr.Target);
                             }
                         }
                     }
@@ -159,10 +159,10 @@ namespace sly.v3.lexer.regex
                 var s = worklist.Dequeue();
                 foreach (var tr in trans[s])
                 {
-                    if (tr.lab == null && !res.Contains(tr.target))
+                    if (tr.Lab == null && !res.Contains(tr.Target))
                     {
-                        res.Add(tr.target);
-                        worklist.Enqueue(tr.target);
+                        res.Add(tr.Target);
+                        worklist.Enqueue(tr.Target);
                     }
                 }
             }

@@ -6,17 +6,17 @@ using Sigil;
 
 namespace csly.whileLang.model
 {
-    public class WhileStatement : Statement
+    public class WhileStatement : IStatement
     {
-        public WhileStatement(Expression condition, Statement blockStmt)
+        public WhileStatement(IExpression condition, IStatement blockStmt)
         {
             Condition = condition;
             BlockStmt = blockStmt;
         }
 
-        public Expression Condition { get; set; }
+        public IExpression Condition { get; set; }
 
-        public Statement BlockStmt { get; set; }
+        public IStatement BlockStmt { get; set; }
 
         public Scope CompilerScope { get; set; }
 

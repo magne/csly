@@ -6,20 +6,20 @@ using Sigil;
 
 namespace csly.whileLang.model
 {
-    public class IfStatement : Statement
+    public class IfStatement : IStatement
     {
-        public IfStatement(Expression condition, Statement thenStmt, Statement elseStmt)
+        public IfStatement(IExpression condition, IStatement thenStmt, IStatement elseStmt)
         {
             Condition = condition;
             ThenStmt = thenStmt;
             ElseStmt = elseStmt;
         }
 
-        public Expression Condition { get; set; }
+        public IExpression Condition { get; set; }
 
-        public Statement ThenStmt { get; set; }
+        public IStatement ThenStmt { get; set; }
 
-        public Statement ElseStmt { get; set; }
+        public IStatement ElseStmt { get; set; }
 
 
         public Scope CompilerScope { get; set; }

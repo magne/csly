@@ -1,6 +1,6 @@
 ﻿namespace expressionparser.model
 {
-    public interface Expression
+    public interface IExpression
     {
         int? Evaluate(ExpressionContext context);
     }

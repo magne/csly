@@ -8,27 +8,27 @@ using sly.parser.parser;
 
 namespace sly.parser
 {
-    public class Parser<IN, OUT> where IN : struct
+    public class Parser<TIn, TOut> where TIn : struct
     {
-        public Parser(ISyntaxParser<IN, OUT> syntaxParser, SyntaxTreeVisitor<IN, OUT> visitor)
+        public Parser(ISyntaxParser<TIn, TOut> syntaxParser, SyntaxTreeVisitor<TIn, TOut> visitor)
         {
             SyntaxParser = syntaxParser;
             Visitor = visitor;
         }
 
-        public ILexer<IN> Lexer { get; set; }
+        public ILexer<TIn> Lexer { get; set; }
         public object Instance { get; set; }
-        public ISyntaxParser<IN, OUT> SyntaxParser { get; set; }
-        public SyntaxTreeVisitor<IN, OUT> Visitor { get; set; }
-        public ParserConfiguration<IN, OUT> Configuration { get; set; }
+        public ISyntaxParser<TIn, TOut> SyntaxParser { get; set; }
+        public SyntaxTreeVisitor<TIn, TOut> Visitor { get; set; }
+        public ParserConfiguration<TIn, TOut> Configuration { get; set; }
 
 
         #region expression generator
 
-        public virtual BuildResult<ParserConfiguration<IN, OUT>> BuildExpressionParser(
-            BuildResult<Parser<IN, OUT>> result, string startingRule = null)
+        public virtual BuildResult<ParserConfiguration<TIn, TOut>> BuildExpressionParser(
+            BuildResult<Parser<TIn, TOut>> result, string startingRule = null)
         {
-            var exprResult = new BuildResult<ParserConfiguration<IN, OUT>>(Configuration);
+            var exprResult = new BuildResult<ParserConfiguration<TIn, TOut>>(Configuration);
             exprResult = ExpressionRulesGenerator.BuildExpressionRules(Configuration, Instance.GetType(), exprResult);
             Configuration = exprResult.Result;
             SyntaxParser.Init(exprResult.Result, startingRule);
@@ -49,20 +49,20 @@ namespace sly.parser
 
 
 
-        public ParseResult<IN, OUT> Parse(string source, string startingNonTerminal = null)
+        public ParseResult<TIn, TOut> Parse(string source, string startingNonTerminal = null)
         {
             return ParseWithContext(source,new NoContext(),startingNonTerminal);
         }
 
 
-        public ParseResult<IN, OUT> ParseWithContext(string source, object context, string startingNonTerminal = null)
+        public ParseResult<TIn, TOut> ParseWithContext(string source, object context, string startingNonTerminal = null)
         {
-            ParseResult<IN, OUT> result = null;
+            ParseResult<TIn, TOut> result = null;
 
             var lexingResult = Lexer.Tokenize(source);
             if (lexingResult.IsError)
             {
-                result = new ParseResult<IN, OUT>();
+                result = new ParseResult<TIn, TOut>();
                 result.IsError = true;
                 result.Errors = new List<ParseError>();
                 result.Errors.Add(lexingResult.Error);
@@ -71,7 +71,7 @@ namespace sly.parser
 
             var tokens = lexingResult.Tokens;
             var position = 0;
-            var tokensWithoutComments = new List<Token<IN>>();
+            var tokensWithoutComments = new List<Token<TIn>>();
             for (var i = 0; i < tokens.Count; i++)
             {
                 var token = tokens[i];
@@ -92,11 +92,11 @@ namespace sly.parser
 
 
 
-        public ParseResult<IN, OUT> ParseWithContext(IList<Token<IN>> tokens, object parsingContext = null, string startingNonTerminal = null)
+        public ParseResult<TIn, TOut> ParseWithContext(IList<Token<TIn>> tokens, object parsingContext = null, string startingNonTerminal = null)
         {
-            var result = new ParseResult<IN, OUT>();
+            var result = new ParseResult<TIn, TOut>();
 
-            var cleaner = new SyntaxTreeCleaner<IN>();
+            var cleaner = new SyntaxTreeCleaner<TIn>();
             var syntaxResult = SyntaxParser.Parse(tokens, startingNonTerminal);
             syntaxResult = cleaner.CleanSyntaxTree(syntaxResult);
             if (!syntaxResult.IsError && syntaxResult.Root != null)

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Linq;
 using csly.whileLang.compiler;
@@ -25,6 +26,7 @@ using sly.parser.syntax.grammar;
 
 namespace ParserExample
 {
+    [SuppressMessage("ReSharper", "InconsistentNaming")]
     public enum TokenType
     {
         [Lexeme("a")] a = 1,
@@ -59,8 +61,8 @@ namespace ParserExample
         {
             var result = "R(";
             result += args[0] + ",";
-            result += (args[1] as Token<TokenType>).Value + ",";
-            result += (args[2] as Token<TokenType>).Value;
+            result += (args[1] as Token<TokenType>)?.Value + ",";
+            result += (args[2] as Token<TokenType>)?.Value;
             result += ")";
             return result;
         }
@@ -70,7 +72,7 @@ namespace ParserExample
         public static object A(List<object> args)
         {
             var result = "A(";
-            result += (args[0] as Token<TokenType>).Value;
+            result += (args[0] as Token<TokenType>)?.Value;
             result += ")";
             return result;
         }
@@ -81,7 +83,7 @@ namespace ParserExample
         {
             if (args.Count == 2)
             {
-                var r = "Rec(" + (args[0] as Token<TokenType>).Value + "," + args[1] + ")";
+                var r = "Rec(" + (args[0] as Token<TokenType>)?.Value + "," + args[1] + ")";
                 return r;
             }
 
@@ -92,8 +94,8 @@ namespace ParserExample
         private static void TestFactorial()
         {
             var whileParser = new WhileParser();
-            var builder = new ParserBuilder<WhileToken, WhileAST>();
-            var Parser = builder.BuildParser(whileParser, ParserType.EBNF_LL_RECURSIVE_DESCENT, "statement");
+            var builder = new ParserBuilder<WhileToken, IWhileAst>();
+            var parser = builder.BuildParser(whileParser, ParserType.EBNF_LL_RECURSIVE_DESCENT, "statement");
 
             var program = @"
 (
@@ -107,7 +109,7 @@ namespace ParserExample
             program += "print \"i=\".i;\n";
             program += "i := i + 1 \n);\n";
             program += "return r)\n";
-            var result = Parser.Result.Parse(program);
+            var result = parser.Result.Parse(program);
             var interpreter = new Interpreter();
             var context = interpreter.Interprete(result.Result);
 
@@ -117,7 +119,7 @@ namespace ParserExample
         }
 
 
-        private static void testLexerBuilder()
+        private static void TestLexerBuilder()
         {
             var builder = new FSMLexerBuilder<JsonToken>();
 
@@ -204,7 +206,7 @@ namespace ParserExample
         }
 
 
-        private static void testGenericLexerWhile()
+        private static void TestGenericLexerWhile()
         {
             var sw = new Stopwatch();
 
@@ -224,7 +226,7 @@ namespace ParserExample
             sw.Reset();
             sw.Start();
             var wpg = new WhileParserGeneric();
-            var wbuilderGen = new ParserBuilder<WhileTokenGeneric, WhileAST>();
+            var wbuilderGen = new ParserBuilder<WhileTokenGeneric, IWhileAst>();
             var buildResultgen = wbuilderGen.BuildParser(wpg, ParserType.EBNF_LL_RECURSIVE_DESCENT, "statement");
             var parserGen = buildResultgen.Result;
             var rGen = parserGen.Parse(source);
@@ -241,7 +243,7 @@ namespace ParserExample
             }
         }
 
-        private static void testGenericLexerJson()
+        private static void TestGenericLexerJson()
         {
             var sw = new Stopwatch();
 
@@ -265,7 +267,7 @@ namespace ParserExample
             buildResult = wbuilder.BuildParser(wp, ParserType.EBNF_LL_RECURSIVE_DESCENT, "root");
             parser = buildResult.Result;
             parser.Lexer = new JSONLexer();
-            r = parser.Parse(source);
+            // r = parser.Parse(source);
             Console.WriteLine($"json hard coded lexer : {sw.ElapsedMilliseconds} ms");
             sw.Stop();
 
@@ -282,7 +284,7 @@ namespace ParserExample
             if (rGen.IsError) rGen.Errors.ForEach(e => Console.WriteLine(e.ToString()));
         }
 
-        private static void testJSONLexer()
+        private static void TestJsonLexer()
         {
             var builder = new ParserBuilder<JsonToken, JSon>();
             var parser = builder.BuildParser(new JSONParser(), ParserType.EBNF_LL_RECURSIVE_DESCENT, "root");
@@ -314,7 +316,7 @@ namespace ParserExample
         }
 
 
-        private static void testErrors()
+        private static void TestErrors()
         {
             var jsonParser = new JSONParser();
             var builder = new ParserBuilder<JsonToken, JSon>();
@@ -331,9 +333,9 @@ namespace ParserExample
             var root = r.Result; // null;
             var errors = r.Errors; // !null & count > 0
             var error = errors[0] as UnexpectedTokenSyntaxError<JsonToken>; //
-            var token = error.UnexpectedToken.TokenID; // comma
-            var line = error.Line; // 3
-            var column = error.Column; // 12
+            var token = error?.UnexpectedToken.TokenID; // comma
+            var line = error?.Line; // 3
+            var column = error?.Column; // 12
         }
 
         private static void TestRuleParser()
@@ -348,18 +350,18 @@ namespace ParserExample
         }
 
 
-        public static BuildResult<Parser<ExpressionToken, int>> buildSimpleExpressionParserWithContext()
+        private static BuildResult<Parser<ExpressionToken, int>> BuildSimpleExpressionParserWithContext()
         {
-            var StartingRule = $"{typeof(SimpleExpressionParserWithContext).Name}_expressions";
+            var startingRule = $"{typeof(SimpleExpressionParserWithContext).Name}_expressions";
             var parserInstance = new SimpleExpressionParserWithContext();
             var builder = new ParserBuilder<ExpressionToken, int>();
-            var Parser = builder.BuildParser(parserInstance, ParserType.LL_RECURSIVE_DESCENT, StartingRule);
-            return Parser;
+            var parser = builder.BuildParser(parserInstance, ParserType.LL_RECURSIVE_DESCENT, startingRule);
+            return parser;
         }
 
         public static void TestContextualParser()
         {
-            var buildResult = buildSimpleExpressionParserWithContext();
+            var buildResult = BuildSimpleExpressionParserWithContext();
             if (buildResult.IsError)
             {
                 buildResult.Errors.ForEach(e => { Console.WriteLine(e.Level + " - " + e.Message); });
@@ -379,25 +381,28 @@ namespace ParserExample
                 var lexer = res.Result as GenericLexer<CallbackTokens>;
                 CallBacksBuilder.BuildCallbacks(lexer);
 
-                var r = lexer.Tokenize("aaa bbb");
-                if (r.IsOk)
+                if (lexer != null)
                 {
-                    var tokens = r.Tokens;
-                    foreach (var token in tokens)
+                    var r = lexer.Tokenize("aaa bbb");
+                    if (r.IsOk)
                     {
-                        Console.WriteLine($"{token.TokenID} - {token.Value}");
+                        var tokens = r.Tokens;
+                        foreach (var token in tokens)
+                        {
+                            Console.WriteLine($"{token.TokenID} - {token.Value}");
+                        }
                     }
                 }
             }
         }
 
-        public static void test104()
+        public static void Test104()
         {
             EBNFTests tests = new EBNFTests();
             tests.TestGroupSyntaxOptionIsNone();
         }
 
-        public static void testJSON()
+        public static void TestJson()
         {
             try
             {
@@ -438,10 +443,10 @@ namespace ParserExample
 
         private static void TestGraphViz()
         {
-            var StartingRule = $"{typeof(SimpleExpressionParser).Name}_expressions";
+            var startingRule = $"{typeof(SimpleExpressionParser).Name}_expressions";
             var parserInstance = new SimpleExpressionParser();
             var builder = new ParserBuilder<ExpressionToken, int>();
-            var parser = builder.BuildParser(parserInstance, ParserType.LL_RECURSIVE_DESCENT, StartingRule);
+            var parser = builder.BuildParser(parserInstance, ParserType.LL_RECURSIVE_DESCENT, startingRule);
             var result = parser.Result.Parse("2 + 2 * 3");
             var tree = result.SyntaxTree;
             var graphviz = new GraphVizEBNFSyntaxTreeVisitor<ExpressionToken>();
@@ -451,17 +456,13 @@ namespace ParserExample
             File.AppendAllText("c:\\temp\\tree.dot", graph);
         }
 
-        private static void benchLexer()
+        private static void BenchLexer()
         {
             var content = File.ReadAllText("test.json");
 
             var lexerRes = LexerBuilder.BuildLexer(new BuildResult<ILexer<JsonTokenGeneric>>());
-            ILexer<JsonTokenGeneric> BenchedLexer = null;
-            if (lexerRes != null)
-            {
-                BenchedLexer = lexerRes.Result;
-                BenchedLexer.Tokenize(content);
-            }
+            var benchedLexer = lexerRes.Result;
+            benchedLexer.Tokenize(content);
         }
 
         private static void TestChars()
@@ -471,16 +472,16 @@ namespace ParserExample
             {
                 var lexer = res.Result as GenericLexer<CharTokens>;
 
-                var dump = lexer.ToString();
-                var graph = lexer.ToGraphViz();
+                var dump = lexer?.ToString();
+                var graph = lexer?.ToGraphViz();
                 Console.WriteLine(graph);
                 var source = "'\\''";
                 Console.WriteLine(source);
-                var res2 = lexer.Tokenize(source);
-                Console.WriteLine($"{res2.IsOk} - {res2.Tokens[0].Value}");
+                var res2 = lexer?.Tokenize(source);
+                Console.WriteLine($"{res2?.IsOk} - {res2?.Tokens[0].Value}");
                 var sourceU = "'\\u0066'";
-                var res3 = lexer.Tokenize(sourceU);
-                Console.WriteLine($"{res3.IsOk} - {res3.Tokens[0].Value}");
+                var res3 = lexer?.Tokenize(sourceU);
+                Console.WriteLine($"{res3?.IsOk} - {res3?.Tokens[0].Value}");
             }
             else
             {

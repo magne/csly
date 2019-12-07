@@ -1,17 +1,17 @@
 ﻿namespace expressionparser.model
 {
-    public class Group : Expression
+    public class Group : IExpression
     {
-        private readonly Expression InnerExpression;
+        private readonly IExpression innerExpression;
 
-        public Group(Expression expr)
+        public Group(IExpression expr)
         {
-            InnerExpression = expr;
+            innerExpression = expr;
         }
 
         public int? Evaluate(ExpressionContext context)
         {
-            return InnerExpression.Evaluate(context);
+            return innerExpression.Evaluate(context);
         }
     }
 }

@@ -3,11 +3,11 @@ using sly.parser.syntax.tree;
 
 namespace sly.parser
 {
-    public class ParseResult<IN, OUT> where IN : struct
+    public class ParseResult<TIn, TOut> where TIn : struct
     {
-        public OUT Result { get; set; }
+        public TOut Result { get; set; }
 
-        public ISyntaxNode<IN> SyntaxTree { get; set; }
+        public ISyntaxNode<TIn> SyntaxTree { get; set; }
 
         public bool IsError { get; set; }
 

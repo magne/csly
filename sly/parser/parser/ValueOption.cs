@@ -9,9 +9,9 @@ namespace sly.parser.parser
             return new ValueOption<T>();
         }
 
-        public static ValueOption<Group<IN, OUT>> NoneGroup<IN, OUT>()
+        public static ValueOption<Group<TIn, TOut>> NoneGroup<TIn, TOut>()
         {
-            var noneGroup = new ValueOption<Group<IN, OUT>>(true);
+            var noneGroup = new ValueOption<Group<TIn, TOut>>(true);
             return noneGroup;
         }
 

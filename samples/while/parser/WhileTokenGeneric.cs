@@ -1,7 +1,9 @@
-﻿using sly.lexer;
+﻿using System.Diagnostics.CodeAnalysis;
+using sly.lexer;
 
 namespace csly.whileLang.parser
 {
+    [SuppressMessage("ReSharper", "InconsistentNaming")]
     public enum WhileTokenGeneric
     {
         #region keywords 0 -> 19

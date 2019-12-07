@@ -11,6 +11,7 @@ using Xunit;
 
 namespace ParserTests.lexer
 {
+    [SuppressMessage("ReSharper", "InconsistentNaming")]
     public enum Extensions
     {
         [Lexeme(GenericToken.Extension)] DATE,
@@ -21,7 +22,7 @@ namespace ParserTests.lexer
 
     public static class ExtendedGenericLexer
     {
-        public static bool CheckDate(ReadOnlyMemory<char> value)
+        private static bool CheckDate(ReadOnlyMemory<char> value)
         {
             var ok = false;
             if (value.Length == 6)
@@ -88,12 +89,12 @@ namespace ParserTests.lexer
 
     public enum BadEscapeStringDelimiterTooLong
     {
-        [Lexeme(GenericToken.String, "'", ";:")] toolong
+        [Lexeme(GenericToken.String, "'", ";:")] TooLong
     }
 
     public enum BadEscapeStringDelimiterLetter
     {
-        [Lexeme(GenericToken.String, "'", "a")] toolong
+        [Lexeme(GenericToken.String, "'", "a")] TooLong
     }
 
     public enum BadEmptyStringDelimiter
@@ -116,12 +117,14 @@ namespace ParserTests.lexer
         [Lexeme(GenericToken.String)] DefaultString
     }
 
+    [SuppressMessage("ReSharper", "InconsistentNaming")]
     public enum SelfEscapedString
     {
         [Lexeme(GenericToken.String, "'", "'")]
         STRING
     }
 
+    [SuppressMessage("ReSharper", "InconsistentNaming")]
     public enum ManyString
     {
         [Lexeme(GenericToken.String, "'", "'")]
@@ -129,24 +132,28 @@ namespace ParserTests.lexer
         STRING
     }
 
+    [SuppressMessage("ReSharper", "InconsistentNaming")]
     public enum AlphaId
     {
         [Lexeme(GenericToken.Identifier, IdentifierType.Alpha)]
         ID
     }
 
+    [SuppressMessage("ReSharper", "InconsistentNaming")]
     public enum AlphaNumId
     {
         [Lexeme(GenericToken.Identifier, IdentifierType.AlphaNumeric)]
         ID
     }
 
+    [SuppressMessage("ReSharper", "InconsistentNaming")]
     public enum AlphaNumDashId
     {
         [Lexeme(GenericToken.Identifier, IdentifierType.AlphaNumericDash)]
         ID
     }
 
+    [SuppressMessage("ReSharper", "InconsistentNaming")]
     public enum CustomId
     {
         EOS,
@@ -159,6 +166,7 @@ namespace ParserTests.lexer
     }
 
     [Lexer(IgnoreWS = false)]
+    [SuppressMessage("ReSharper", "InconsistentNaming")]
     public enum IgnoreWS
     {
         [Lexeme(GenericToken.SugarToken, " ")]
@@ -166,6 +174,7 @@ namespace ParserTests.lexer
     }
 
     [Lexer(IgnoreEOL = false)]
+    [SuppressMessage("ReSharper", "InconsistentNaming")]
     public enum IgnoreEOL
     {
         [Lexeme(GenericToken.SugarToken, "\n")]
@@ -173,12 +182,14 @@ namespace ParserTests.lexer
     }
 
     [Lexer(WhiteSpace = new[] { ' ' })]
+    [SuppressMessage("ReSharper", "InconsistentNaming")]
     public enum WhiteSpace
     {
         [Lexeme(GenericToken.SugarToken, "\t")]
         TAB
     }
 
+    [SuppressMessage("ReSharper", "InconsistentNaming")]
     public enum Empty
     {
         EOS,
@@ -187,6 +198,7 @@ namespace ParserTests.lexer
         ID
     }
 
+    [SuppressMessage("ReSharper", "InconsistentNaming")]
     public enum KeyWord
     {
         [Lexeme(GenericToken.KeyWord, "keyword")]
@@ -194,6 +206,7 @@ namespace ParserTests.lexer
     }
 
     [Lexer(KeyWordIgnoreCase = true)]
+    [SuppressMessage("ReSharper", "InconsistentNaming")]
     public enum KeyWordIgnoreCase
     {
         [Lexeme(GenericToken.KeyWord, "keyword")]
@@ -375,6 +388,7 @@ namespace ParserTests.lexer
         }
 
         [Fact]
+        // ReSharper disable once InconsistentNaming
         public void TestIgnoreWS()
         {
             var lexerRes = LexerBuilder.BuildLexer(new BuildResult<ILexer<IgnoreWS>>());
@@ -389,6 +403,7 @@ namespace ParserTests.lexer
         }
 
         [Fact]
+        // ReSharper disable once InconsistentNaming
         public void TestIgnoreEOL()
         {
             var lexerRes = LexerBuilder.BuildLexer(new BuildResult<ILexer<IgnoreEOL>>());
@@ -429,7 +444,7 @@ namespace ParserTests.lexer
             Assert.Equal(KeyWord.KEYWORD, tok1.TokenID);
             Assert.Equal("keyword",       tok1.Value);
             var tok2 = r.Tokens[1];
-            Assert.Equal(default(KeyWord), tok2.TokenID);
+            Assert.Equal(default, tok2.TokenID);
             Assert.Equal("KeYwOrD",        tok2.Value);
         }
 

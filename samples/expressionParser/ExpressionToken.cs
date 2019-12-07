@@ -1,7 +1,9 @@
-﻿using sly.lexer;
+﻿using System.Diagnostics.CodeAnalysis;
+using sly.lexer;
 
 namespace expressionparser
 {
+    [SuppressMessage("ReSharper", "InconsistentNaming")]
     public enum ExpressionToken
     {
         // float number

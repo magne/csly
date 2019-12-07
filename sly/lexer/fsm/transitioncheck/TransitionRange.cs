@@ -4,20 +4,20 @@ namespace sly.lexer.fsm.transitioncheck
 {
     public class TransitionRange : AbstractTransitionCheck
     {
-        private readonly char RangeEnd;
-        private readonly char RangeStart;
+        private readonly char rangeEnd;
+        private readonly char rangeStart;
 
         public TransitionRange(char start, char end)
         {
-            RangeStart = start;
-            RangeEnd = end;
+            rangeStart = start;
+            rangeEnd = end;
         }
 
 
         public TransitionRange(char start, char end, TransitionPrecondition precondition)
         {
-            RangeStart = start;
-            RangeEnd = end;
+            rangeStart = start;
+            rangeEnd = end;
             Precondition = precondition;
         }
 
@@ -26,14 +26,14 @@ namespace sly.lexer.fsm.transitioncheck
         {
             var t = "";
             if (Precondition != null) t = "[|] ";
-            t += $"[{RangeStart.ToEscaped()}-{RangeEnd.ToEscaped()}]";
+            t += $"[{rangeStart.ToEscaped()}-{rangeEnd.ToEscaped()}]";
             return $@"[ label=""{t}"" ]";
         }
 
 
         public override bool Match(char input)
         {
-            return input.CompareTo(RangeStart) >= 0 && input.CompareTo(RangeEnd) <= 0;
+            return input.CompareTo(rangeStart) >= 0 && input.CompareTo(rangeEnd) <= 0;
         }
     }
 }

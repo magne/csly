@@ -1,6 +1,4 @@
-using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
-using System.Linq;
 using System.Text;
 
 namespace sly.lexer.fsm.transitioncheck
@@ -44,7 +42,7 @@ namespace sly.lexer.fsm.transitioncheck
             }
             builder.Append("]");
             
-            return $@"[ label=""{builder.ToString()}"" ]";
+            return $@"[ label=""{builder}"" ]";
         }
 
 
@@ -55,7 +53,7 @@ namespace sly.lexer.fsm.transitioncheck
             while (!match && i < ranges.Length)
             {
                 var range = ranges[i];
-                match = match ||  input.CompareTo(range.start) >= 0 && input.CompareTo(range.end) <= 0;
+                match = input.CompareTo(range.start) >= 0 && input.CompareTo(range.end) <= 0;
                 i++;
             }
 

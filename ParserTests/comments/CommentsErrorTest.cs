@@ -1,9 +1,11 @@
+using System.Diagnostics.CodeAnalysis;
 using sly.buildresult;
 using sly.lexer;
 using Xunit;
 
 namespace ParserTests.comments
 {
+    [SuppressMessage("ReSharper", "InconsistentNaming")]
     public enum CommentsTokenError1
     {
         [Lexeme(GenericToken.Int)] INT,
@@ -15,6 +17,7 @@ namespace ParserTests.comments
         [Comment("//", "/*", "*/")] [SingleLineComment("//")] COMMENT
     }
 
+    [SuppressMessage("ReSharper", "InconsistentNaming")]
     public enum CommentsTokenError2
     {
         [Lexeme(GenericToken.Int)] INT,
@@ -26,6 +29,7 @@ namespace ParserTests.comments
         [Comment("//", "/*", "*/")] [MultiLineComment("/*", "*/")] COMMENT
     }
 
+    [SuppressMessage("ReSharper", "InconsistentNaming")]
     public enum CommentsTokenError3
     {
         [Lexeme(GenericToken.Int)] INT,
@@ -37,6 +41,7 @@ namespace ParserTests.comments
         [Comment("//", "/*", "*/")] [SingleLineComment("//")] [MultiLineComment("/*", "*/")] COMMENT
     }
 
+    [SuppressMessage("ReSharper", "InconsistentNaming")]
     public enum CommentsTokenError4
     {
         [Lexeme(GenericToken.Int)] INT,
@@ -48,6 +53,7 @@ namespace ParserTests.comments
         [SingleLineComment("//")] [SingleLineComment("//")] COMMENT
     }
 
+    [SuppressMessage("ReSharper", "InconsistentNaming")]
     public enum CommentsTokenError5
     {
         [Lexeme(GenericToken.Int)] INT,
@@ -59,6 +65,7 @@ namespace ParserTests.comments
         [MultiLineComment("/*", "*/")] [MultiLineComment("/*", "*/")] COMMENT
     }
 
+    [SuppressMessage("ReSharper", "InconsistentNaming")]
     public enum CommentsTokenError6
     {
         [Lexeme(GenericToken.Int)] INT,
@@ -70,6 +77,7 @@ namespace ParserTests.comments
         [Comment("//", "/*", "*/")] [Comment("//", "/*", "*/")] COMMENT
     }
 
+    [SuppressMessage("ReSharper", "InconsistentNaming")]
     public enum CommentsTokenError7
     {
         [Lexeme(GenericToken.Int)] INT,
@@ -81,6 +89,7 @@ namespace ParserTests.comments
         [Comment("//", "/*", "*/")] [SingleLineComment("//")] [SingleLineComment("//")] COMMENT
     }
 
+    [SuppressMessage("ReSharper", "InconsistentNaming")]
     public enum CommentsTokenError8
     {
         [Lexeme(GenericToken.Int)] INT,
@@ -92,6 +101,7 @@ namespace ParserTests.comments
         [Comment("//", "/*", "*/")] [MultiLineComment("/*", "*/")] [MultiLineComment("/*", "*/")] COMMENT
     }
 
+    [SuppressMessage("ReSharper", "InconsistentNaming")]
     public enum CommentsTokenError9
     {
         [Lexeme(GenericToken.Int)] INT,
@@ -103,6 +113,7 @@ namespace ParserTests.comments
         [MultiLineComment("/*", "*/")] [MultiLineComment("/*", "*/")] [SingleLineComment("//")] [SingleLineComment("//")] COMMENT
     }
 
+    [SuppressMessage("ReSharper", "InconsistentNaming")]
     public enum CommentsTokenError10
     {
         [Lexeme(GenericToken.Int)] INT,

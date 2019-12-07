@@ -5,7 +5,7 @@ using Sigil;
 
 namespace csly.whileLang.model
 {
-    public interface WhileAST
+    public interface IWhileAst
     {
         TokenPosition Position { get; set; }
 

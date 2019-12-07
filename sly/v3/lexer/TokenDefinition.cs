@@ -33,6 +33,7 @@ namespace sly.v3.lexer
         public bool IsEndOfLine { get; }
 
         public Regex Regex { get; }
+        // ReSharper disable once InconsistentNaming
         public T TokenID { get; }
     }
 }

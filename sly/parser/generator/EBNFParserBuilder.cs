@@ -12,20 +12,21 @@ namespace sly.parser.generator
     /// <summary>
     ///     this class provides API to build parser
     /// </summary>
-    internal class EBNFParserBuilder<IN, OUT> : ParserBuilder<IN, OUT> where IN : struct
+    // ReSharper disable once InconsistentNaming
+    internal class EBNFParserBuilder<TIn, TOut> : ParserBuilder<TIn, TOut> where TIn : struct
     {
-        public override BuildResult<Parser<IN, OUT>> BuildParser(object parserInstance, ParserType parserType,
+        public override BuildResult<Parser<TIn, TOut>> BuildParser(object parserInstance, ParserType parserType,
             string rootRule)
         {
-            var ruleparser = new RuleParser<IN>();
-            var builder = new ParserBuilder<EbnfTokenGeneric, GrammarNode<IN>>();
+            var ruleparser = new RuleParser<TIn>();
+            var builder = new ParserBuilder<EbnfTokenGeneric, GrammarNode<TIn>>();
 
             var grammarParser = builder.BuildParser(ruleparser, ParserType.LL_RECURSIVE_DESCENT, "rule").Result;
 
 
-            var result = new BuildResult<Parser<IN, OUT>>();
+            var result = new BuildResult<Parser<TIn, TOut>>();
 
-            ParserConfiguration<IN, OUT> configuration = null;
+            ParserConfiguration<TIn, TOut> configuration;
 
             try
             {
@@ -40,16 +41,16 @@ namespace sly.parser.generator
 
             var syntaxParser = BuildSyntaxParser(configuration, parserType, rootRule);
 
-            SyntaxTreeVisitor<IN, OUT> visitor = null;
+            SyntaxTreeVisitor<TIn, TOut> visitor = null;
             if (parserType == ParserType.LL_RECURSIVE_DESCENT)
             {
-                visitor = new SyntaxTreeVisitor<IN, OUT>(configuration, parserInstance);
+                visitor = new SyntaxTreeVisitor<TIn, TOut>(configuration, parserInstance);
             }
             else if (parserType == ParserType.EBNF_LL_RECURSIVE_DESCENT)
             {
-                visitor = new EBNFSyntaxTreeVisitor<IN, OUT>(configuration, parserInstance);
+                visitor = new EBNFSyntaxTreeVisitor<TIn, TOut>(configuration, parserInstance);
             }
-            var parser = new Parser<IN, OUT>(syntaxParser, visitor);
+            var parser = new Parser<TIn, TOut>(syntaxParser, visitor);
             parser.Configuration = configuration;
             var lexerResult = BuildLexer();
             if (lexerResult.IsError)
@@ -62,21 +63,21 @@ namespace sly.parser.generator
         }
 
 
-        protected override ISyntaxParser<IN, OUT> BuildSyntaxParser(ParserConfiguration<IN, OUT> conf,
+        protected override ISyntaxParser<TIn, TOut> BuildSyntaxParser(ParserConfiguration<TIn, TOut> conf,
             ParserType parserType,
             string rootRule)
         {
-            ISyntaxParser<IN, OUT> parser = null;
+            ISyntaxParser<TIn, TOut> parser;
             switch (parserType)
             {
                 case ParserType.LL_RECURSIVE_DESCENT:
                 {
-                    parser = new RecursiveDescentSyntaxParser<IN, OUT>(conf, rootRule);
+                    parser = new RecursiveDescentSyntaxParser<TIn, TOut>(conf, rootRule);
                     break;
                 }
                 case ParserType.EBNF_LL_RECURSIVE_DESCENT:
                 {
-                    parser = new EBNFRecursiveDescentSyntaxParser<IN, OUT>(conf, rootRule);
+                    parser = new EBNFRecursiveDescentSyntaxParser<TIn, TOut>(conf, rootRule);
                     break;
                 }
                 default:
@@ -92,11 +93,11 @@ namespace sly.parser.generator
 
         #region configuration
 
-        protected virtual ParserConfiguration<IN, OUT> ExtractEbnfParserConfiguration(Type parserClass,
-            Parser<EbnfTokenGeneric, GrammarNode<IN>> grammarParser)
+        protected virtual ParserConfiguration<TIn, TOut> ExtractEbnfParserConfiguration(Type parserClass,
+            Parser<EbnfTokenGeneric, GrammarNode<TIn>> grammarParser)
         {
-            var conf = new ParserConfiguration<IN, OUT>();
-            var nonTerminals = new Dictionary<string, NonTerminal<IN>>();
+            var conf = new ParserConfiguration<TIn, TOut>();
+            var nonTerminals = new Dictionary<string, NonTerminal<TIn>>();
             var methods = parserClass.GetMethods().ToList();
             methods = methods.Where(m =>
             {
@@ -116,11 +117,11 @@ namespace sly.parser.generator
                     var parseResult = grammarParser.Parse(ruleString);
                     if (!parseResult.IsError)
                     {
-                        var rule = (Rule<IN>) parseResult.Result;
+                        var rule = (Rule<TIn>) parseResult.Result;
                         rule.SetVisitor(m);
-                        NonTerminal<IN> nonT = null;
+                        NonTerminal<TIn> nonT;
                         if (!nonTerminals.ContainsKey(rule.NonTerminalName))
-                            nonT = new NonTerminal<IN>(rule.NonTerminalName, new List<Rule<IN>>());
+                            nonT = new NonTerminal<TIn>(rule.NonTerminalName, new List<Rule<TIn>>());
                         else
                             nonT = nonTerminals[rule.NonTerminalName];
                         nonT.Rules.Add(rule);

@@ -139,7 +139,7 @@ namespace bench.json
         #region PROPERTIES
 
         [Production("property: STRING COLON value")]
-        public Json property(Token<JsonToken> key, object colon, Json value)
+        public Json Property(Token<JsonToken> key, object colon, Json value)
         {
             return new JObject(key.StringWithoutQuotes, value);
         }

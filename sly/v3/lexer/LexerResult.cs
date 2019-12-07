@@ -2,7 +2,7 @@ using System.Collections.Generic;
 
 namespace sly.v3.lexer
 {
-    internal class LexerResult<IN> where IN : struct
+    internal class LexerResult<TIn> where TIn : struct
     {
         public bool IsError { get; set; }
 
@@ -10,9 +10,9 @@ namespace sly.v3.lexer
 
         public LexicalError Error { get; }
 
-        public List<Token<IN>> Tokens { get; set; }
+        public List<Token<TIn>> Tokens { get; set; }
 
-        public LexerResult(List<Token<IN>> tokens)
+        public LexerResult(List<Token<TIn>> tokens)
         {
             IsError = false;
             Tokens = tokens;

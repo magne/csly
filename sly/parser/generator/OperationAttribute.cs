@@ -26,7 +26,7 @@ namespace sly.parser.generator
         ///     token as an int as attribute can not be generics.
         /// </summary>
         /// <param name="token">token enum as int value</param>
-        /// <param name="arity">operator arity</param>
+        /// <param name="affix">operator arity</param>
         /// <param name="assoc">operator aosociativity (<see cref="Associativity" />) </param>
         /// <param name="precedence">precedence level: the greater, the higher</param>
         public OperationAttribute(int token, Affix affix, Associativity assoc, int precedence)

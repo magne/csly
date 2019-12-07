@@ -80,23 +80,23 @@ namespace sly.v3.adapter
             };
         }
 
-        private static Dictionary<IN, List<LexemeAttribute>> GetLexemes<IN>(BuildResult<ILexer<IN>> result) where IN : struct
+        private static Dictionary<TIn, List<LexemeAttribute>> GetLexemes<TIn>(BuildResult<ILexer<TIn>> result) where TIn : struct
         {
-            var attributes = new Dictionary<IN, List<LexemeAttribute>>();
+            var attributes = new Dictionary<TIn, List<LexemeAttribute>>();
 
-            var values = Enum.GetValues(typeof(IN));
+            var values = Enum.GetValues(typeof(TIn));
             foreach (Enum value in values)
             {
-                var tokenID = (IN) (object) value;
+                var tokenId = (TIn) (object) value;
                 var enumAttributes = value.GetAttributesOfType<sly.lexer.LexemeAttribute>();
                 if (enumAttributes.Length == 0)
                 {
                     result?.AddError(new LexerInitializationError(ErrorLevel.WARN,
-                        $"token {tokenID} in lexer definition {typeof(IN).FullName} does not have Lexeme"));
+                        $"token {tokenId} in lexer definition {typeof(TIn).FullName} does not have Lexeme"));
                 }
                 else
                 {
-                    attributes[tokenID] = enumAttributes.Select(ConvertLexemeAttribute).ToList();
+                    attributes[tokenId] = enumAttributes.Select(ConvertLexemeAttribute).ToList();
                 }
             }
 
@@ -118,16 +118,16 @@ namespace sly.v3.adapter
             return new LexemeAttribute((GenericToken) a.GenericToken, a.GenericTokenParameters);
         }
 
-        private static Dictionary<IN, List<CommentAttribute>> GetCommentAttributes<IN>() where IN : struct
+        private static Dictionary<TIn, List<CommentAttribute>> GetCommentAttributes<TIn>() where TIn : struct
         {
-            var attributes = new Dictionary<IN, List<sly.lexer.CommentAttribute>>();
+            var attributes = new Dictionary<TIn, List<sly.lexer.CommentAttribute>>();
 
-            var values = Enum.GetValues(typeof(IN));
+            var values = Enum.GetValues(typeof(TIn));
             foreach (Enum value in values)
             {
-                var tokenID = (IN) (object) value;
+                var tokenId = (TIn) (object) value;
                 var enumAttributes = value.GetAttributesOfType<sly.lexer.CommentAttribute>();
-                if (enumAttributes != null && enumAttributes.Any()) attributes[tokenID] = enumAttributes.ToList();
+                if (enumAttributes != null && enumAttributes.Any()) attributes[tokenId] = enumAttributes.ToList();
             }
 
             return attributes.ToDictionary(pair => pair.Key, pair => pair.Value.Select(ConvertCommentAttribute).ToList());
@@ -148,38 +148,38 @@ namespace sly.v3.adapter
             return new CommentAttribute(attribute.SingleLineCommentStart, attribute.MultiLineCommentStart, attribute.MultiLineCommentEnd);
         }
 
-        private class LexerAdapter<IN> : sly.lexer.ILexer<IN> where IN : struct
+        private class LexerAdapter<TIn> : sly.lexer.ILexer<TIn> where TIn : struct
         {
-            private readonly ILexer<IN> lexer;
+            private readonly ILexer<TIn> lexer;
 
-            public LexerAdapter(ILexer<IN> lexer)
+            public LexerAdapter(ILexer<TIn> lexer)
             {
                 this.lexer = lexer;
             }
 
-            public void AddDefinition(sly.lexer.TokenDefinition<IN> tokenDefinition)
+            public void AddDefinition(sly.lexer.TokenDefinition<TIn> tokenDefinition)
             { }
 
-            public sly.lexer.LexerResult<IN> Tokenize(string source)
+            public sly.lexer.LexerResult<TIn> Tokenize(string source)
             {
                 var resultV3 = lexer.Tokenize(source);
                 if (resultV3.IsError)
                 {
-                    return new sly.lexer.LexerResult<IN>(ConvertLexicalError(resultV3.Error));
+                    return new sly.lexer.LexerResult<TIn>(ConvertLexicalError(resultV3.Error));
                 }
 
-                return new sly.lexer.LexerResult<IN>(resultV3.Tokens.Select(ConvertToken).ToList());
+                return new sly.lexer.LexerResult<TIn>(resultV3.Tokens.Select(ConvertToken).ToList());
             }
 
-            public sly.lexer.LexerResult<IN> Tokenize(ReadOnlyMemory<char> source)
+            public sly.lexer.LexerResult<TIn> Tokenize(ReadOnlyMemory<char> source)
             {
                 var resultV3 = lexer.Tokenize(source);
                 if (resultV3.IsError)
                 {
-                    return new sly.lexer.LexerResult<IN>(ConvertLexicalError(resultV3.Error));
+                    return new sly.lexer.LexerResult<TIn>(ConvertLexicalError(resultV3.Error));
                 }
 
-                return new sly.lexer.LexerResult<IN>(resultV3.Tokens.Select(ConvertToken).ToList());
+                return new sly.lexer.LexerResult<TIn>(resultV3.Tokens.Select(ConvertToken).ToList());
             }
 
             private static sly.lexer.LexicalError ConvertLexicalError(LexicalError error)
@@ -187,19 +187,19 @@ namespace sly.v3.adapter
                 return new sly.lexer.LexicalError(error.Line, error.Column, error.UnexpectedChar);
             }
 
-            private static sly.lexer.Token<IN> ConvertToken(Token<IN> token)
+            private static sly.lexer.Token<TIn> ConvertToken(Token<TIn> token)
             {
                 var position = new sly.lexer.TokenPosition(token.Position.Index, token.Position.Line, token.Position.Column);
                 if (token.IsEOS)
                 {
-                    return new sly.lexer.Token<IN>()
+                    return new sly.lexer.Token<TIn>()
                     {
                         Position = position
                     };
                 }
 
                 var commentType = (sly.lexer.CommentType) token.CommentType;
-                return new sly.lexer.Token<IN>(token.TokenID, token.SpanValue, position, commentType: commentType)
+                return new sly.lexer.Token<TIn>(token.TokenID, token.SpanValue, position, commentType: commentType)
                 {
                     IsComment = token.IsComment,
                     IsEmpty = token.IsEmpty,

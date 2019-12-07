@@ -5,7 +5,7 @@ using Sigil;
 
 namespace csly.whileLang.model
 {
-    public class IntegerConstant : Expression
+    public class IntegerConstant : IExpression
     {
         public IntegerConstant(int value)
         {

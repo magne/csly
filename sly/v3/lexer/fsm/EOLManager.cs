@@ -3,19 +3,20 @@ using System.Collections.Generic;
 
 namespace sly.v3.lexer.fsm
 {
+    // ReSharper disable once InconsistentNaming
     internal static class EOLManager
     {
         public static ReadOnlyMemory<char> GetToEndOfLine(ReadOnlyMemory<char> value, int position)
         {
-            var CurrentPosition = position;
-            var end = IsEndOfLine(value, CurrentPosition);
-            while (CurrentPosition < value.Length && end == EOLType.No)
+            var currentPosition = position;
+            var end = IsEndOfLine(value, currentPosition);
+            while (currentPosition < value.Length && end == EOLType.No)
             {
-                CurrentPosition++;
-                end = IsEndOfLine(value, CurrentPosition);
+                currentPosition++;
+                end = IsEndOfLine(value, currentPosition);
             }
 
-            return value.Slice(position, CurrentPosition - position + (end == EOLType.Windows ? 2 : 1));
+            return value.Slice(position, currentPosition - position + (end == EOLType.Windows ? 2 : 1));
         }
 
         public static EOLType IsEndOfLine(ReadOnlyMemory<char> value, int position)

@@ -3,11 +3,11 @@ using System.Reflection;
 
 namespace sly.parser.syntax.tree
 {
-    public class OptionSyntaxNode<IN> : SyntaxNode<IN> where IN : struct
+    public class OptionSyntaxNode<TIn> : SyntaxNode<TIn> where TIn : struct
     {
-        public bool IsGroupOption { get; set; } = false;
+        public bool IsGroupOption { get; set; }
 
-        public OptionSyntaxNode(string name, List<ISyntaxNode<IN>> children = null, MethodInfo visitor = null) : base(
+        public OptionSyntaxNode(string name, List<ISyntaxNode<TIn>> children = null, MethodInfo visitor = null) : base(
             name, children, visitor)
         { }
     }

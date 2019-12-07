@@ -2,9 +2,9 @@ using System.Collections.Generic;
 
 namespace sly.parser.syntax.tree
 {
-    public class ManySyntaxNode<IN> : SyntaxNode<IN> where IN : struct
+    public class ManySyntaxNode<TIn> : SyntaxNode<TIn> where TIn : struct
     {
-        public ManySyntaxNode(string name) : base(name, new List<ISyntaxNode<IN>>())
+        public ManySyntaxNode(string name) : base(name, new List<ISyntaxNode<TIn>>())
         {
         }
 
@@ -15,7 +15,7 @@ namespace sly.parser.syntax.tree
         public bool IsManyGroups { get; set; }
 
 
-        public void Add(ISyntaxNode<IN> child)
+        public void Add(ISyntaxNode<TIn> child)
         {
             Children.Add(child);
         }
