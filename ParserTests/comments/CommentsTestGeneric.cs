@@ -25,7 +25,7 @@ namespace ParserTests.comments
         {
             var lexerRes = LexerBuilder.BuildLexer(new BuildResult<ILexer<CommentsToken>>());
             Assert.False(lexerRes.IsError);
-            var lexer = lexerRes.Result as GenericLexer<CommentsToken>;
+            var lexer = lexerRes.Result;
 
             var dump = lexer.ToString();
 
@@ -65,7 +65,7 @@ comment", token3.Value);
         {
             var lexerRes = LexerBuilder.BuildLexer(new BuildResult<ILexer<CommentsToken>>());
             Assert.False(lexerRes.IsError);
-            var lexer = lexerRes.Result as GenericLexer<CommentsToken>;
+            var lexer = lexerRes.Result;
 
 
             var dump = lexer.ToString();
@@ -110,7 +110,7 @@ comment on 2 lines ", multiLineCommentToken.Value);
         {
             var lexerRes = LexerBuilder.BuildLexer(new BuildResult<ILexer<CommentsToken>>());
             Assert.False(lexerRes.IsError);
-            var lexer = lexerRes.Result as GenericLexer<CommentsToken>;
+            var lexer = lexerRes.Result;
 
             var dump = lexer.ToString();
 
@@ -152,7 +152,7 @@ comment on 2 lines ", multiLineCommentToken.Value);
         {
             var lexerRes = LexerBuilder.BuildLexer(new BuildResult<ILexer<CommentsToken>>());
             Assert.False(lexerRes.IsError);
-            var lexer = lexerRes.Result as GenericLexer<CommentsToken>;
+            var lexer = lexerRes.Result;
 
 
             var dump = lexer.ToString();
@@ -206,7 +206,7 @@ comment on 2 lines ", multiLineCommentToken.Value);
         {
             var lexerRes = LexerBuilder.BuildLexer(new BuildResult<ILexer<CommentsToken>>());
             Assert.False(lexerRes.IsError);
-            var lexer = lexerRes.Result as GenericLexer<CommentsToken>;
+            var lexer = lexerRes.Result;
 
 
             var dump = lexer.ToString();

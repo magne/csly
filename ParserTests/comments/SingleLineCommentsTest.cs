@@ -26,7 +26,7 @@ namespace ParserTests.comments
         {
             var lexerRes = LexerBuilder.BuildLexer(new BuildResult<ILexer<SingleLineCommentsToken>>());
             Assert.False(lexerRes.IsError);
-            var lexer = lexerRes.Result as GenericLexer<SingleLineCommentsToken>;
+            var lexer = lexerRes.Result;
 
             var dump = lexer.ToString();
 
@@ -43,7 +43,7 @@ comment on 2 lines */ 3.0");
         {
             var lexerRes = LexerBuilder.BuildLexer(new BuildResult<ILexer<SingleLineCommentsToken>>());
             Assert.False(lexerRes.IsError);
-            var lexer = lexerRes.Result as GenericLexer<SingleLineCommentsToken>;
+            var lexer = lexerRes.Result;
 
             var dump = lexer.ToString();
 

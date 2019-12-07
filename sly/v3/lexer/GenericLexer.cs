@@ -729,6 +729,7 @@ namespace sly.v3.lexer
         {
             var tok = new Token<IN>();
             var inTok = match.Result;
+            tok.IsEOS = inTok.IsEOS;
             tok.IsComment = inTok.IsComment;
             tok.IsEmpty = inTok.IsEmpty;
             tok.SpanValue = inTok.SpanValue;

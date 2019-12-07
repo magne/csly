@@ -6,6 +6,7 @@ using GenericLexerWithCallbacks;
 using sly.buildresult;
 using sly.lexer;
 using sly.lexer.fsm;
+using sly.v3.adapter;
 using Xunit;
 
 namespace ParserTests.lexer
@@ -464,7 +465,6 @@ namespace ParserTests.lexer
 
             Assert.Equal("'that's it'",tok.Value);
             Assert.Equal("that's it",tok.StringWithoutQuotes);
-
         }
 
         [Fact]
@@ -550,7 +550,7 @@ namespace ParserTests.lexer
             var lexerRes =
                 LexerBuilder.BuildLexer(new BuildResult<ILexer<Extensions>>(), ExtendedGenericLexer.AddExtension);
             Assert.False(lexerRes.IsError);
-            var lexer = lexerRes.Result as GenericLexer<Extensions>;
+            var lexer = lexerRes.Result;
             Assert.NotNull(lexer);
 
             var r = lexer.Tokenize("20.02.2018 3.14");
@@ -570,7 +570,7 @@ namespace ParserTests.lexer
             var lexerRes =
                 LexerBuilder.BuildLexer(new BuildResult<ILexer<Extensions>>(), ExtendedGenericLexer.AddExtension);
             Assert.False(lexerRes.IsError);
-            var lexer = lexerRes.Result as GenericLexer<Extensions>;
+            var lexer = lexerRes.Result;
             Assert.NotNull(lexer);
 
             var r = lexer.Tokenize("0.0.2018");
@@ -623,7 +623,7 @@ namespace ParserTests.lexer
         {
             var lexerRes = LexerBuilder.BuildLexer(new BuildResult<ILexer<SelfEscapedString>>());
             Assert.False(lexerRes.IsError);
-            var lexer = lexerRes.Result as GenericLexer<SelfEscapedString>;
+            var lexer = lexerRes.Result;
             Assert.NotNull(lexer);
             var r = lexer.Tokenize("'that''s it'");
 
@@ -662,19 +662,22 @@ namespace ParserTests.lexer
         [Fact]
         public void TestTokenCallbacks()
         {
-            var res = LexerBuilder.BuildLexer(new BuildResult<ILexer<CallbackTokens>>());
-            Assert.False(res.IsError);
-            var lexer = res.Result as GenericLexer<CallbackTokens>;
-            CallBacksBuilder.BuildCallbacks(lexer);
+            using (LexerBuilderAdapter.UseOldGenericLexer())
+            {
+                var res = LexerBuilder.BuildLexer(new BuildResult<ILexer<CallbackTokens>>());
+                Assert.False(res.IsError);
 
+                var lexer = res.Result as GenericLexer<CallbackTokens>;
+                CallBacksBuilder.BuildCallbacks(lexer);
 
-            var r = lexer.Tokenize("aaa bbb");
-            Assert.True(r.IsOk);
-            var tokens = r.Tokens;
-            Assert.Equal(3, tokens.Count);
-            Assert.Equal("AAA", tokens[0].Value);
-            Assert.Equal("BBB", tokens[1].Value);
-            Assert.Equal(CallbackTokens.SKIP, tokens[1].TokenID);
+                var r = lexer.Tokenize("aaa bbb");
+                Assert.True(r.IsOk);
+                var tokens = r.Tokens;
+                Assert.Equal(3,                   tokens.Count);
+                Assert.Equal("AAA",               tokens[0].Value);
+                Assert.Equal("BBB",               tokens[1].Value);
+                Assert.Equal(CallbackTokens.SKIP, tokens[1].TokenID);
+            }
         }
 
         [Fact]
@@ -682,9 +685,7 @@ namespace ParserTests.lexer
         {
             var res = LexerBuilder.BuildLexer(new BuildResult<ILexer<CharTokens>>());
             Assert.False(res.IsError);
-            var lexer = res.Result as GenericLexer<CharTokens>;
-            var dump = lexer.ToString();
-            var grpah = lexer.ToGraphViz();
+            var lexer = res.Result;
 
             Assert.NotNull(lexer);
             var res1 = lexer.Tokenize("'c'");
@@ -726,7 +727,7 @@ namespace ParserTests.lexer
         {
             var res = LexerBuilder.BuildLexer(new BuildResult<ILexer<Issue106>>());
             Assert.False(res.IsError);
-            var lexer = res.Result as GenericLexer<Issue106>;
+            var lexer = res.Result;
             var r = lexer.Tokenize("1.");
             Assert.True(r.IsOk);
             var tokens = r.Tokens;
@@ -744,7 +745,7 @@ namespace ParserTests.lexer
         {
             var res = LexerBuilder.BuildLexer(new BuildResult<ILexer<Issue114>>());
             Assert.False(res.IsError);
-            var lexer = res.Result as GenericLexer<Issue114>;
+            var lexer = res.Result;
 
             var r = lexer?.Tokenize("// /&");
             Assert.True(r.IsError);

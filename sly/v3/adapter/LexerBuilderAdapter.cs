@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using sly.buildresult;
 using sly.v3.lexer;
 
@@ -27,22 +28,56 @@ namespace sly.v3.adapter
 
     internal static class LexerBuilderAdapter
     {
+        private static bool useOldGenericLexer;
+
+        internal static IDisposable UseOldGenericLexer()
+        {
+            useOldGenericLexer = true;
+            return new ResetOldGenericLexer();
+        }
+
+        private class ResetOldGenericLexer : IDisposable
+        {
+            public void Dispose()
+            {
+                useOldGenericLexer = false;
+            }
+        }
+
         internal static BuildResult<sly.lexer.ILexer<TLexeme>> BuildLexer<TLexeme>(BuildResult<sly.lexer.ILexer<TLexeme>> resultV2, sly.lexer.fsm.BuildExtension<TLexeme> extensionBuilder)
             where TLexeme : struct
         {
             var attributesV2 = sly.lexer.LexerBuilder.GetLexemes(resultV2);
 
-            if (IsRegexLexer(attributesV2) && !IsGenericLexer(attributesV2))
+            if (useOldGenericLexer || extensionBuilder != null)
             {
-                var resultV3 = new BuildResult<ILexer<TLexeme>>();
-                var attributesV3 = GetLexemes(resultV3);
-                var res = LexerBuilder.BuildRegexLexer(attributesV3, resultV3);
-                var result = new BuildResult<sly.lexer.ILexer<TLexeme>>(new LexerAdapter<TLexeme>(res.Result));
-                result.AddErrors(res.Errors);
-                return result;
+                return sly.lexer.LexerBuilder.Build(attributesV2, resultV2, extensionBuilder);
             }
 
-            return sly.lexer.LexerBuilder.Build(attributesV2, resultV2, extensionBuilder);
+            var resultV3 = new BuildResult<ILexer<TLexeme>>();
+            var lexerAttributeV3 = ConvertLexerAttribute(typeof(TLexeme).GetCustomAttribute<sly.lexer.LexerAttribute>());
+            var attributesV3 = GetLexemes(resultV3);
+            var commentAttributes = GetCommentAttributes<TLexeme>();
+            var res = LexerBuilder.BuildLexer(resultV3, lexerAttributeV3, attributesV3, commentAttributes);
+            var result = new BuildResult<sly.lexer.ILexer<TLexeme>>(new LexerAdapter<TLexeme>(res.Result));
+            result.AddErrors(res.Errors);
+            return result;
+        }
+
+        private static LexerAttribute ConvertLexerAttribute(sly.lexer.LexerAttribute lexerAttribute)
+        {
+            if (lexerAttribute == null)
+            {
+                return null;
+            }
+
+            return new LexerAttribute
+            {
+                IgnoreWS = lexerAttribute.IgnoreWS,
+                IgnoreEOL = lexerAttribute.IgnoreEOL,
+                WhiteSpace = lexerAttribute.WhiteSpace,
+                KeyWordIgnoreCase = lexerAttribute.KeyWordIgnoreCase
+            };
         }
 
         private static Dictionary<IN, List<LexemeAttribute>> GetLexemes<IN>(BuildResult<ILexer<IN>> result) where IN : struct
@@ -83,16 +118,34 @@ namespace sly.v3.adapter
             return new LexemeAttribute((GenericToken) a.GenericToken, a.GenericTokenParameters);
         }
 
-        private static bool IsRegexLexer<TLexeme>(IDictionary<TLexeme, List<sly.lexer.LexemeAttribute>> attributes)
+        private static Dictionary<IN, List<CommentAttribute>> GetCommentAttributes<IN>() where IN : struct
         {
-            return attributes.Values.SelectMany(list => list)
-                .Any(lexeme => !string.IsNullOrEmpty(lexeme.Pattern));
+            var attributes = new Dictionary<IN, List<sly.lexer.CommentAttribute>>();
+
+            var values = Enum.GetValues(typeof(IN));
+            foreach (Enum value in values)
+            {
+                var tokenID = (IN) (object) value;
+                var enumAttributes = value.GetAttributesOfType<sly.lexer.CommentAttribute>();
+                if (enumAttributes != null && enumAttributes.Any()) attributes[tokenID] = enumAttributes.ToList();
+            }
+
+            return attributes.ToDictionary(pair => pair.Key, pair => pair.Value.Select(ConvertCommentAttribute).ToList());
         }
 
-        private static bool IsGenericLexer<IN>(Dictionary<IN, List<sly.lexer.LexemeAttribute>> attributes)
+        private static CommentAttribute ConvertCommentAttribute(sly.lexer.CommentAttribute attribute)
         {
-            return attributes.Values.SelectMany(list => list)
-                .Any(lexeme => lexeme.GenericToken != default);
+            if (attribute is sly.lexer.SingleLineCommentAttribute sl)
+            {
+                return new SingleLineCommentAttribute(sl.SingleLineCommentStart);
+            }
+
+            if (attribute is sly.lexer.MultiLineCommentAttribute ml)
+            {
+                return new MultiLineCommentAttribute(ml.MultiLineCommentStart, ml.MultiLineCommentEnd);
+            }
+
+            return new CommentAttribute(attribute.SingleLineCommentStart, attribute.MultiLineCommentStart, attribute.MultiLineCommentEnd);
         }
 
         private class LexerAdapter<IN> : sly.lexer.ILexer<IN> where IN : struct
@@ -146,7 +199,14 @@ namespace sly.v3.adapter
                 }
 
                 var commentType = (sly.lexer.CommentType) token.CommentType;
-                return new sly.lexer.Token<IN>(token.TokenID, token.SpanValue, position, commentType: commentType);
+                return new sly.lexer.Token<IN>(token.TokenID, token.SpanValue, position, commentType: commentType)
+                {
+                    IsComment = token.IsComment,
+                    IsEmpty = token.IsEmpty,
+                    Discarded = token.Discarded,
+                    StringDelimiter = token.StringDelimiter,
+                    CharDelimiter = token.CharDelimiter
+                };
             }
         }
     }

@@ -25,10 +25,7 @@ namespace ParserTests.comments
         {
             var lexerRes = LexerBuilder.BuildLexer(new BuildResult<ILexer<CommentsTokenAlternative>>());
             Assert.False(lexerRes.IsError);
-            var lexer = lexerRes.Result as GenericLexer<CommentsTokenAlternative>;
-
-
-            var dump = lexer.ToString();
+            var lexer = lexerRes.Result;
 
             var code = @"1
 2 /* not ending
@@ -66,10 +63,7 @@ comment", token3.Value);
         {
             var lexerRes = LexerBuilder.BuildLexer(new BuildResult<ILexer<CommentsTokenAlternative>>());
             Assert.False(lexerRes.IsError);
-            var lexer = lexerRes.Result as GenericLexer<CommentsTokenAlternative>;
-
-
-            var dump = lexer.ToString();
+            var lexer = lexerRes.Result;
 
             var code = @"1
 2 /* multi line 
@@ -111,9 +105,7 @@ comment on 2 lines ", multiLineCommentToken.Value);
         {
             var lexerRes = LexerBuilder.BuildLexer(new BuildResult<ILexer<CommentsTokenAlternative>>());
             Assert.False(lexerRes.IsError);
-            var lexer = lexerRes.Result as GenericLexer<CommentsTokenAlternative>;
-
-            var dump = lexer.ToString();
+            var lexer = lexerRes.Result;
 
             var r = lexer.Tokenize(@"1
 2 // single line comment
@@ -151,9 +143,7 @@ comment on 2 lines ", multiLineCommentToken.Value);
         {
             var lexerRes = LexerBuilder.BuildLexer(new BuildResult<ILexer<CommentsTokenAlternative>>());
             Assert.False(lexerRes.IsError);
-            var lexer = lexerRes.Result as GenericLexer<CommentsTokenAlternative>;
-
-            var dump = lexer.ToString();
+            var lexer = lexerRes.Result;
 
             var code = @"1
 2 /* inner */ 3
@@ -203,7 +193,7 @@ comment on 2 lines ", multiLineCommentToken.Value);
         {
             var lexerRes = LexerBuilder.BuildLexer(new BuildResult<ILexer<CommentsTokenAlternative>>());
             Assert.False(lexerRes.IsError);
-            var lexer = lexerRes.Result as GenericLexer<CommentsTokenAlternative>;
+            var lexer = lexerRes.Result;
 
             var dump = lexer.ToString();
             var code = "1\n2\r\n/* multi line \rcomment on 2 lines */ 3.0";
