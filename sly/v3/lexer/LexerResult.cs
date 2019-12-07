@@ -23,6 +23,5 @@ namespace sly.v3.lexer
             IsError = true;
             Error = error;
         }
-
     }
 }

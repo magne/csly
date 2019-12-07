@@ -1,8 +1,9 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using bench.json.model;
 using sly.lexer;
 using sly.parser.generator;
 
+// ReSharper disable once CheckNamespace
 namespace bench.json
 {
     public static class DictionaryExtensionMethods
@@ -13,12 +14,12 @@ namespace bench.json
         }
     }
 
-    public class JSONParser
+    public class JsonParser
     {
         #region root
 
         [Production("root : value")]
-        public JSon Root(JSon value)
+        public Json Root(Json value)
         {
             return value;
         }
@@ -28,21 +29,21 @@ namespace bench.json
         #region VALUE
 
         [Production("value : STRING")]
-        public JSon StringValue(Token<JsonToken> stringToken)
+        public Json StringValue(Token<JsonToken> stringToken)
         {
             return new JValue(stringToken.StringWithoutQuotes);
         }
 
         [Production("value : INT")]
-        public JSon IntValue(Token<JsonToken> intToken)
+        public Json IntValue(Token<JsonToken> intToken)
         {
             return new JValue(intToken.IntValue);
         }
 
         [Production("value : DOUBLE")]
-        public JSon DoubleValue(Token<JsonToken> doubleToken)
+        public Json DoubleValue(Token<JsonToken> doubleToken)
         {
-            var dbl = double.MinValue;
+            double dbl;
             try
             {
                 var doubleParts = doubleToken.Value.Split('.');
@@ -63,25 +64,25 @@ namespace bench.json
         }
 
         [Production("value : BOOLEAN")]
-        public JSon BooleanValue(Token<JsonToken> boolToken)
+        public Json BooleanValue(Token<JsonToken> boolToken)
         {
             return new JValue(bool.Parse(boolToken.Value));
         }
 
         [Production("value : NULL")]
-        public JSon NullValue(object forget)
+        public Json NullValue(object forget)
         {
             return new JNull();
         }
 
         [Production("value : object")]
-        public JSon ObjectValue(JSon value)
+        public Json ObjectValue(Json value)
         {
             return value;
         }
 
         [Production("value: list")]
-        public JSon ListValue(JList list)
+        public Json ListValue(JList list)
         {
             return list;
         }
@@ -91,13 +92,13 @@ namespace bench.json
         #region OBJECT
 
         [Production("object: ACCG ACCD")]
-        public JSon EmptyObjectValue(object accg, object accd)
+        public Json EmptyObjectValue(object accg, object accd)
         {
             return new JObject();
         }
 
         [Production("object: ACCG members ACCD")]
-        public JSon AttributesObjectValue(object accg, JObject members, object accd)
+        public Json AttributesObjectValue(object accg, JObject members, object accd)
         {
             return members;
         }
@@ -107,20 +108,20 @@ namespace bench.json
         #region LIST
 
         [Production("list: CROG CROD")]
-        public JSon EmptyList(object crog, object crod)
+        public Json EmptyList(object crog, object crod)
         {
             return new JList();
         }
 
         [Production("list: CROG listElements CROD")]
-        public JSon List(object crog, JList elements, object crod)
+        public Json List(object crog, JList elements, object crod)
         {
             return elements;
         }
 
 
         [Production("listElements: value COMMA listElements")]
-        public JSon ListElementsMany(JSon value, object comma, JList tail)
+        public Json ListElementsMany(Json value, object comma, JList tail)
         {
             var elements = new JList(value);
             elements.AddRange(tail);
@@ -128,7 +129,7 @@ namespace bench.json
         }
 
         [Production("listElements: value")]
-        public JSon ListElementsOne(JSon element)
+        public Json ListElementsOne(Json element)
         {
             return new JList(element);
         }
@@ -138,14 +139,14 @@ namespace bench.json
         #region PROPERTIES
 
         [Production("property: STRING COLON value")]
-        public JSon property(Token<JsonToken> key, object colon, JSon value)
+        public Json property(Token<JsonToken> key, object colon, Json value)
         {
             return new JObject(key.StringWithoutQuotes, value);
         }
 
 
         [Production("members : property COMMA members")]
-        public JSon ManyMembers(JObject pair, object comma, JObject tail)
+        public Json ManyMembers(JObject pair, object comma, JObject tail)
         {
             var members = new JObject();
             members.Merge(pair);
@@ -154,7 +155,7 @@ namespace bench.json
         }
 
         [Production("members : property")]
-        public JSon SingleMember(JObject pair)
+        public Json SingleMember(JObject pair)
         {
             var members = new JObject();
             members.Merge(pair);

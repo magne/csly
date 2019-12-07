@@ -1,6 +1,7 @@
-﻿namespace benchCurrent.json.JsonModel
+// ReSharper disable once CheckNamespace
+namespace bench.json.model
 {
-    public abstract class JSon
+    public abstract class Json
     {
         public virtual bool IsObject { get; set; }
         public virtual bool IsList { get; set; }

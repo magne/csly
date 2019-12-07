@@ -1,9 +1,10 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using bench.json.model;
 using sly.lexer;
 using sly.parser.generator;
 
+// ReSharper disable once CheckNamespace
 namespace bench.json
 {
     public class EbnfJsonGenericParser
@@ -11,7 +12,7 @@ namespace bench.json
         #region root
 
         [Production("root : value")]
-        public JSon Root(JSon value)
+        public Json Root(Json value)
         {
             return value;
         }
@@ -21,7 +22,7 @@ namespace bench.json
         #region VALUE
 
         [Production("value : STRING")]
-        public JSon StringValue(Token<JsonTokenGeneric> stringToken)
+        public Json StringValue(Token<JsonTokenGeneric> stringToken)
         {
             return new JValue(stringToken.StringWithoutQuotes);
         }
@@ -68,13 +69,13 @@ namespace bench.json
         }
 
         [Production("value : object")]
-        public JSon ObjectValue(JSon value)
+        public Json ObjectValue(Json value)
         {
             return value;
         }
 
         [Production("value: list")]
-        public JSon ListValue(JList list)
+        public Json ListValue(JList list)
         {
             return list;
         }
@@ -84,13 +85,13 @@ namespace bench.json
         #region OBJECT
 
         [Production("object: ACCG ACCD")]
-        public JSon EmptyObjectValue(object accg, object accd)
+        public Json EmptyObjectValue(object accg, object accd)
         {
             return new JObject();
         }
 
         [Production("object: ACCG members ACCD")]
-        public JSon AttributesObjectValue(object accg, JObject members, object accd)
+        public Json AttributesObjectValue(object accg, JObject members, object accd)
         {
             return members;
         }
@@ -100,20 +101,20 @@ namespace bench.json
         #region LIST
 
         [Production("list: CROG CROD")]
-        public JSon EmptyList(object crog, object crod)
+        public Json EmptyList(object crog, object crod)
         {
             return new JList();
         }
 
         [Production("list: CROG listElements CROD")]
-        public JSon List(object crog, JList elements, object crod)
+        public Json List(object crog, JList elements, object crod)
         {
             return elements;
         }
 
 
         [Production("listElements: value additionalValue*")]
-        public JSon listElements(JSon head, List<JSon> tail)
+        public Json listElements(Json head, List<Json> tail)
         {
             var values = new JList(head);
             values.AddRange(tail);
@@ -121,7 +122,7 @@ namespace bench.json
         }
 
         [Production("additionalValue: COMMA value")]
-        public JSon ListElementsOne(Token<JsonTokenGeneric> discardedComma, JSon value)
+        public Json ListElementsOne(Token<JsonTokenGeneric> discardedComma, Json value)
         {
             return value;
         }
@@ -131,7 +132,7 @@ namespace bench.json
         #region PROPERTIES
 
         [Production("members: property additionalProperty*")]
-        public object Members(JObject head, List<JSon> tail)
+        public object Members(JObject head, List<Json> tail)
         {
             var value = new JObject();
             value.Merge(head);
@@ -146,7 +147,7 @@ namespace bench.json
         }
 
         [Production("property: STRING COLON value")]
-        public object property(Token<JsonTokenGeneric> key, object colon, JSon value)
+        public object property(Token<JsonTokenGeneric> key, object colon, Json value)
         {
             return new JObject(key.StringWithoutQuotes, value);
         }

@@ -4,7 +4,6 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 // See the LICENSE file in the project root for more information.
 
-using System.Diagnostics;
 using System.Runtime.CompilerServices;
 
 namespace System
@@ -19,6 +18,7 @@ namespace System
     /// </remarks>
     internal readonly struct Index : IEquatable<Index>
     {
+        // ReSharper disable once InconsistentNaming
         private readonly int _value;
 
         /// <summary>Construct an Index using a value and indicating if the index is from the start or from the end.</summary>

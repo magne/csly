@@ -1,5 +1,6 @@
-﻿using sly.lexer;
+using sly.lexer;
 
+// ReSharper disable once CheckNamespace
 namespace bench.json
 {
     public enum JsonTokenGeneric

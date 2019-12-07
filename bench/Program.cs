@@ -1,18 +1,36 @@
-﻿using System;
+using System;
 using BenchmarkDotNet.Running;
-
 
 namespace bench
 {
-    class Program
+    internal static class Program
     {
-
-        private static void BenchJson() {
-           
-            var summary = BenchmarkRunner.Run<JsonParserBench>();
-
+        private static void BenchJson()
+        {
+            JsonParserBench.Versions = new[]
+            {
+                "2.2.5.1",
+                "2.2.5.2",
+                "2.2.5.3",
+                "2.3.0.1"
+            };
+            BenchmarkRunner.Run<JsonParserBench>();
         }
-        static void Main(string[] args)
+
+        // ReSharper disable once UnusedMember.Local
+        private static void BenchGenericLexer()
+        {
+            GenericLexerBench.Versions = new[]
+            {
+                "2.2.5.1",
+                "2.2.5.2",
+                "2.2.5.3",
+                "2.3.0.1"
+            };
+            BenchmarkRunner.Run<GenericLexerBench>();
+        }
+
+        private static void Main()
         {
             try
             {

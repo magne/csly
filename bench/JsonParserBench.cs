@@ -1,46 +1,38 @@
-
 using System;
-using BenchmarkDotNet.Attributes;
-using BenchmarkDotNet.Configs;
-
-using BenchmarkDotNet.Jobs;
-using BenchmarkDotNet.Toolchains.CsProj;
-
 using System.IO;
-using BenchmarkDotNet.Analysers;
-
-
-using sly.parser;
-using sly.parser.generator;
 using bench.json;
 using bench.json.model;
-
-
+using BenchmarkDotNet.Analysers;
+using BenchmarkDotNet.Attributes;
+using BenchmarkDotNet.Configs;
+using BenchmarkDotNet.Jobs;
+using BenchmarkDotNet.Toolchains.CsProj;
+using sly.parser;
+using sly.parser.generator;
 
 namespace bench
 {
-
     [MemoryDiagnoser]
-    
     [Config(typeof(Config))]
     public class JsonParserBench
     {
-
-
         private class Config : ManualConfig
         {
             public Config()
             {
-                var baseJob = Job.MediumRun.With(CsProjCoreToolchain.Current.Value);
-                Add(baseJob.WithNuGet("sly", "2.2.5.1").WithId("2.2.5.1"));
-                Add(baseJob.WithNuGet("sly", "2.2.5.2").WithId("2.2.5.2"));
+                var baseJob = Job.MediumRun.With(CsProjCoreToolchain.NetCoreApp20);
+                foreach (var version in Versions)
+                {
+                    Add(baseJob.WithNuGet("sly", version).WithId(version));
+                }
+
                 Add(EnvironmentAnalyser.Default);
-                Add(baseJob.WithNuGet("sly", "2.2.5.3").WithId("2.2.5.3"));
-                Add(baseJob.WithNuGet("sly", "2.3.0.1").WithId("2.3.0.1"));
             }
         }
 
-        private Parser<JsonTokenGeneric,JSon> BenchedParser;
+        public static string[] Versions { get; set; } = new string[0];
+
+        private Parser<JsonTokenGeneric, Json> benchedParser;
 
         private string content = "";
 
@@ -48,44 +40,38 @@ namespace bench
         public void Setup()
         {
             Console.WriteLine(("SETUP"));
-            Console.ReadLine();
             content = File.ReadAllText("test.json");
             Console.WriteLine("json read.");
             var jsonParser = new EbnfJsonGenericParser();
-            var builder = new ParserBuilder<JsonTokenGeneric, JSon>();
-            
+            var builder = new ParserBuilder<JsonTokenGeneric, Json>();
+
             var result = builder.BuildParser(jsonParser, ParserType.EBNF_LL_RECURSIVE_DESCENT, "root");
             Console.WriteLine("parser built.");
             if (result.IsError)
             {
                 Console.WriteLine("ERROR");
-                result.Errors.ForEach(e => Console.WriteLine(e));
+                result.Errors.ForEach(Console.WriteLine);
             }
             else
             {
                 Console.WriteLine("parser ok");
-                BenchedParser = result.Result;
+                benchedParser = result.Result;
             }
-            
-            Console.WriteLine($"parser {BenchedParser}");
+
+            Console.WriteLine($"parser {benchedParser}");
         }
 
         [Benchmark]
-        
         public void TestJson()
         {
-            if (BenchedParser == null)
+            if (benchedParser == null)
             {
                 Console.WriteLine("parser is null");
             }
             else
             {
-                var ignored = BenchedParser.Parse(content);    
+                var _ = benchedParser.Parse(content);
             }
         }
-
-
-
     }
-
 }

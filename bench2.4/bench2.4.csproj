@@ -2,28 +2,65 @@
 
   <PropertyGroup>
     <OutputType>Exe</OutputType>
+    <RootNamespace>bench</RootNamespace>
     <TargetFramework>netcoreapp2.0</TargetFramework>
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="BenchmarkDotNet" Version="0.11.5" />
-    <PackageReference Include="sly" Version="2.2.5.1" />
-    <PackageReference Include="System.Memory" Version="4.5.3" />    
-  </ItemGroup>
-
-  <ItemGroup>
-    <None Remove="test.json" />
-    <Content Include="test.json">
+    <Compile Include="..\bench\json\model\JList.cs">
+      <Link>json\model\JList.cs</Link>
+    </Compile>
+    <Compile Include="..\bench\json\model\JNull.cs">
+      <Link>json\model\JNull.cs</Link>
+    </Compile>
+    <Compile Include="..\bench\json\model\JObject.cs">
+      <Link>json\model\JObject.cs</Link>
+    </Compile>
+    <Compile Include="..\bench\json\model\Json.cs">
+      <Link>json\model\Json.cs</Link>
+    </Compile>
+    <Compile Include="..\bench\json\model\JValue.cs">
+      <Link>json\model\JValue.cs</Link>
+    </Compile>
+    <Compile Include="..\bench\json\EbnfJsonGenericParser.cs">
+      <Link>json\EbnfJsonGenericParser.cs</Link>
+    </Compile>
+    <Compile Include="..\bench\json\EbnfJsonParser.cs">
+      <Link>json\EbnfJsonParser.cs</Link>
+    </Compile>
+    <Compile Include="..\bench\json\JsonParser.cs">
+      <Link>json\JsonParser.cs</Link>
+    </Compile>
+    <Compile Include="..\bench\json\JsonToken.cs">
+      <Link>json\JsonToken.cs</Link>
+    </Compile>
+    <Compile Include="..\bench\json\JsonTokenGeneric.cs">
+      <Link>json\JsonTokenGeneric.cs</Link>
+    </Compile>
+    <Compile Include="..\bench\JsonParserBench.cs">
+      <Link>JsonParserBench.cs</Link>
+    </Compile>
+    <Compile Include="..\bench\GenericLexerBench.cs">
+      <Link>GenericLexerBench.cs</Link>
+    </Compile>
+    <Content Include="../bench/test.json">
+      <Link>test.json</Link>
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
+  </ItemGroup>
+ 
+  <ItemGroup>
+    <PackageReference Include="sly" Version="2.2.5.1" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="BenchmarkDotNet" Version="0.12.0" />
+    <PackageReference Include="System.Memory" Version="4.5.3" />
+  </ItemGroup>
+
+  <ItemGroup>
     <None Remove="BenchmarkDotNet.Artifacts\**" />
-  </ItemGroup>
-
-  <ItemGroup>
     <Compile Remove="BenchmarkDotNet.Artifacts\**" />
-  </ItemGroup>
-
-  <ItemGroup>
     <EmbeddedResource Remove="BenchmarkDotNet.Artifacts\**" />
   </ItemGroup>
 

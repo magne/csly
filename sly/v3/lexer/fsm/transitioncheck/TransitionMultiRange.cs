@@ -1,13 +1,11 @@
-using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
-using System.Linq;
 using System.Text;
 
 namespace sly.v3.lexer.fsm.transitioncheck
 {
     internal class TransitionMultiRange : AbstractTransitionCheck
     {
-        private (char start, char end)[] ranges;
+        private readonly (char start, char end)[] ranges;
 
         public TransitionMultiRange(params (char start, char end)[] ranges)
         {
@@ -21,13 +19,11 @@ namespace sly.v3.lexer.fsm.transitioncheck
 
         public override bool Match(char input)
         {
-            bool match = false;
-            int i = 0;
-            while (!match && i < ranges.Length)
+            var match = false;
+            for (var i = 0; !match && i < ranges.Length; i++)
             {
-                var range = ranges[i];
-                match = match ||  input.CompareTo(range.start) >= 0 && input.CompareTo(range.end) <= 0;
-                i++;
+                var (start, end) = ranges[i];
+                match = input.CompareTo(start) >= 0 && input.CompareTo(end) <= 0;
             }
 
             return match;
@@ -36,7 +32,7 @@ namespace sly.v3.lexer.fsm.transitioncheck
         [ExcludeFromCodeCoverage]
         public override string ToGraphViz()
         {
-            StringBuilder builder = new StringBuilder();
+            var builder = new StringBuilder();
 
             if (Precondition != null)
             {
@@ -44,17 +40,18 @@ namespace sly.v3.lexer.fsm.transitioncheck
             }
 
             builder.Append("[");
-            foreach (var range in ranges)
+            foreach (var (start, end) in ranges)
             {
                 builder
-                    .Append(range.start)
+                    .Append(start)
                     .Append("-")
-                    .Append(range.end)
+                    .Append(end)
                     .Append(",");
             }
+
             builder.Append("]");
 
-            return $@"[ label=""{builder.ToString()}"" ]";
+            return $@"[ label=""{builder}"" ]";
         }
     }
 }
