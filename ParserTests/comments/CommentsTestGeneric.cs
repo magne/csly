@@ -1,10 +1,10 @@
+using System.Diagnostics.CodeAnalysis;
 using sly.buildresult;
 using sly.lexer;
 using Xunit;
 
 namespace ParserTests.comments
 {
-    
     public enum CommentsToken
     {
         [Lexeme(GenericToken.Int)] INT,
@@ -15,7 +15,9 @@ namespace ParserTests.comments
 
         [Comment("//", "/*", "*/")] COMMENT
     }
-    
+
+    [SuppressMessage("ReSharper", "UnusedVariable")]
+    [SuppressMessage("ReSharper", "PossibleNullReferenceException")]
     public class CommentsTestGeneric
     {
         [Fact]
@@ -209,7 +211,7 @@ comment on 2 lines ", multiLineCommentToken.Value);
 
             var dump = lexer.ToString();
             var code = "1\n2\r\n/* multi line \rcomment on 2 lines */ 3.0";
-            
+
             var r = lexer.Tokenize(code);
             Assert.True(r.IsOk);
             var tokens = r.Tokens;

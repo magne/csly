@@ -18,13 +18,12 @@ namespace sly.parser.syntax.grammar
             return false;
         }
 
-        
         [ExcludeFromCodeCoverage]
         public override string ToString()
         {
             return NonTerminalName;
         }
-        
+
         [ExcludeFromCodeCoverage]
         public string Dump()
         {

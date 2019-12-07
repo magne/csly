@@ -2,9 +2,9 @@
 using System.Text;
 using csly.whileLang.model;
 using csly.whileLang.parser;
+using Sigil;
 using sly.parser;
 using sly.parser.generator;
-using Sigil;
 
 namespace csly.whileLang.compiler
 {
@@ -96,9 +96,10 @@ namespace csly.whileLang.compiler
                     var emiter = Emit<Func<int>>.NewDynamicMethod("Method" + Guid.NewGuid());
 
                     emiter = ast.EmitByteCode(context, emiter);
-                    //emiter.LoadConstant(42);                    
+                    //emiter.LoadConstant(42);
                     //emiter.Return();
                     function = emiter.CreateDelegate();
+                    // ReSharper disable once UnusedVariable
                     object res = function.Invoke();
                 }
             }

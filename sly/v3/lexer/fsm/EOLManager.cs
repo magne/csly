@@ -3,13 +3,11 @@ using System.Collections.Generic;
 
 namespace sly.v3.lexer.fsm
 {
-    internal class EOLManager
+    internal static class EOLManager
     {
         public static ReadOnlyMemory<char> GetToEndOfLine(ReadOnlyMemory<char> value, int position)
         {
             var CurrentPosition = position;
-            var spanValue = value.Span;
-            var current = spanValue[CurrentPosition];
             var end = IsEndOfLine(value, CurrentPosition);
             while (CurrentPosition < value.Length && end == EOLType.No)
             {
@@ -42,7 +40,6 @@ namespace sly.v3.lexer.fsm
         public static List<int> GetLinesLength(ReadOnlyMemory<char> value)
         {
             var lineLengths = new List<int>();
-            var lines = new List<string>();
             var previousStart = 0;
             var i = 0;
             while (i < value.Length)
@@ -50,10 +47,13 @@ namespace sly.v3.lexer.fsm
                 var end = IsEndOfLine(value, i);
                 if (end != EOLType.No)
                 {
-                    if (end == EOLType.Windows) i ++;
+                    if (end == EOLType.Windows)
+                    {
+                        i++;
+                    }
+
                     var line = value.Slice(previousStart, i - previousStart);
                     lineLengths.Add(line.Length);
-                    lines.Add(line.ToString());
                     previousStart = i + 1;
                 }
 

@@ -3,8 +3,8 @@ using System.Collections.Generic;
 using System.Linq;
 using sly.lexer;
 using sly.parser.generator;
-using sly.parser.syntax.tree;
 using sly.parser.syntax.grammar;
+using sly.parser.syntax.tree;
 
 namespace sly.parser.llparser
 {
@@ -12,8 +12,7 @@ namespace sly.parser.llparser
     {
         public EBNFRecursiveDescentSyntaxParser(ParserConfiguration<IN, OUT> configuration, string startingNonTerminal)
             : base(configuration, startingNonTerminal)
-        {
-        }
+        { }
 
         #region STARTING_TOKENS
 
@@ -48,7 +47,7 @@ namespace sly.parser.llparser
                             IClause<IN> clause = rule.Clauses[i];
 
                             switch (clause)
-                            {                                
+                            {
                                 case TerminalClause<IN> terminalClause:
                                 {
                                     rule.PossibleLeadingTokens.Add(terminalClause.ExpectedToken);
@@ -56,7 +55,7 @@ namespace sly.parser.llparser
                                 }
                                 case NonTerminalClause<IN> terminalClause:
                                 {
-                                    InitStartingTokensForNonTerminal(nonTerminals,terminalClause.NonTerminalName);
+                                    InitStartingTokensForNonTerminal(nonTerminals, terminalClause.NonTerminalName);
                                     NonTerminal<IN> nonTerminal = nonTerminals[terminalClause.NonTerminalName];
                                     {
                                         rule.PossibleLeadingTokens.AddRange(nonTerminal.PossibleLeadingTokens);
@@ -64,9 +63,9 @@ namespace sly.parser.llparser
                                     break;
                                 }
                             }
-                            
+
                             // add startig tokens of clause in rule.startingtokens
-                            
+
                             optional = clause is ZeroOrMoreClause<IN> || clause is OptionClause<IN>;
                             i++;
                         }
@@ -233,7 +232,7 @@ namespace sly.parser.llparser
                 }
                 else
                 {
-                    node = new SyntaxNode<IN>( nonTerminalName,  children);
+                    node = new SyntaxNode<IN>(nonTerminalName, children);
                     node.ExpressionAffix = rule.ExpressionAffix;
                     node = ManageExpressionRules(rule, node);
                     result.Root = node;
@@ -390,7 +389,7 @@ namespace sly.parser.llparser
                 {
                     result = new SyntaxParseResult<IN>();
                     result.IsError = true;
-                    result.Root = new SyntaxLeaf<IN>(Token<IN>.Empty(),false);
+                    result.Root = new SyntaxLeaf<IN>(Token<IN>.Empty(), false);
                     result.EndingPosition = position;
                 }
                 else
@@ -399,7 +398,7 @@ namespace sly.parser.llparser
                     result.IsError = true;
                     var children = new List<ISyntaxNode<IN>> {innerResult.Root};
                     if (innerResult.IsError) children.Clear();
-                    result.Root = new OptionSyntaxNode<IN>( rule.NonTerminalName, children,
+                    result.Root = new OptionSyntaxNode<IN>(rule.NonTerminalName, children,
                         rule.GetVisitor());
                     (result.Root as OptionSyntaxNode<IN>).IsGroupOption = clause.IsGroupOption;
                     result.EndingPosition = position;
@@ -411,7 +410,7 @@ namespace sly.parser.llparser
 
                 var children = new List<ISyntaxNode<IN>> {innerResult.Root};
                 result.Root =
-                    new OptionSyntaxNode<IN>( rule.NonTerminalName,children, rule.GetVisitor());
+                    new OptionSyntaxNode<IN>(rule.NonTerminalName, children, rule.GetVisitor());
                 result.EndingPosition = innerResult.EndingPosition;
             }
 

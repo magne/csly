@@ -9,11 +9,9 @@ namespace ParserTests
 {
     public class GraphVizTests
     {
-
         [Fact]
         public void DiGraphTest()
         {
-            
             DotGraph graph = new DotGraph("test",true);
             var leaf1 =  new DotNode("l1") {
                 // Set all available properties
@@ -47,12 +45,12 @@ namespace ParserTests
             {
                 ArrowHeadShape = "none"
             };
-            
+
             var edge2 = new DotArrow(root, leaf2)
             {
                 ArrowHeadShape = "normal"
             };
-            
+
             graph.Add(edge1);
             graph.Add(edge2);
 
@@ -74,11 +72,12 @@ namespace ParserTests
 
             var tree = result.SyntaxTree;
             var graphviz = new GraphVizEBNFSyntaxTreeVisitor<ExpressionToken>();
+
+            // ReSharper disable once UnusedVariable
             var root = graphviz.VisitTree(tree);
-            string graph = graphviz.Graph.Compile();
 
-
+            // ReSharper disable once UnusedVariable
+            var graph = graphviz.Graph.Compile();
         }
-        
     }
 }

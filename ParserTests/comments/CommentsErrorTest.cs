@@ -4,7 +4,6 @@ using Xunit;
 
 namespace ParserTests.comments
 {
-    
     public enum CommentsTokenError1
     {
         [Lexeme(GenericToken.Int)] INT,
@@ -114,7 +113,7 @@ namespace ParserTests.comments
 
         [Comment("//", "/*", "*/")] [Comment("//", "/*", "*/")] [MultiLineComment("/*", "*/")] [MultiLineComment("/*", "*/")] [SingleLineComment("//")] [SingleLineComment("//")] COMMENT
     }
-    
+
     public class CommentsErrorTest
     {
         [Fact]

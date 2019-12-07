@@ -16,7 +16,7 @@ namespace csly.whileLang.compiler
         {
             if (ast is AssignStatement assign) SemanticCheck(assign, context);
             if (ast is SequenceStatement seq) SemanticCheck(seq, context);
-            if (ast is SkipStatement skip)
+            if (ast is SkipStatement /*skip*/)
             {
                 //SemanticCheck(skip, context);
             }
@@ -48,6 +48,7 @@ namespace csly.whileLang.compiler
 
         private void SemanticCheck(PrintStatement ast, CompilerContext context)
         {
+            // ReSharper disable once UnusedVariable
             var val = expressionTyper.TypeExpression(ast.Value, context);
         }
 

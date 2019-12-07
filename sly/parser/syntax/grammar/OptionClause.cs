@@ -18,13 +18,12 @@ namespace sly.parser.syntax.grammar
             return true;
         }
 
-        
         [ExcludeFromCodeCoverage]
         public override string ToString()
         {
             return $"{Clause}?";
         }
-        
+
         [ExcludeFromCodeCoverage]
         public string Dump()
         {

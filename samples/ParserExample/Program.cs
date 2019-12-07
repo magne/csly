@@ -13,13 +13,15 @@ using jsonparser;
 using jsonparser.JsonModel;
 using ParserTests;
 using simpleExpressionParser;
+using sly.buildresult;
 using sly.lexer;
 using sly.lexer.fsm;
 using sly.parser;
 using sly.parser.generator;
-using sly.parser.syntax.grammar;
-using sly.buildresult;
 using sly.parser.generator.visitor;
+using sly.parser.syntax.grammar;
+// ReSharper disable UnusedMember.Local
+// ReSharper disable UnusedVariable
 
 namespace ParserExample
 {
@@ -35,8 +37,9 @@ namespace ParserExample
     }
 
 
-    public enum CharTokens {
-        [Lexeme(GenericToken.Char,"'","\\")]
+    public enum CharTokens
+    {
+        [Lexeme(GenericToken.Char, "'", "\\")]
 //        [Lexeme(GenericToken.Char,"|","\\")]
         MyChar,
 
@@ -47,7 +50,7 @@ namespace ParserExample
 //        MyString
     }
 
-    
+
     internal class Program
     {
         [Production("R : A b c ")]
@@ -132,7 +135,7 @@ namespace ParserExample
             // string literal
             builder.Transition('\"')
                 .Mark("in_string")
-                .ExceptTransitionTo(new[] { '\"', '\\' }, "in_string")
+                .ExceptTransitionTo(new[] {'\"', '\\'}, "in_string")
                 .Transition('\\')
                 .Mark("escape")
                 .AnyTransitionTo(' ', "in_string")
@@ -192,11 +195,9 @@ namespace ParserExample
             //code = File.ReadAllText("test.json");
             var lex = builder.Fsm;
             var r = lex.Run(code, 0);
-            var total = "";
             while (r.IsSuccess)
             {
                 var msg = $"{r.Result.TokenID} : {r.Result.Value} @{r.Result.Position}";
-                total += msg + "\n";
                 Console.WriteLine(msg);
                 r = lex.Run(code);
             }
@@ -329,7 +330,7 @@ namespace ParserExample
             var isError = r.IsError; // true
             var root = r.Result; // null;
             var errors = r.Errors; // !null & count > 0
-            var error = errors[0] as UnexpectedTokenSyntaxError<JsonToken>; // 
+            var error = errors[0] as UnexpectedTokenSyntaxError<JsonToken>; //
             var token = error.UnexpectedToken.TokenID; // comma
             var line = error.Line; // 3
             var column = error.Column; // 12
@@ -349,8 +350,6 @@ namespace ParserExample
 
         public static BuildResult<Parser<ExpressionToken, int>> buildSimpleExpressionParserWithContext()
         {
-
-
             var StartingRule = $"{typeof(SimpleExpressionParserWithContext).Name}_expressions";
             var parserInstance = new SimpleExpressionParserWithContext();
             var builder = new ParserBuilder<ExpressionToken, int>();
@@ -363,14 +362,12 @@ namespace ParserExample
             var buildResult = buildSimpleExpressionParserWithContext();
             if (buildResult.IsError)
             {
-                buildResult.Errors.ForEach(e =>
-                {
-                    Console.WriteLine(e.Level + " - " + e.Message);
-                });
+                buildResult.Errors.ForEach(e => { Console.WriteLine(e.Level + " - " + e.Message); });
                 return;
             }
+
             var parser = buildResult.Result;
-            var res = parser.ParseWithContext("2 + a", new Dictionary<string, int> { { "a", 2 } });
+            var res = parser.ParseWithContext("2 + a", new Dictionary<string, int> {{"a", 2}});
             Console.WriteLine($"result : ok:>{res.IsOk}< value:>{res.Result}<");
         }
 
@@ -392,52 +389,51 @@ namespace ParserExample
                     }
                 }
             }
-
         }
 
         public static void test104()
         {
             EBNFTests tests = new EBNFTests();
             tests.TestGroupSyntaxOptionIsNone();
-
         }
 
         public static void testJSON()
         {
-            try {
-            Console.WriteLine("starting json test.");
+            try
+            {
+                Console.WriteLine("starting json test.");
 
                 var instance = new EbnfJsonGenericParser();
-            var builder = new ParserBuilder<JsonTokenGeneric, JSon>();
-            var buildResult = builder.BuildParser(instance, ParserType.EBNF_LL_RECURSIVE_DESCENT, "root");
-            if (buildResult.IsOk)
-            {
-                Console.WriteLine("parser built.");
-                var parser = buildResult.Result;
-                var content = File.ReadAllText("test.json");
-                Console.WriteLine("test.json read.");
-                var jsonResult = parser.Parse(content);
-                Console.WriteLine("json parse done.");
-                if (jsonResult.IsOk)
+                var builder = new ParserBuilder<JsonTokenGeneric, JSon>();
+                var buildResult = builder.BuildParser(instance, ParserType.EBNF_LL_RECURSIVE_DESCENT, "root");
+                if (buildResult.IsOk)
                 {
-                    Console.WriteLine("YES !");
+                    Console.WriteLine("parser built.");
+                    var parser = buildResult.Result;
+                    var content = File.ReadAllText("test.json");
+                    Console.WriteLine("test.json read.");
+                    var jsonResult = parser.Parse(content);
+                    Console.WriteLine("json parse done.");
+                    if (jsonResult.IsOk)
+                    {
+                        Console.WriteLine("YES !");
+                    }
+                    else
+                    {
+                        Console.WriteLine("Ooh no !");
+                    }
+
+                    Console.WriteLine("Done.");
                 }
                 else
                 {
-                    Console.WriteLine("Ooh no !");
+                    buildResult.Errors.ForEach(e => Console.WriteLine(e.Message));
                 }
-                Console.WriteLine("Done.");
-
             }
-            else
+            catch (Exception e)
             {
-                buildResult.Errors.ForEach(e => Console.WriteLine(e.Message));
-            }
-            }
-            catch(Exception e) {
                 Console.WriteLine($"ERROR {e.Message} : \n {e.StackTrace}");
             }
-
         }
 
         private static void TestGraphViz()
@@ -467,7 +463,7 @@ namespace ParserExample
                 BenchedLexer.Tokenize(content);
             }
         }
-        
+
         private static void TestChars()
         {
             var res = LexerBuilder.BuildLexer(new BuildResult<ILexer<CharTokens>>());
@@ -488,13 +484,13 @@ namespace ParserExample
             }
             else
             {
-                var errors = string.Join('\n',res.Errors.Select(e => e.Level + " - " + e.Message).ToList());
+                var errors = string.Join('\n', res.Errors.Select(e => e.Level + " - " + e.Message).ToList());
                 Console.WriteLine("error building lexer : ");
                 Console.WriteLine(errors);
             }
         }
 
-        private static void Main(string[] args)
+        private static void Main()
         {
             //TestContextualParser();
             //TestTokenCallBacks();

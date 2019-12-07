@@ -96,11 +96,11 @@ namespace sly.parser.generator.visitor
             res.OptionGroupResult = Some(group);
             return res;
         }
-        
+
         public static SyntaxVisitorResult<IN, OUT> NewOptionGroupNone()
         {
             var res = new SyntaxVisitorResult<IN, OUT>();
-            res.OptionGroupResult = NoneGroup<IN,OUT>();
+            res.OptionGroupResult = NoneGroup<IN, OUT>();
             return res;
         }
 
@@ -163,11 +163,9 @@ namespace sly.parser.generator.visitor
             if (node.Visitor != null || node.IsByPassNode)
             {
                 var args = new List<object>();
-                var i = 0;
                 foreach (var n in node.Children)
                 {
-                    var v = Visit(n,context);
-
+                    var v = Visit(n, context);
 
                     if (v.IsToken)
                     {
@@ -177,8 +175,6 @@ namespace sly.parser.generator.visitor
                     {
                         args.Add(v.ValueResult);
                     }
-
-                    i++;
                 }
 
                 if (node.IsByPassNode)
@@ -194,6 +190,7 @@ namespace sly.parser.generator.visitor
                         {
                             args.Add(context);
                         }
+
                         method = node.Visitor;
                         var t = method?.Invoke(ParserVsisitorInstance, args.ToArray());
                         var res = (OUT) t;

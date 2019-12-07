@@ -18,7 +18,7 @@ namespace csly.whileLang.compiler
         [ExcludeFromCodeCoverage]
         public string Dump()
         {
-            return RootScope.Dump("");
+            return RootScope.Dump();
         }
 
         public override string ToString()

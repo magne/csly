@@ -15,8 +15,7 @@ namespace sly.parser.generator
         }
 
         public NonTerminal(string name) : this(name, new List<Rule<IN>>())
-        {
-        }
+        { }
 
         public string Name { get; set; }
 
@@ -30,7 +29,7 @@ namespace sly.parser.generator
         public string Dump()
         {
             StringBuilder dump = new StringBuilder();
-            
+
             foreach (var rule in Rules)
             {
                 dump.Append(Name).Append(" : ");
@@ -38,6 +37,7 @@ namespace sly.parser.generator
                 {
                     dump.Append(clause.Dump()).Append(" ");
                 }
+
                 dump.AppendLine();
             }
 

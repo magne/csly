@@ -221,8 +221,5 @@ namespace sly.parser.generator
 
             return name;
         }
-
-
-       
     }
 }

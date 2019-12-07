@@ -12,8 +12,7 @@ namespace sly.parser.generator.visitor
     {
         public EBNFSyntaxTreeVisitor(ParserConfiguration<IN, OUT> conf, object parserInstance) : base(conf,
             parserInstance)
-        {
-        }
+        { }
 
 
         protected override SyntaxVisitorResult<IN, OUT> Visit(ISyntaxNode<IN> n, object context = null)
@@ -58,7 +57,7 @@ namespace sly.parser.generator.visitor
             {
                 if (node.IsGroupOption)
                 {
-                 return SyntaxVisitorResult<IN, OUT>.NewOptionGroupNone();   
+                    return SyntaxVisitorResult<IN, OUT>.NewOptionGroupNone();
                 }
                 else
                 {
@@ -80,14 +79,12 @@ namespace sly.parser.generator.visitor
             var result = SyntaxVisitorResult<IN, OUT>.NoneResult();
             if (node.Visitor != null || node.IsByPassNode)
             {
-                
-                
                 var args = new List<object>();
 
                 foreach (var n in node.Children)
                 {
                     var v = Visit(n, context);
-                    
+
                     if (v.IsToken)
                     {
                         if (!n.Discarded) args.Add(v.TokenResult);
@@ -98,8 +95,6 @@ namespace sly.parser.generator.visitor
                     }
                     else if (v.IsOption)
                     {
-                       
-                        
                         args.Add(v.OptionResult);
                     }
                     else if (v.IsOptionGroup)

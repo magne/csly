@@ -1,3 +1,4 @@
+using System.Diagnostics.CodeAnalysis;
 using sly.buildresult;
 using sly.lexer;
 using Xunit;
@@ -14,7 +15,9 @@ namespace ParserTests.comments
 
         [MultiLineComment("/*", "*/")] COMMENT
     }
-    
+
+    [SuppressMessage("ReSharper", "UnusedVariable")]
+    [SuppressMessage("ReSharper", "PossibleNullReferenceException")]
     public class MultiLineCommentsTest
     {
         [Fact]

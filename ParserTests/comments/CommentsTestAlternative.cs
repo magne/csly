@@ -1,10 +1,10 @@
+using System.Diagnostics.CodeAnalysis;
 using sly.buildresult;
 using sly.lexer;
 using Xunit;
 
 namespace ParserTests.comments
 {
-    
     public enum CommentsTokenAlternative
     {
         [Lexeme(GenericToken.Int)] INT,
@@ -15,7 +15,9 @@ namespace ParserTests.comments
 
         [SingleLineComment("//")] [MultiLineComment("/*", "*/")] COMMENT
     }
-    
+
+    [SuppressMessage("ReSharper", "UnusedVariable")]
+    [SuppressMessage("ReSharper", "PossibleNullReferenceException")]
     public class CommentsTestAlternative
     {
         [Fact]

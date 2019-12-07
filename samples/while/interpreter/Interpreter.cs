@@ -110,10 +110,10 @@ namespace csly.whileLang.interpreter
 
         private bool IsQuiet;
 
-        public InterpreterContext Interprete(WhileAST ast, bool quiet = false)
+        public InterpreterContext Interprete(WhileAST ast, bool quiet)
         {
             IsQuiet = quiet;
-            evaluator = new ExpressionEvaluator(quiet);
+            evaluator = new ExpressionEvaluator();
             return Interprete(ast, new InterpreterContext());
         }
 
@@ -127,7 +127,7 @@ namespace csly.whileLang.interpreter
         {
             if (ast is AssignStatement assign) Interprete(assign, context);
             if (ast is SequenceStatement seq) Interprete(seq, context);
-            if (ast is SkipStatement skip)
+            if (ast is SkipStatement /*skip*/)
             {
                 //Interprete(skip, context);
             }
@@ -211,9 +211,8 @@ namespace csly.whileLang.interpreter
     {
         private readonly Dictionary<BinaryOperator, List<Signature>> binaryOperationSignatures;
 
-        public ExpressionEvaluator(bool quiet = false)
+        public ExpressionEvaluator()
         {
-            IsQuiet = quiet;
             binaryOperationSignatures = new Dictionary<BinaryOperator, List<Signature>>
             {
                 {
@@ -292,8 +291,6 @@ namespace csly.whileLang.interpreter
                 }
             };
         }
-
-        private bool IsQuiet { get; }
 
         public WhileType CheckBinaryOperationTyping(BinaryOperator oper, WhileType left, WhileType right)
         {
@@ -397,7 +394,7 @@ namespace csly.whileLang.interpreter
                         }
                         case WhileType.STRING:
                         {
-                            value = left.StringValue.CompareTo(right.StringValue) == 1;
+                            value = String.Compare(left.StringValue, right.StringValue, StringComparison.Ordinal) == 1;
                             break;
                         }
                         default:
@@ -425,7 +422,7 @@ namespace csly.whileLang.interpreter
                         }
                         case WhileType.STRING:
                         {
-                            value = left.StringValue.CompareTo(right.StringValue) == -1;
+                            value = String.Compare(left.StringValue, right.StringValue, StringComparison.Ordinal) == -1;
                             break;
                         }
                         default:
@@ -496,11 +493,6 @@ namespace csly.whileLang.interpreter
                 case BinaryOperator.CONCAT:
                 {
                     value = left.StringValue + right.StringValue;
-                    break;
-                }
-                default:
-                {
-                    value = null;
                     break;
                 }
             }

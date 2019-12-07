@@ -33,13 +33,13 @@ namespace ParserTests.lexer
             var lexer = GetJsonLexer();
             var tokens = lexer.Tokenize("1.68");
             Assert.NotNull(tokens);
-            var tokenList = tokens.Tokens; 
+            var tokenList = tokens.Tokens;
             Assert.NotEmpty(tokenList);
             var token = tokenList[0];
             Assert.NotNull(token);
             Assert.Equal(1.68, token.DoubleValue);
         }
-        
+
         [Fact]
         public void TestMultiLineExpressionLexing()
         {
@@ -67,11 +67,11 @@ namespace ParserTests.lexer
 
             var expectedLinePositions = new List<int>
             {
-                1, 3, 5, 1, 3
+                1, 1, 1, 2, 2
             };
 
             var linePositions = tokens.Take(5).Select(tok => tok.Position.Line).ToList();
-            Assert.Equal(expectedLinePositions, columnPositions);
+            Assert.Equal(expectedLinePositions, linePositions);
         }
 
         [Fact]
