@@ -8,8 +8,8 @@
             Level = level;
         }
 
-        public ErrorLevel Level { get; set; }
+        public ErrorLevel Level { get; }
 
-        public string Message { get; set; }
+        public string Message { get; }
     }
 }

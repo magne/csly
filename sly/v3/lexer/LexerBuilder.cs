@@ -4,6 +4,7 @@ using System.Linq;
 using System.Reflection;
 using sly.buildresult;
 using sly.v3.lexer.fsm;
+using sly.v3.lexer.regex;
 
 namespace sly.v3.lexer
 {
@@ -29,10 +30,10 @@ namespace sly.v3.lexer
     internal static class LexerBuilder
     {
         public static BuildResult<ILexer<TIn>> BuildLexer<TIn>(BuildResult<ILexer<TIn>> result,
-                                                             LexerAttribute lexerAttribute,
-                                                             Dictionary<TIn, List<LexemeAttribute>> attributes,
-                                                             Dictionary<TIn, List<CommentAttribute>> commentAttributes,
-                                                             BuildExtension<TIn> extensionBuilder = null) where TIn : struct
+                                                               LexerAttribute lexerAttribute,
+                                                               Dictionary<TIn, List<LexemeAttribute>> attributes,
+                                                               Dictionary<TIn, List<CommentAttribute>> commentAttributes,
+                                                               BuildExtension<TIn> extensionBuilder = null) where TIn : struct
         {
             attributes ??= GetLexemes(result);
 
@@ -65,10 +66,10 @@ namespace sly.v3.lexer
         }
 
         private static BuildResult<ILexer<TIn>> Build<TIn>(Dictionary<TIn, List<LexemeAttribute>> attributes,
-                                                         LexerAttribute lexerAttribute,
-                                                         Dictionary<TIn, List<CommentAttribute>> commentAttributes,
-                                                         BuildResult<ILexer<TIn>> result,
-                                                         BuildExtension<TIn> extensionBuilder = null) where TIn : struct
+                                                           LexerAttribute lexerAttribute,
+                                                           Dictionary<TIn, List<CommentAttribute>> commentAttributes,
+                                                           BuildResult<ILexer<TIn>> result,
+                                                           BuildExtension<TIn> extensionBuilder = null) where TIn : struct
         {
             var hasRegexLexemes = IsRegexLexer(attributes);
             var hasGenericLexemes = IsGenericLexer(attributes);
@@ -105,50 +106,68 @@ namespace sly.v3.lexer
                              .Any(lexeme => lexeme.GenericToken != default);
         }
 
-        private static BuildResult<ILexer<TIn>> BuildRegexLexer<TIn>(Dictionary<TIn, List<LexemeAttribute>> attributes,
-                                                                   BuildResult<ILexer<TIn>> result) where TIn : struct
+        private static BuildResult<ILexer<TLexeme>> BuildRegexLexer<TLexeme>(Dictionary<TLexeme, List<LexemeAttribute>> attributes,
+                                                                     BuildResult<ILexer<TLexeme>> result)
+            where TLexeme : struct
         {
-            var lexer = new Lexer<TIn>();
-            foreach (var pair in attributes)
+            var lexer = new Lexer<TLexeme>();
+
+            var regexes = new List<RegEx>();
+            foreach (var (tokenId, lexemes) in attributes)
             {
-                var tokenId = pair.Key;
-
-                var lexemes = pair.Value;
-
                 if (lexemes != null)
                 {
                     try
                     {
                         foreach (var lexeme in lexemes)
                         {
-                            lexer.AddDefinition(new TokenDefinition<TIn>(tokenId,
-                                                                        lexeme.Pattern,
-                                                                        lexeme.IsSkippable,
-                                                                        lexeme.IsLineEnding));
+                            var regex = RegEx.Parse(lexeme.Pattern);
+                            regexes.Add(regex);
+                            var definition = new TokenDefinition<TLexeme>(tokenId,
+                                                                      lexeme.Pattern,
+                                                                      lexeme.IsSkippable,
+                                                                      lexeme.IsLineEnding);
+                            lexer.AddDefinition(definition);
                         }
                     }
                     catch (Exception e)
                     {
                         result.AddError(new LexerInitializationError(ErrorLevel.ERROR,
-                                                                     $"error at lexem {tokenId} : {e.Message}"));
+                                                                     $"error at lexeme {tokenId}: {e.Message}"));
                     }
                 }
-                else if (!tokenId.Equals(default(TIn)))
+                else if (!tokenId.Equals(default(TLexeme)))
                 {
                     result.AddError(new LexerInitializationError(ErrorLevel.WARN,
-                                                                 $"token {tokenId} in lexer definition {typeof(TIn).FullName} does not have Lexeme"));
+                                                                 $"token {tokenId} in lexer definition {typeof(TLexeme).FullName} does not have Lexeme"));
                 }
             }
+
+            // var r = regexes.Aggregate((RegEx) null, (r1, r2) => r1 == null ? r2 : new Alt(r1, r2));
+            // var nfa = r.MkNfa(new Nfa.NameSource());
+            // Console.WriteLine($"{nfa}\n");
+            // var dfa = nfa.ToDfa();
+            // Console.WriteLine($"{dfa}\n");
+            //
+            // var nodes = new List<FSMNode<TLexeme>>(dfa.Trans.Count);
+            // var transitions = new List<List<FSMTransition>>(dfa.Trans.Count);
+            // for (var i = 0; i < dfa.Trans.Count; ++i)
+            // {
+            //     nodes.Add(new FSMNode<TLexeme>(i));
+            //     foreach (var trans in dfa.Trans[i])
+            //     { }
+            // }
+            // var l = new FSMLexer<TLexeme>(nodes, transitions);
 
             result.Result = lexer;
             return result;
         }
 
         private static BuildResult<ILexer<TIn>> BuildGenericLexer<TIn>(Dictionary<TIn, List<LexemeAttribute>> attributes,
-                                                                     LexerAttribute lexerAttribute,
-                                                                     Dictionary<TIn, List<CommentAttribute>> commentAttributes,
-                                                                     BuildExtension<TIn> extensionBuilder,
-                                                                     BuildResult<ILexer<TIn>> result) where TIn : struct
+                                                                       LexerAttribute lexerAttribute,
+                                                                       Dictionary<TIn, List<CommentAttribute>> commentAttributes,
+                                                                       BuildExtension<TIn> extensionBuilder,
+                                                                       BuildResult<ILexer<TIn>> result) where TIn : struct
         {
             var (config, tokens) = GetConfigAndGenericTokens(lexerAttribute, attributes);
             result = CheckStringAndCharTokens(attributes, result);
@@ -324,8 +343,7 @@ namespace sly.v3.lexer
             }
         }
 
-        private static BuildResult<ILexer<TIn>> CheckStringAndCharTokens<TIn>(
-            Dictionary<TIn, List<LexemeAttribute>> attributes, BuildResult<ILexer<TIn>> result) where TIn : struct
+        private static BuildResult<ILexer<TIn>> CheckStringAndCharTokens<TIn>(Dictionary<TIn, List<LexemeAttribute>> attributes, BuildResult<ILexer<TIn>> result) where TIn : struct
         {
             var allLexemes = attributes.Values.SelectMany(a => a);
 
@@ -362,7 +380,8 @@ namespace sly.v3.lexer
         }
 
         private static void AddExtensions<TIn>(Dictionary<TIn, LexemeAttribute> extensions,
-                                              BuildExtension<TIn> extensionBuilder, GenericLexer<TIn> lexer) where TIn : struct
+                                               BuildExtension<TIn> extensionBuilder,
+                                               GenericLexer<TIn> lexer) where TIn : struct
         {
             if (extensionBuilder != null)
             {
@@ -373,7 +392,8 @@ namespace sly.v3.lexer
             }
         }
 
-        private static Dictionary<TIn, List<CommentAttribute>> GetCommentsAttribute<TIn>(BuildResult<ILexer<TIn>> result, Dictionary<TIn, List<CommentAttribute>> attributes) where TIn : struct
+        private static Dictionary<TIn, List<CommentAttribute>> GetCommentsAttribute<TIn>(BuildResult<ILexer<TIn>> result, Dictionary<TIn, List<CommentAttribute>> attributes)
+            where TIn : struct
         {
             if (attributes == null)
             {

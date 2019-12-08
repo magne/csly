@@ -541,7 +541,20 @@ namespace sly.v3.lexer.regex
 
         public override Nfa MkNfa(Nfa.NameSource names)
         {
-            throw new NotImplementedException();
+            var s0s = Nfa.NameSource.Next();
+            var s0e = Nfa.NameSource.Next();
+            var nfa0 = new Nfa(s0s, s0e);
+            foreach (var (start, end) in ranges)
+            {
+                var sym = start == end ? start.ToString() : $"{start}-{end}";
+                if (complement)
+                {
+                    sym = "^" + sym;
+                }
+                nfa0.AddTrans(s0s, sym, s0e);
+            }
+            return nfa0;
+
         }
 
         protected internal override int Priority => 0;

@@ -22,15 +22,13 @@ namespace sly.v3.lexer
             List<Token<T>> tokens = new List<Token<T>>();
 
             var currentIndex = 0;
-            //List<Token<T>> tokens = new List<Token<T>>();
             var currentLine = 1;
-            var currentColumn = 0;
             var currentLineStartIndex = 0;
             Token<T> previousToken = null;
 
             while (currentIndex < source.Length)
             {
-                currentColumn = currentIndex - currentLineStartIndex + 1;
+                var currentColumn = currentIndex - currentLineStartIndex + 1;
                 TokenDefinition<T> matchedDefinition = null;
                 var matchLength = 0;
 
@@ -61,7 +59,7 @@ namespace sly.v3.lexer
 
                 if (!matchedDefinition.IsIgnored)
                 {
-                    previousToken = new Token<T>(matchedDefinition.TokenID, value,
+                    previousToken = new Token<T>(matchedDefinition.TokenId, value,
                         new TokenPosition(currentIndex, currentLine, currentColumn));
                     tokens.Add(previousToken);
                 }

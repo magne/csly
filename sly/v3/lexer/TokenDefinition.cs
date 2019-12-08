@@ -22,18 +22,18 @@ namespace sly.v3.lexer
         /// <param name="isEndOfLine">true if the token matches an end of line (for line counting)</param>
         public TokenDefinition(T token, string regex, bool isIgnored = false, bool isEndOfLine = false)
         {
-            TokenID = token;
+            TokenId = token;
             Regex = new Regex(regex);
             IsIgnored = isIgnored;
             IsEndOfLine = isEndOfLine;
         }
+
+        public T TokenId { get; }
 
         public bool IsIgnored { get; }
 
         public bool IsEndOfLine { get; }
 
         public Regex Regex { get; }
-        // ReSharper disable once InconsistentNaming
-        public T TokenID { get; }
     }
 }

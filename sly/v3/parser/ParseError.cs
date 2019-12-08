@@ -1,17 +1,18 @@
 namespace sly.v3.parser
 {
-    internal class ParseError
+    internal abstract class ParseError
     {
-        public virtual int Column { get; protected set; }
-        public virtual string ErrorMessage { get; protected set; }
-        public virtual int Line { get; protected set; }
+        protected ParseError(int line, int column)
+        {
+            Column = column;
+            Line = line;
+        }
 
+        public int Line { get; }
 
-        //public ParseError(int line, int column)
-        //{
-        //    Column = column;
-        //    Line = line;
-        //}
+        public int Column { get; }
+
+        public abstract string ErrorMessage { get; }
 
         public int CompareTo(object obj)
         {
@@ -26,6 +27,11 @@ namespace sly.v3.parser
             }
 
             return comparison;
+        }
+
+        public override string ToString()
+        {
+            return ErrorMessage;
         }
     }
 }
