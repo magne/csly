@@ -1,11 +1,14 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
+
   <PropertyGroup>
     <TargetFramework>netcoreapp2.0</TargetFramework>
     <Authors>b3b00</Authors>
   </PropertyGroup>
+
   <ItemGroup>
     <None Remove=".gitignore" />
   </ItemGroup>
+
   <ItemGroup>
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="15.9.0" />
     <PackageReference Include="xunit" Version="2.4.1" />
@@ -13,6 +16,7 @@
     <DotNetCliToolReference Include="dotnet-xunit" Version="2.3.1" />
     <PackageReference Include="coverlet.msbuild" Version="2.0.1" />
   </ItemGroup>
+
   <ItemGroup>
     <ProjectReference Include="..\samples\expressionParser\expressionParser.csproj" />
     <ProjectReference Include="..\samples\GenericLexerWithCallbacks\GenericLexerWithCallbacks.csproj" />
@@ -22,10 +26,24 @@
     <ProjectReference Include="..\samples\expressionParser\expressionParser.csproj" />
     <ProjectReference Include="..\samples\jsonparser\jsonparser.csproj" />
   </ItemGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Include="v3/lexer/regex/dfalex/By3Test.out.txt" />
+    <None Remove="v3\lexer\regex\dfalex\JavaTest.out.txt" />
+    <EmbeddedResource Include="v3\lexer\regex\dfalex\JavaTest.out.txt" />
+    <None Remove="v3\lexer\regex\dfalex\SearcherTestOutput.txt" />
+    <EmbeddedResource Include="v3\lexer\regex\dfalex\SearcherTestInput2.txt" />
+    <EmbeddedResource Include="v3\lexer\regex\dfalex\SearcherTestOutput.txt" />
+    <None Remove="v3\lexer\regex\dfalex\SearcherTestInput.txt" />
+    <EmbeddedResource Include="v3\lexer\regex\dfalex\SearcherTestInput.txt" />
+  </ItemGroup>
+
   <ItemGroup>
     <Service Include="{82a7f48d-3b50-4b1e-b82e-3ada8210c358}" />
   </ItemGroup>
+
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
-     <NoWarn>1701;1702;1705;1591</NoWarn>
-</PropertyGroup>
+    <NoWarn>1701;1702;1705;1591</NoWarn>
+  </PropertyGroup>
+
 </Project>

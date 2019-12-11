@@ -99,7 +99,7 @@ namespace sly.v3.lexer.regex
         // composite state (a Set of ints) to a Map from label (a String) to a composite state (a Set of ints).
         private static IDictionary<ISet<int>, IDictionary<string, ISet<int>>> CompositeDfaTrans(int s0, IDictionary<int, IList<Transition>> trans)
         {
-            var S0 = EpsilonClose(new HashSet<int> { s0 }, trans);
+            var S0 = EpsilonClose(new HashSet<int> {s0}, trans);
             var worklist = new Queue<ISet<int>>();
             worklist.Enqueue(S0);
             // The transition relation of the DFA
@@ -186,7 +186,8 @@ namespace sly.v3.lexer.regex
         // Using a renamer (a Map from Set of int to int), replace composite (Set of int) states with simple (int)
         // states in the transition relation trans, which is assumed to be a Map from Set of int to Map from string to
         // Set of int.  The result is a Map from int to Map from string to int.
-        private static IDictionary<int, IDictionary<string, int>> Rename(IDictionary<ISet<int>, int> renamer, IDictionary<ISet<int>, IDictionary<string, ISet<int>>> trans)
+        private static IDictionary<int, IDictionary<string, int>> Rename(IDictionary<ISet<int>, int> renamer,
+            IDictionary<ISet<int>, IDictionary<string, ISet<int>>> trans)
         {
             var newtrans = new Dictionary<int, IDictionary<string, int>>();
             foreach (var entry in trans)
@@ -221,7 +222,7 @@ namespace sly.v3.lexer.regex
         internal Dfa ToDfa()
         {
             var cDfaTrans = CompositeDfaTrans(startState, trans);
-            var cDfaStart = EpsilonClose(new HashSet<int> { startState }, trans);
+            var cDfaStart = EpsilonClose(new HashSet<int> {startState}, trans);
             var cDfaStates = cDfaTrans.Keys;
             var renamer = MkRenamer(cDfaStates);
             var simpleDfaTrans = Rename(renamer, cDfaTrans);

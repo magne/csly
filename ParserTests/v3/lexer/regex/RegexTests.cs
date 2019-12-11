@@ -1,4 +1,6 @@
+using System.Linq;
 using sly.v3.lexer.regex;
+using sly.v3.lexer.regex.dfalex;
 using Xunit;
 using Xunit.Abstractions;
 
@@ -12,6 +14,30 @@ namespace ParserTests.v3.lexer.regex
         public RegexTests(ITestOutputHelper helper)
         {
             this.helper = helper;
+        }
+
+        [Fact]
+        public void TestManualRange()
+        {
+            var r = RegEx.Parse("if|((f|g|i)|(f|g|i)*)");
+            helper.WriteLine(r.ToString());
+            BuildAndShow("dfa1.dot", r);
+        }
+
+        [Fact]
+        public void TestAutoRange()
+        {
+            var bld = new DfaBuilder<int>();
+            bld.AddPattern(Pattern.Regex("if"), 1);
+            bld.AddPattern(Pattern.Regex("[e-j][e-j]"), 2);
+            var dfa = bld.Build(accepts => accepts.First());
+            var a1 = dfa.GetNextState('i').GetNextState('f').GetMatch();
+            Assert.Equal(1, a1);
+            // var a2 = dfa.GetNextState('i').GetNextState('k').GetMatch();
+
+            var r = RegEx.Parse("if|[e-j][e-j]*");
+            helper.WriteLine(r.ToString());
+            BuildAndShow("dfa1.dot", r);
         }
 
         [Fact]
