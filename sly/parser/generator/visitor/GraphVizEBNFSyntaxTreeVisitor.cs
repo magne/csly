@@ -133,15 +133,17 @@ namespace sly.parser.generator.visitor
                 Graph.Add(result);
                 children.ForEach(c =>
                 {
-                    var edge = new DotArrow(result, c)
+                    if (c != null) // Prevent arrows with null destinations
                     {
-                        // Set all available properties
-                        ArrowHeadShape = "none"
-                    };
-                    Graph.Add(edge);
+                        var edge = new DotArrow(result, c)
+                        {
+                            // Set all available properties
+                            ArrowHeadShape = "none"
+                        };
+                        Graph.Add(edge);
+                    }
                 });
             }
-
 
             return result;
         }

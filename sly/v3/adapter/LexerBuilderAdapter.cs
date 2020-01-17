@@ -182,6 +182,11 @@ namespace sly.v3.adapter
                 return new sly.lexer.LexerResult<TIn>(resultV3.Tokens.Select(ConvertToken).ToList());
             }
 
+            public void ResetLexer()
+            {
+                lexer.ResetLexer();
+            }
+
             private static sly.lexer.LexicalError ConvertLexicalError(LexicalError error)
             {
                 return new sly.lexer.LexicalError(error.Line, error.Column, error.UnexpectedChar);

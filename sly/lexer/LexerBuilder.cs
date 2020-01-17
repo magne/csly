@@ -58,6 +58,10 @@ namespace sly.lexer
             return attributes;
         }
 
+        public static BuildResult<ILexer<IN>> BuildLexer<IN>(BuildExtension<IN> extensionBuilder = null) where IN : struct
+        {
+            return BuildLexer(new BuildResult < ILexer < IN >>() , extensionBuilder);
+        }
 
         public static BuildResult<ILexer<TLexeme>> BuildLexer<TLexeme>(BuildResult<ILexer<TLexeme>> result,
                                                              BuildExtension<TLexeme> extensionBuilder = null) where TLexeme : struct

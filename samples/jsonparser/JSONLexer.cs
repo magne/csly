@@ -197,9 +197,11 @@ namespace jsonparser
                     position++;
                 }
             }
-
-
             return new LexerResult<JsonToken>(tokens);
+        }
+
+        public void ResetLexer()
+        {
         }
     }
 }

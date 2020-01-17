@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using sly.buildresult;
+using sly.lexer.fsm;
 using sly.parser.generator.visitor;
 using sly.parser.llparser;
 using sly.parser.syntax.grammar;
@@ -16,7 +17,7 @@ namespace sly.parser.generator
     internal class EBNFParserBuilder<TIn, TOut> : ParserBuilder<TIn, TOut> where TIn : struct
     {
         public override BuildResult<Parser<TIn, TOut>> BuildParser(object parserInstance, ParserType parserType,
-            string rootRule)
+            string rootRule, BuildExtension<TIn> extensionBuilder = null)
         {
             var ruleparser = new RuleParser<TIn>();
             var builder = new ParserBuilder<EbnfTokenGeneric, GrammarNode<TIn>>();
@@ -35,7 +36,7 @@ namespace sly.parser.generator
             }
             catch (Exception e)
             {
-                result.AddError(new ParserInitializationError(ErrorLevel.ERROR, e.Message+"\n"+e.StackTrace));
+                result.AddError(new ParserInitializationError(ErrorLevel.ERROR, e.Message));
                 return result;
             }
 
@@ -118,6 +119,7 @@ namespace sly.parser.generator
                     if (!parseResult.IsError)
                     {
                         var rule = (Rule<TIn>) parseResult.Result;
+                        rule.RuleString = ruleString;
                         rule.SetVisitor(m);
                         NonTerminal<TIn> nonT;
                         if (!nonTerminals.ContainsKey(rule.NonTerminalName))
@@ -133,6 +135,7 @@ namespace sly.parser.generator
                             .Errors
                             .Select(e => e.ErrorMessage)
                             .Aggregate((e1, e2) => e1 + "\n" + e2);
+                        message = $"rule error [{ruleString}] : {message}";
                         throw new ParserConfigurationException(message);
                     }
                 }

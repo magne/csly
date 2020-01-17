@@ -1,5 +1,4 @@
-﻿
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using sly.buildresult;
 using sly.lexer;
 using sly.parser.generator;
@@ -48,17 +47,16 @@ namespace sly.parser
         #endregion
 
 
-
         public ParseResult<TIn, TOut> Parse(string source, string startingNonTerminal = null)
         {
-            return ParseWithContext(source,new NoContext(),startingNonTerminal);
+            return ParseWithContext(source, new NoContext(), startingNonTerminal);
         }
 
 
         public ParseResult<TIn, TOut> ParseWithContext(string source, object context, string startingNonTerminal = null)
         {
             ParseResult<TIn, TOut> result = null;
-
+            Lexer.ResetLexer();
             var lexingResult = Lexer.Tokenize(source);
             if (lexingResult.IsError)
             {
@@ -89,9 +87,6 @@ namespace sly.parser
             return result;
         }
 
-
-
-
         public ParseResult<TIn, TOut> ParseWithContext(IList<Token<TIn>> tokens, object parsingContext = null, string startingNonTerminal = null)
         {
             var result = new ParseResult<TIn, TOut>();
@@ -101,7 +96,7 @@ namespace sly.parser
             syntaxResult = cleaner.CleanSyntaxTree(syntaxResult);
             if (!syntaxResult.IsError && syntaxResult.Root != null)
             {
-                var r = Visitor.VisitSyntaxTree(syntaxResult.Root,parsingContext);
+                var r = Visitor.VisitSyntaxTree(syntaxResult.Root, parsingContext);
                 result.Result = r;
                 result.SyntaxTree = syntaxResult.Root;
                 result.IsError = false;

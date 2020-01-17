@@ -9,6 +9,8 @@ namespace sly.parser
 
         public bool IsError { get; set; }
 
+        public bool IsOk => !IsError;
+
         public List<UnexpectedTokenSyntaxError<TIn>> Errors { get; set; } = new List<UnexpectedTokenSyntaxError<TIn>>();
 
         public int EndingPosition { get; set; }

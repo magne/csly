@@ -4,6 +4,7 @@ using System.Linq;
 using System.Reflection;
 using sly.buildresult;
 using sly.lexer;
+using sly.lexer.fsm;
 using sly.parser.generator.visitor;
 using sly.parser.llparser;
 using sly.parser.syntax.grammar;
@@ -34,7 +35,7 @@ namespace sly.parser.generator
         ///     <param name="rootRule">the name of the root non terminal of the grammar</param>
         ///     <returns></returns>
         public virtual BuildResult<Parser<TIn, TOut>> BuildParser(object parserInstance, ParserType parserType,
-            string rootRule)
+            string rootRule, BuildExtension<TIn> extensionBuilder = null)
         {
             Parser<TIn, TOut> parser;
             var result = new BuildResult<Parser<TIn, TOut>>();
@@ -45,7 +46,7 @@ namespace sly.parser.generator
                 var syntaxParser = BuildSyntaxParser(configuration, parserType, rootRule);
                 var visitor = new SyntaxTreeVisitor<TIn, TOut>(configuration, parserInstance);
                 parser = new Parser<TIn, TOut>(syntaxParser, visitor);
-                var lexerResult = BuildLexer();
+                var lexerResult = BuildLexer(extensionBuilder);
                 parser.Lexer = lexerResult.Result;
                 if (lexerResult.IsError) result.AddErrors(lexerResult.Errors);
                 parser.Instance = parserInstance;
@@ -118,9 +119,9 @@ namespace sly.parser.generator
         }
 
 
-        protected virtual BuildResult<ILexer<TIn>> BuildLexer()
+        protected virtual BuildResult<ILexer<TIn>> BuildLexer(BuildExtension<TIn> extensionBuilder =  null)
         {
-            var lexer = LexerBuilder.BuildLexer(new BuildResult<ILexer<TIn>>());
+            var lexer = LexerBuilder.BuildLexer(new BuildResult<ILexer<TIn>>(), extensionBuilder);
             return lexer;
         }
 
@@ -227,6 +228,7 @@ namespace sly.parser.generator
             var checkers = new List<ParserChecker<TIn, TOut>>();
             checkers.Add(CheckUnreachable);
             checkers.Add(CheckNotFound);
+            checkers.Add(CheckAlternates);
 
             if (result.Result != null && !result.IsError)
                 foreach (var checker in checkers)
@@ -272,27 +274,39 @@ namespace sly.parser.generator
                     var clause = rule.Clauses[iClause];
                     if (clause is NonTerminalClause<TIn> ntClause)
                     {
-                        if (ntClause != null) found = found || ntClause.NonTerminalName == referenceName;
+                        found = ntClause.NonTerminalName == referenceName;
                     }
                     else if (clause is OptionClause<TIn> option)
                     {
-                        if (option != null && option.Clause is NonTerminalClause<TIn> inner)
-                            found = found || inner.NonTerminalName == referenceName;
+                        if (option.Clause is NonTerminalClause<TIn> inner)
+                            found = inner.NonTerminalName == referenceName;
                     }
                     else if (clause is ZeroOrMoreClause<TIn> zeroOrMore)
                     {
-                        if (zeroOrMore != null && zeroOrMore.Clause is NonTerminalClause<TIn> inner)
-                            found = found || inner.NonTerminalName == referenceName;
+                        if (zeroOrMore.Clause is NonTerminalClause<TIn> inner)
+                            found = inner.NonTerminalName == referenceName;
                     }
                     else if (clause is OneOrMoreClause<TIn> oneOrMore)
                     {
-                        if (oneOrMore != null && oneOrMore.Clause is NonTerminalClause<TIn> inner)
-                            found = found || inner.NonTerminalName == referenceName;
+                        if (oneOrMore.Clause is NonTerminalClause<TIn> inner)
+                            found = inner.NonTerminalName == referenceName;
+                    }
+                    else if (clause is ChoiceClause<TIn> choice)
+                    {
+
+                        int i = 0;
+                        while (i < choice.Choices.Count && !found)
+                        {
+                            if (choice.Choices[i] is NonTerminalClause<TIn> nonTerm)
+                            {
+                                found = nonTerm.NonTerminalName == referenceName;
+                            }
+                            i++;
+                        }
                     }
 
                     iClause++;
                 }
-
                 iRule++;
             }
 
@@ -310,6 +324,35 @@ namespace sly.parser.generator
                     if (!conf.NonTerminals.ContainsKey(ntClause.NonTerminalName))
                         result.AddError(new ParserInitializationError(ErrorLevel.ERROR,
                             $"{ntClause.NonTerminalName} references from {rule.RuleString} does not exist."));
+            return result;
+        }
+
+        private static BuildResult<Parser<TIn, TOut>> CheckAlternates(BuildResult<Parser<TIn, TOut>> result,
+            NonTerminal<TIn> nonTerminal)
+        {
+            var conf = result.Result.Configuration;
+            var found = false;
+
+            foreach (var rule in nonTerminal.Rules)
+            {
+                foreach (var clause in rule.Clauses)
+                {
+                    if (clause is ChoiceClause<TIn> choice)
+                    {
+                        if (!choice.IsTerminalChoice && !choice.IsNonTerminalChoice)
+                        {
+                            result.AddError(new ParserInitializationError(ErrorLevel.ERROR,
+                                $"{rule.RuleString} contains {choice.ToString()} with mixed terminal and nonterminal."));
+                        }
+                        else if (choice.IsDiscarded && choice.IsNonTerminalChoice)
+                        {
+                            result.AddError(new ParserInitializationError(ErrorLevel.ERROR,
+                                $"{rule.RuleString} : {choice.ToString()} can not be marked as discarded as it is a non terminal choice."));
+                        }
+                    }
+                }
+            }
+
             return result;
         }
 

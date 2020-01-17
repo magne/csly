@@ -755,5 +755,10 @@ namespace sly.lexer
         {
             return LexerFsm.ToGraphViz();
         }
+        
+        public void ResetLexer()
+        {
+            LexerFsm.Reset();
+        }
     }
 }

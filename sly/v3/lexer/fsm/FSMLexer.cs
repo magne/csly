@@ -210,5 +210,12 @@ namespace sly.v3.lexer.fsm
         }
 
         #endregion
+
+        public void Reset()
+        {
+            CurrentColumn = 0;
+            CurrentLine = 0;
+            CurrentPosition = 0;
+        }
     }
 }

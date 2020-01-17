@@ -21,6 +21,7 @@ using sly.parser;
 using sly.parser.generator;
 using sly.parser.generator.visitor;
 using sly.parser.syntax.grammar;
+
 // ReSharper disable UnusedMember.Local
 // ReSharper disable UnusedVariable
 
@@ -406,34 +407,32 @@ namespace ParserExample
         {
             try
             {
-                Console.WriteLine("starting json test.");
-
                 var instance = new EbnfJsonGenericParser();
                 var builder = new ParserBuilder<JsonTokenGeneric, JSon>();
                 var buildResult = builder.BuildParser(instance, ParserType.EBNF_LL_RECURSIVE_DESCENT, "root");
-                if (buildResult.IsOk)
-                {
-                    Console.WriteLine("parser built.");
-                    var parser = buildResult.Result;
-                    var content = File.ReadAllText("test.json");
-                    Console.WriteLine("test.json read.");
-                    var jsonResult = parser.Parse(content);
-                    Console.WriteLine("json parse done.");
-                    if (jsonResult.IsOk)
-                    {
-                        Console.WriteLine("YES !");
-                    }
-                    else
-                    {
-                        Console.WriteLine("Ooh no !");
-                    }
-
-                    Console.WriteLine("Done.");
-                }
-                else
-                {
-                    buildResult.Errors.ForEach(e => Console.WriteLine(e.Message));
-                }
+                // if (buildResult.IsOk)
+                // {
+                //     Console.WriteLine("parser built.");
+                //     var parser = buildResult.Result;
+                //     var content = File.ReadAllText("test.json");
+                //     Console.WriteLine("test.json read.");
+                //     var jsonResult = parser.Parse(content);
+                //     Console.WriteLine("json parse done.");
+                //     if (jsonResult.IsOk)
+                //     {
+                //         Console.WriteLine("YES !");
+                //     }
+                //     else
+                //     {
+                //         Console.WriteLine("Ooh no !");
+                //     }
+                //     Console.WriteLine("Done.");
+                //
+                // }
+                // else
+                // {
+                //     buildResult.Errors.ForEach(e => Console.WriteLine(e.Message));
+                // }
             }
             catch (Exception e)
             {
@@ -491,15 +490,131 @@ namespace ParserExample
             }
         }
 
-        private static void Main()
+        private static void TestGrammarParser()
+        {
+            string productionRule = "clauses : clause (COMMA [D] clause)*";
+            var ruleparser = new RuleParser<TestGrammarToken>();
+            var builder = new ParserBuilder<EbnfTokenGeneric, GrammarNode<TestGrammarToken>>();
+            var grammarParser = builder.BuildParser(ruleparser, ParserType.LL_RECURSIVE_DESCENT, "rule").Result;
+            var result = grammarParser.Parse(productionRule);
+            grammarParser.Lexer.ResetLexer();
+            //(grammarParser.Lexer as GenericLexer<TestGrammarToken>).ResetLexer();
+            Console.WriteLine($"alors ? {string.Join('\n', result.Errors.Select(e => e.ErrorMessage))}");
+            result = grammarParser.Parse(productionRule);
+            Console.WriteLine($"alors ? {string.Join('\n', result.Errors.Select(e => e.ErrorMessage))}");
+            ;
+
+            Console.WriteLine("starting");
+            ErroneousGrammar parserInstance = new ErroneousGrammar();
+            Console.WriteLine("new instance");
+
+            var builder2 = new ParserBuilder<TestGrammarToken, object>();
+            Console.WriteLine("builder");
+
+            var Parser = builder.BuildParser(parserInstance, ParserType.EBNF_LL_RECURSIVE_DESCENT, "rule");
+            Console.WriteLine($"built : {Parser.IsOk}");
+        }
+
+
+        public static void TestScript()
+        {
+            var parserInstance = new ScriptParser();
+            var builder = new ParserBuilder<ScriptToken, object>();
+            var parserBuild = builder.BuildParser(parserInstance, ParserType.EBNF_LL_RECURSIVE_DESCENT, "test");
+            if (parserBuild.IsOk)
+            {
+                var parser = parserBuild.Result;
+                string ko1 = "|B|test2(a, b, c=100)|E|";
+                string ko2 = "|B|plotshape(data, style=shapexcross)|E|";
+
+                var r = parser.Parse(ko1);
+                var graphviz = new GraphVizEBNFSyntaxTreeVisitor<ScriptToken>();
+                var root = graphviz.VisitTree(r.SyntaxTree);
+                var graph = graphviz.Graph.Compile();
+                r = parser.Parse(ko2);
+            }
+            else
+            {
+                foreach (var e in parserBuild.Errors)
+                {
+                    Console.WriteLine(e.Level + " - " + e.Message);
+                }
+            }
+        }
+
+        public static void TestScriptRight()
+        {
+            var parserInstance = new ScriptParserRight();
+            var builder = new ParserBuilder<ScriptToken, object>();
+            var parserBuild = builder.BuildParser(parserInstance, ParserType.EBNF_LL_RECURSIVE_DESCENT, "test");
+            if (parserBuild.IsOk)
+            {
+                var parser = parserBuild.Result;
+                string ok1 = @"|B|study(""Name or something"", overlay)|E|";
+                string ok2 = "|B|test(close, 123, open)|E|";
+                string kw = "|B|test(kw=123)|E|";
+                string ko1 = "|B|test2(a, b, c=100, d=200)|E|";
+                string ko2 = "|B|plotshape(data, style=shapexcross)|E|";
+                string ko3 = "|B|plotshape(data = default, style=shapexcross)|E|";
+                string badmixko = "|B|plotshape(data = default, t, y=20)|E|";
+
+                // var r = parser.Parse(ok1);
+                // r = parser.Parse(ok2);
+                // r = parser.Parse(kw);
+                var r = parser.Parse("a, b, c=100, d= 200", "fun_actual_args");
+                var graphviz = new GraphVizEBNFSyntaxTreeVisitor<ScriptToken>();
+                var root1 = graphviz.VisitTree(r.SyntaxTree);
+                var graph1 = graphviz.Graph.Compile();
+
+                r = parser.Parse(ko1);
+                graphviz = new GraphVizEBNFSyntaxTreeVisitor<ScriptToken>();
+                var root = graphviz.VisitTree(r.SyntaxTree);
+                var graph = graphviz.Graph.Compile();
+                r = parser.Parse(ko3);
+                graphviz = new GraphVizEBNFSyntaxTreeVisitor<ScriptToken>();
+                root = graphviz.VisitTree(r.SyntaxTree);
+                graph = graphviz.Graph.Compile();
+                r = parser.Parse(badmixko);
+                graphviz = new GraphVizEBNFSyntaxTreeVisitor<ScriptToken>();
+                root = graphviz.VisitTree(r.SyntaxTree);
+                graph = graphviz.Graph.Compile();
+            }
+            else
+            {
+                foreach (var e in parserBuild.Errors)
+                {
+                    Console.WriteLine(e.Level + " - " + e.Message);
+                }
+            }
+        }
+
+        private static void Main(string[] args)
         {
             //TestContextualParser();
             //TestTokenCallBacks();
             //test104();
             //testJSON();
-            TestGraphViz();
-            //TestGraphViz();
-            TestChars();
+            //TestGrammarParser();
+            // TestGraphViz();
+
+            // TestGraphViz();
+//            TestChars();
+            TestScript();
+            TestScriptRight();
+        }
+    }
+
+    public enum TestGrammarToken
+    {
+        [Lexeme(GenericToken.SugarToken, ",")] COMMA = 1
+    }
+
+    public class ErroneousGrammar
+    {
+        [Production("clauses : clause (COMMA [D] clause)*")]
+        public object test()
+        {
+            return null;
         }
     }
 }

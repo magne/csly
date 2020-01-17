@@ -206,6 +206,114 @@ namespace ParserTests
     }
 
 
+    public class AlternateChoiceTestTerminal
+    {
+        [Production("choice : [ a | b | c]")]
+        public string Choice(Token<OptionTestToken> c)
+        {
+            return c.Value;
+        }
+    }
+
+    public class AlternateChoiceTestZeroOrMoreTerminal
+    {
+        [Production("choice : [ a | b | c]*")]
+        public string Choice(List<Token<OptionTestToken>> list)
+        {
+            return string.Join(",",list.Select(x => x.Value));
+        }
+    }
+
+    public class AlternateChoiceTestOptionTerminal
+    {
+        [Production("choice : [ a | b | c] [ b | c]?")]
+        public string Choice(Token<OptionTestToken> first, Token<OptionTestToken> next)
+        {
+            StringBuilder builder = new StringBuilder();
+            builder.Append(first.Value);
+
+            if (next.IsEmpty)
+            {
+                builder.Append($",<none>");
+            }
+            else
+            {
+                builder.Append($",{next.Value}");
+            }
+
+            return builder.ToString();
+        }
+    }
+
+    public class AlternateChoiceTestOptionDiscardedTerminal
+    {
+        [Production("choice : [ a | b | c] [ b | c] [d]")]
+        public string Choice(Token<OptionTestToken> first)
+        {
+            StringBuilder builder = new StringBuilder();
+            builder.Append(first.Value);
+
+
+            return builder.ToString();
+        }
+    }
+
+    public class AlternateChoiceTestError
+    {
+        [Production("choice : [ a | b | C | D]")]
+        public string Choice(Token<OptionTestToken> c)
+        {
+            return c.Value;
+        }
+
+        [Production("D : [ E | C] [d]")]
+        public string D(Token<OptionTestToken> d)
+        {
+            return d.Value;
+        }
+
+        [Production("E : e")]
+        public string E(Token<OptionTestToken> e)
+        {
+            return e.Value;
+        }
+
+        [Production("C : c")]
+        public string C(Token<OptionTestToken> c)
+        {
+            return c.Value;
+        }
+
+    }
+
+    public class AlternateChoiceTestNonTerminal
+    {
+        [Production("choice : [ A | B | C]")]
+        public string Choice(string c)
+        {
+            return c;
+        }
+
+        [Production("C : c")]
+        public string C(Token<OptionTestToken> t)
+        {
+            return $"C({t.Value})";
+        }
+
+        [Production("B : b")]
+        public string B(Token<OptionTestToken> t)
+        {
+            return $"B({t.Value})";
+        }
+
+        [Production("A : a")]
+        public string A(Token<OptionTestToken> t)
+        {
+            return $"A({t.Value})";
+        }
+
+    }
+
     public class Bugfix104Test
     {
         [Production("testNonTerm : sub (COMMA[d] unreachable)? ")]
@@ -694,6 +802,116 @@ namespace ParserTests
             var builtParser = builder.BuildParser(parserInstance, ParserType.EBNF_LL_RECURSIVE_DESCENT, startingRule);
             Assert.False(builtParser.IsError);
             Assert.False(builtParser.Errors.Any());
+        }
+
+        [Fact]
+        public void TestAlternateChoiceTerminal()
+        {
+            var startingRule = $"choice";
+            var parserInstance = new AlternateChoiceTestTerminal();
+            var builder = new ParserBuilder<OptionTestToken, string>();
+            var builtParser = builder.BuildParser(parserInstance, ParserType.EBNF_LL_RECURSIVE_DESCENT, startingRule);
+            Assert.False(builtParser.IsError);
+            Assert.False(builtParser.Errors.Any());
+            var parseResult = builtParser.Result.Parse("a", "choice");
+            Assert.True(parseResult.IsOk);
+            Assert.Equal("a",parseResult.Result);
+            parseResult = builtParser.Result.Parse("b", "choice");
+            Assert.True(parseResult.IsOk);
+            Assert.Equal("b",parseResult.Result);
+            parseResult = builtParser.Result.Parse("c", "choice");
+            Assert.True(parseResult.IsOk);
+            Assert.Equal("c",parseResult.Result);
+            parseResult = builtParser.Result.Parse("d", "choice");
+            Assert.False(parseResult.IsOk);
+        }
+
+        [Fact]
+        public void TestAlternateChoiceNonTerminal()
+        {
+            var startingRule = $"choice";
+            var parserInstance = new AlternateChoiceTestNonTerminal();
+            var builder = new ParserBuilder<OptionTestToken, string>();
+            var builtParser = builder.BuildParser(parserInstance, ParserType.EBNF_LL_RECURSIVE_DESCENT, startingRule);
+            Assert.False(builtParser.IsError);
+            Assert.False(builtParser.Errors.Any());
+            var parseResult = builtParser.Result.Parse("a", "choice");
+            Assert.True(parseResult.IsOk);
+            Assert.Equal("A(a)",parseResult.Result);
+            parseResult = builtParser.Result.Parse("b", "choice");
+            Assert.True(parseResult.IsOk);
+            Assert.Equal("B(b)",parseResult.Result);
+            parseResult = builtParser.Result.Parse("c", "choice");
+            Assert.True(parseResult.IsOk);
+            Assert.Equal("C(c)",parseResult.Result);
+            parseResult = builtParser.Result.Parse("d", "choice");
+            Assert.False(parseResult.IsOk);
+        }
+
+        [Fact]
+        public void TestAlternateChoiceZeroOrMoreTerminal()
+        {
+            var startingRule = $"choice";
+            var parserInstance = new AlternateChoiceTestZeroOrMoreTerminal();
+            var builder = new ParserBuilder<OptionTestToken, string>();
+            var builtParser = builder.BuildParser(parserInstance, ParserType.EBNF_LL_RECURSIVE_DESCENT, startingRule);
+            Assert.False(builtParser.IsError);
+            Assert.False(builtParser.Errors.Any());
+            var parseResult = builtParser.Result.Parse("a b c", "choice");
+            Assert.True(parseResult.IsOk);
+            Assert.Equal("a,b,c",parseResult.Result);
+            parseResult = builtParser.Result.Parse("b", "choice");
+            Assert.True(parseResult.IsOk);
+        }
+
+        [Fact]
+        public void TestAlternateChoiceOptionTerminal()
+        {
+            var startingRule = $"choice";
+            var parserInstance = new AlternateChoiceTestOptionTerminal();
+            var builder = new ParserBuilder<OptionTestToken, string>();
+            var builtParser = builder.BuildParser(parserInstance, ParserType.EBNF_LL_RECURSIVE_DESCENT, startingRule);
+            Assert.False(builtParser.IsError);
+            Assert.False(builtParser.Errors.Any());
+            var parseResult = builtParser.Result.Parse("a b", "choice");
+            Assert.True(parseResult.IsOk);
+            Assert.Equal("a,b",parseResult.Result);
+            parseResult = builtParser.Result.Parse("a", "choice");
+            Assert.True(parseResult.IsOk);
+            Assert.Equal("a,<none>",parseResult.Result);
+        }
+
+        [Fact]
+        public void TestAlternateChoiceOptionDiscardedTerminal()
+        {
+            var startingRule = $"choice";
+            var parserInstance = new AlternateChoiceTestOptionDiscardedTerminal();
+            var builder = new ParserBuilder<OptionTestToken, string>();
+            var builtParser = builder.BuildParser(parserInstance, ParserType.EBNF_LL_RECURSIVE_DESCENT, startingRule);
+            Assert.False(builtParser.IsError);
+            Assert.False(builtParser.Errors.Any());
+            var parseResult = builtParser.Result.Parse("a b", "choice");
+            Assert.True(parseResult.IsOk);
+            Assert.Equal("a",parseResult.Result);
+            parseResult = builtParser.Result.Parse("a", "choice");
+            Assert.True(parseResult.IsError);
+            Assert.Single(parseResult.Errors);
+            Assert.Contains("unexpected end of stream", parseResult.Errors[0].ErrorMessage);
+
+        }
+
+        [Fact]
+        public void TestAlternateChoiceErrorMixedTerminalAndNonTerminal()
+        {
+            var startingRule = $"choice";
+            var parserInstance = new AlternateChoiceTestError();
+            var builder = new ParserBuilder<OptionTestToken, string>();
+            var builtParser = builder.BuildParser(parserInstance, ParserType.EBNF_LL_RECURSIVE_DESCENT, startingRule);
+            Assert.True(builtParser.IsError);
+            Assert.Equal(2,builtParser.Errors.Count);
+            Assert.Contains("mixed", builtParser.Errors[0].Message);
+            Assert.Contains("discarded", builtParser.Errors[1].Message);
+
         }
     }
 }

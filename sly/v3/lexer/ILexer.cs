@@ -8,5 +8,7 @@ namespace sly.v3.lexer
         LexerResult<T> Tokenize(string source);
 
         LexerResult<T> Tokenize(ReadOnlyMemory<char> source);
+
+        void ResetLexer();
     }
 }
